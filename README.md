@@ -13,7 +13,9 @@
     -   [Pylint](https://marketplace.visualstudio.com/items?itemName=ms-python.pylint)
     -   [Black Formatter](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter)
 
-Im Visual Studio Code mit <kbd>F1</kbd> die Commands öffnen und **Azure Functions: Install or Update Core Tools** ausführen. Falls die Installation fehlschlägt, können die Tools manuell installiert werden: [azure-functions-core-tools](https://github.com/Azure/azure-functions-core-tools).
+Im Visual Studio Code Terminal `python -m venv .venv` ausführen. Dies erstellt das Verzeichnis _.venv_, in welchem unter Scripts die zu verwendende _Python.exe_ liegt. In der Statusbar nun die Python-Version suchen (3.11.\*, evt. muss dazu eine \*.py-Datei geöffnet sein), draufklicken und als Interpreter den Pfad _.\\.venv\Scripts\python.exe_ auswählen.
+
+Mit <kbd>F1</kbd> die Commands öffnen und **Azure Functions: Install or Update Core Tools** ausführen. Falls die Installation fehlschlägt, können die Tools manuell installiert werden: [azure-functions-core-tools](https://github.com/Azure/azure-functions-core-tools).
 
 Um Lint- und Formatierungsfehler automatisch zu erkennen/ beheben, können im User _settings.json_ (<kbd>F1</kbd> &rarr; **Preferences: Open user settings (json)** ) folgende Änderungen vorgenommen werden:
 
@@ -30,7 +32,7 @@ Um Lint- und Formatierungsfehler automatisch zu erkennen/ beheben, können im Us
 ### Azure Function ausführen
 
 1. Mit <kbd>F1</kbd> die Commands öffnen und **Azurite: Start** ausführen.
-2. Mit <kbd>F5</kbd> die Funktion starten
+2. Mit <kbd>F5</kbd> die Funktion starten.
 
 Falls die Ausführung mit dem Fehler _cannot be loaded because running scripts is disabled on this system_ fehlschlägt, muss die PowerShell _Execution Policy_ angepasst werden:
 
