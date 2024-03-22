@@ -22,7 +22,7 @@ jobs:
               uses: Silleellie/pylint-github-action@v2
               with:
                   lint-path: src
-                  python-version: 3.1
+                  python-version: "3.11"
 
             - name: Check formatting with black
               uses: psf/black@stable
