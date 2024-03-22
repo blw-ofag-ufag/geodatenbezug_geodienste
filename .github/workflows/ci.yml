@@ -1,0 +1,28 @@
+name: CI
+
+on:
+    push:
+        branches-ignore:
+            - "mark-version-*-as-released"
+
+jobs:
+    ci:
+        runs-on: ubuntu-latest
+        name: Build and run tests
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: "3.11"
+
+            - name: Lint with pylint
+              uses: Silleellie/pylint-github-action@v2
+              with:
+                  lint-path: src
+                  python-version: 3.1
+
+            - name: Check formatting with black
+              uses: psf/black@stable
