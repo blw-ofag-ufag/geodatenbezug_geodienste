@@ -1,6 +1,6 @@
 # geodatenbezug_geodienste
 
-## Lokale Entwicklung
+## Entwicklungsumgebung
 
 ### Voraussetzungen
 
