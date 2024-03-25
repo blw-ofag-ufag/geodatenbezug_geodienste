@@ -28,7 +28,7 @@ jobs:
 
             - name: Check formatting with black
               run: |
-                  black $(git ls-files '*.py') --diff
+                  black $(git ls-files '*.py') --check --diff
 
             - name: Tests
               run: |
