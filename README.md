@@ -17,7 +17,7 @@ Im Visual Studio Code Terminal `python -m venv .venv` ausführen. Dies erstellt 
 
 Mit <kbd>F1</kbd> die Commands öffnen und **Azure Functions: Install or Update Core Tools** ausführen. Falls die Installation fehlschlägt, können die Tools manuell installiert werden: [azure-functions-core-tools](https://github.com/Azure/azure-functions-core-tools).
 
-Um Lint- und Formatierungsfehler automatisch zu erkennen/ beheben, können im User _settings.json_ (<kbd>F1</kbd> &rarr; **Preferences: Open user settings (json)** ) folgende Änderungen vorgenommen werden:
+Um Lint- und Formatierungsfehler automatisch zu erkennen/beheben, können im User _settings.json_ (<kbd>F1</kbd> &rarr; **Preferences: Open user settings (json)** ) folgende Änderungen vorgenommen werden:
 
 ```
 {
