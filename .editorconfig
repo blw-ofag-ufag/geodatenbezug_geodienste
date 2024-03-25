@@ -1,0 +1,24 @@
+; EditorConfig to support per-solution formatting.
+; http://editorconfig.org/
+
+; This is the default for the codeline.
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.md]
+trim_trailing_whitespace = false
+
+[CHANGELOG.md]
+end_of_line = lf
+
+[*.py]
+max_line_length = 100
+ensure_newline_before_comments = true
+include_trailing_comma = true
+use_parentheses = true
