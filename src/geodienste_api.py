@@ -5,7 +5,6 @@ class GeodiensteApi:
         print("GeodiensteApi initialized")
 
     def topic_has_changed(self, topic_name: str):
-        """Check if the topic has changed since the last call"""
         print("Checking for changes in topics", topic_name)
         return True
 
