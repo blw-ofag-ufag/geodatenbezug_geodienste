@@ -7,8 +7,7 @@ class TestGeodiensteApi(unittest.TestCase):
 
     def test_topic_has_changed(self):
         """Test if the topic has changed"""
-        geodienste_api = GeodiensteApi()
-        geodienste_api.topic_has_changed("test_topic")
+        GeodiensteApi.get_topics_to_update()
         self.assertEqual(True, True)
 
 
