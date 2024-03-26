@@ -28,6 +28,7 @@ jobs:
 
             - name: Install dependencies
               run: |
+                  pip install pylint black
                   pip install -r requirements.txt
 
             - name: Lint with pylint
