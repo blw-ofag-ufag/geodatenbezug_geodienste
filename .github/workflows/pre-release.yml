@@ -13,8 +13,6 @@ env:
 jobs:
     build:
         runs-on: ubuntu-latest
-        name: Code analysis and tests
-
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -30,8 +28,7 @@ jobs:
                   source venv/bin/activate
 
             - name: Install dependencies
-              run: |
-                  pip install -r requirements.txt
+              run: pip install -r requirements.txt
 
             - name: Zip artifact for deployment
               run: zip release.zip ./* -r
@@ -65,9 +62,9 @@ jobs:
             - name: Login to Azure
               uses: azure/login@v1
               with:
-                  client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_76209D9522134CCF8465C50AF621D6B9 }}
-                  tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F14DCB55488D41F2AD9A33FCC1A51DAD }}
-                  subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_0EC09A927C784E1FB77817FDBCE72DD1 }}
+                  client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4DEC88A8D4E9449FB95137483FD586C1 }}
+                  tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_D31EB2CA5C2A41E493832FAA4D289313 }}
+                  subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_53F79E670D784A1C884DFE31CFF3B8E4 }}
 
             - name: "Deploy to Azure Functions"
               uses: Azure/functions-action@v1
