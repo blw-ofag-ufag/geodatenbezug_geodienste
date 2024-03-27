@@ -11,7 +11,7 @@ env:
     PYTHON_VERSION: "3.11"
 
 jobs:
-    build:
+    prepare-deployment:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository
@@ -43,7 +43,7 @@ jobs:
 
     deploy:
         runs-on: ubuntu-latest
-        needs: build
+        needs: prepare-deployment
         environment:
             name: "production"
             url: ${{ steps.deploy-to-function.outputs.webapp-url }}
