@@ -60,19 +60,26 @@ class TestGeodiensteApi(unittest.TestCase):
     }
 
     topics_log = [
-        (f"Thema Perimeter LN- und Sömmerungsflächen (SH) wurde am {datestring_delta4} "
-            "aktualisiert und wird verarbeitet"),
-        (f"Thema Perimeter LN- und Sömmerungsflächen (ZG) wurde am {datestring_delta23} "
-            "aktualisiert und wird verarbeitet"),
+        (
+            f"Thema Perimeter LN- und Sömmerungsflächen (SH) wurde am {datestring_delta4} "
+            "aktualisiert und wird verarbeitet"
+        ),
+        (
+            f"Thema Perimeter LN- und Sömmerungsflächen (ZG) wurde am {datestring_delta23} "
+            "aktualisiert und wird verarbeitet"
+        ),
         f"Thema Rebbaukataster (SH) wurde seit {datestring_delta30} nicht aktualisiert",
         "Thema Rebbaukataster (ZG) ist nicht verfügbar",
         "2 Themen werden prozessiert",
     ]
 
-    error_log = "Fehler beim Abrufen der Themeninformationen von geodienste.ch: 500  - Internal Server Error"
+    error_log = (
+        "Fehler beim Abrufen der Themeninformationen von geodienste.ch: "
+        "500  - Internal Server Error"
+    )
 
     def test_topic_has_changed(self):
-        """Test if the topic has changed"""
+        """Test if the correct topics are returned and logged"""
         mock_response = httpx.Response(200, json=self.response_body)
         mock_client = httpx.Client(transport=httpx.MockTransport(lambda request: mock_response))
         topics_to_process = GeodiensteApi.get_topics_to_update(mock_client)
@@ -88,12 +95,11 @@ class TestGeodiensteApi(unittest.TestCase):
 
         self.assertEqual(
             cm.output,
-            [
-            "INFO:root:{}".format(topic_log) for topic_log in self.topics_log
-            ],
+            [f"INFO:root:{topic_log}" for topic_log in self.topics_log],
         )
 
     def test_topic_has_changed_request_failed(self):
+        """Test if an error is logged when the request fails"""
         mock_response = httpx.Response(500)
         mock_client = httpx.Client(transport=httpx.MockTransport(lambda request: mock_response))
         topics_to_process = GeodiensteApi.get_topics_to_update(mock_client)
@@ -102,4 +108,4 @@ class TestGeodiensteApi(unittest.TestCase):
         with self.assertLogs() as cm:
             logging.error(self.error_log)
 
-        self.assertEqual(cm.output,[f"ERROR:root:{self.error_log}"])
+        self.assertEqual(cm.output, [f"ERROR:root:{self.error_log}"])
