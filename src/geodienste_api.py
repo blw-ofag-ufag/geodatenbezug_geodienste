@@ -114,6 +114,6 @@ class GeodiensteApi:
         logging.info(
             "%s %s werden prozessiert",
             len(topics_to_process),
-            "Themen" if len(topics_to_process) > 1 else "Thema"
+            "Themen" if len(topics_to_process) > 1 else "Thema",
         )
         return topics_to_process
