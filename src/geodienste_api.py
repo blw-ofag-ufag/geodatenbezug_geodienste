@@ -109,5 +109,9 @@ class GeodiensteApi:
                     topic["canton"],
                 )
 
-        logging.info("%s Theme(n) werden prozessiert", len(topics_to_process))
+        logging.info(
+            "%s %s werden prozessiert",
+            len(topics_to_process),
+            "Themen" if len(topics_to_process) > 1 else "Thema"
+        )
         return topics_to_process
