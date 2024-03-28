@@ -60,13 +60,15 @@ class GeodiensteApi:
         pass
 
     @staticmethod
-    def request_topic_info():
+    def request_topic_info(client):
         """Request the topic information from geodienste.ch"""
+        if client is None:
+            client = httpx.Client()
         cantons = ",".join(CANTONS)
         base_topics = ",".join([topic["base_topic"] for topic in TOPICS])
         topics = ",".join([topic["topic"] for topic in TOPICS])
         url = GEODIENSTE_INFO_URL.format(base_topics=base_topics, topics=topics, cantons=cantons)
-        response = httpx.get(url)
+        response = client.get(url)
         if response.status_code != 200:
             logging.error(
                 "Fehler beim Abrufen der Themeninformationen von geodienste.ch: %s  - %s",
@@ -78,9 +80,9 @@ class GeodiensteApi:
         return json.loads(response.text)["services"]
 
     @staticmethod
-    def get_topics_to_update():
+    def get_topics_to_update(client=None):
         """Check if the topic has changed since the last call"""
-        topics = GeodiensteApi.request_topic_info()
+        topics = GeodiensteApi.request_topic_info(client)
         topics_to_process = []
         for topic in topics:
             if topic["updated_at"] is not None:
