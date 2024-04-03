@@ -3,6 +3,13 @@
 __azurite_db*__.json
 __blobstorage__
 __queuestorage__
+__pycache__
 local.settings.json
 test
 .venv
+pyproject.toml
+.pylintrc
+get-changelog.sh
+CHANGELOG.md
+README.md
+LICENSE
