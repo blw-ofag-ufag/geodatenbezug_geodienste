@@ -2,9 +2,9 @@ name: Pre-release
 
 on:
     push:
-    #     branches:
-    #         - main
-    # workflow_dispatch:
+        branches:
+            - main
+    workflow_dispatch:
 
 env:
     AZURE_FUNCTIONAPP_NAME: "geodatenbezug"
