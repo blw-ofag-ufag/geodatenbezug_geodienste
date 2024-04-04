@@ -61,7 +61,8 @@ def process_topic(topic, client=None):
             export_message.get("error"),
         )
         return {
-            "status": export_response.reason_phrase,
+            "code": export_response.status_code,
+            "reason": export_response.reason_phrase,
             "info": export_message.get("error"),
             "topic": topic_name,
             "canton": canton,
@@ -76,7 +77,8 @@ def process_topic(topic, client=None):
             status_message.get("info"),
         )
         return {
-            "status": status_message.get("status"),
+            "code": status_reponse.status_code,
+            "reason": status_message.get("status"),
             "info": status_message.get("info"),
             "topic": topic_name,
             "canton": canton,
@@ -89,7 +91,8 @@ def process_topic(topic, client=None):
     download_url = ""
 
     return {
-        "status:": "success",
+        "code": "200",
+        "reason:": "success",
         "info": "Processing completed",
         "topic": topic_name,
         "canton": canton,
