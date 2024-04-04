@@ -1,6 +1,7 @@
 import os
 import json
 import time
+from datetime import datetime
 import logging
 import httpx
 from processing.constants import CANTONS, TOPICS
@@ -15,6 +16,8 @@ class GeodiensteApi:
         + "/info/services.json?"
         + "base_topics={base_topics}&topics={topics}&cantons={cantons}&language=de"
     )
+    GEODIENSTE_DOWNLOAD_URL = GEODIENSTE_BASE_URL + "/downloads/{topic}/{token}/export.json"
+    GEODIENSTE_STATUS_URL = GEODIENSTE_BASE_URL + "/downloads/{topic}/{token}/status.json"
 
     def __init__(self):
         pass
@@ -43,3 +46,39 @@ class GeodiensteApi:
             return []
 
         return json.loads(response.text)["services"]
+
+    def start_export(self, topic, token, start_time, client=None):
+        """Starts the data export of a specific topic and token"""
+        if client is None:
+            client = self._get_client()
+        url = self.GEODIENSTE_DOWNLOAD_URL.format(topic=topic, token=token)
+        response = client.get(url)
+        if response.status_code == 404:
+            message = json.loads(response.text)
+            if (
+                message.get("error")
+                == "Cannot start data export because there is another data export pending"
+            ):
+                start_time_diff = datetime.now() - start_time
+                if start_time_diff.seconds < 600:
+                    logging.error("Another data export is pending. Starting export timed out")
+                    return response
+
+                logging.info("Another data export is pending. Trying again in 1 minute")
+                time.sleep(60)
+                return GeodiensteApi.start_export(topic, token, start_time, client)
+        return response
+
+    def check_export_status(self, topic, token, client=None):
+        """Checks the export status of a specific topic and token"""
+        if client is None:
+            client = self._get_client()
+        url = self.GEODIENSTE_STATUS_URL.format(topic=topic, token=token)
+        response = client.get(url)
+        if response.status_code == 200:
+            message = json.loads(response.text)
+            if message.get("status") == "queued" or message.get("status") == "working":
+                logging.info("Export is %s. Trying again in 1 minute", message.get("status"))
+                time.sleep(60)
+                return GeodiensteApi.check_export_status(topic, token, client)
+        return response
