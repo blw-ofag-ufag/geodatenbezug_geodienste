@@ -47,6 +47,3 @@ TOPICS = (
     {"base_topic": BEWIRTSCHAFTUNGSEINHEIT, "topic": BEWIRTSCHAFTUNGSEINHEIT + "_" + V2_0},
     {"base_topic": NUTZUNGSFLAECHEN, "topic": NUTZUNGSFLAECHEN + "_" + V2_0},
 )
-
-token_rebbaukataster_zg = "hJGtJnXe2s-GsF7wFehA"
-token_rebbaukataster_be = "FwvxsydFUmMENasRxhJa"
