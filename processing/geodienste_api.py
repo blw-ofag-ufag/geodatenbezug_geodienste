@@ -66,7 +66,7 @@ class GeodiensteApi:
 
                 logging.info("Another data export is pending. Trying again in 1 minute")
                 time.sleep(60)
-                return GeodiensteApi.start_export(topic, token, start_time, client)
+                return self.start_export(topic, token, start_time, client)
         return response
 
     def check_export_status(self, topic, token, client=None):
@@ -80,5 +80,5 @@ class GeodiensteApi:
             if message.get("status") == "queued" or message.get("status") == "working":
                 logging.info("Export is %s. Trying again in 1 minute", message.get("status"))
                 time.sleep(60)
-                return GeodiensteApi.check_export_status(topic, token, client)
+                return self.check_export_status(topic, token, client)
         return response
