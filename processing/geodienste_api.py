@@ -1,3 +1,4 @@
+import os
 import json
 import time
 import logging
@@ -18,10 +19,14 @@ class GeodiensteApi:
     def __init__(self):
         pass
 
+    def _get_client(self):
+        auth = httpx.BasicAuth(username=os.environ["AuthUser"], password=os.environ["AuthPw"])
+        return httpx.Client(auth=auth)
+
     def request_topic_info(self, client):
         """Request the topic information from geodienste.ch"""
         if client is None:
-            client = httpx.Client()
+            client = self._get_client()
         cantons = ",".join(CANTONS)
         base_topics = ",".join([topic["base_topic"] for topic in TOPICS])
         topics = ",".join([topic["topic"] for topic in TOPICS])

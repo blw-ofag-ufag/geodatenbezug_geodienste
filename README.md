@@ -29,6 +29,13 @@ Um Lint- und Formatierungsfehler automatisch zu erkennen/beheben, können im Use
 }
 ```
 
+### Umgebungsvariablen definieren
+
+Für die Requests ans Geodienste API müssen folgende Umgebungsvariablen eingerichtet werden:
+
+-   AuthUser: _User im KeePass_
+-   AuthPw: _Passwort im KeePass_
+
 ### Azure Function ausführen
 
 1. Mit <kbd>F1</kbd> die Commands öffnen und **Azurite: Start** ausführen.
