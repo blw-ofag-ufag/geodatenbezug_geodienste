@@ -6,6 +6,9 @@ from datetime import datetime, timedelta
 import httpx
 from processing.geodienste_api import GeodiensteApi
 
+# pylint: disable-next=wrong-import-order
+from test import assert_logs
+
 
 class TestGeodiensteApi(unittest.TestCase):
     """Test class for Geodienste API calls"""
@@ -43,12 +46,11 @@ class TestGeodiensteApi(unittest.TestCase):
         self.assertEqual(json.loads(response.text)["info"], "Data export successfully started.")
         self.assertEqual(mock_client.get.call_count, 2)
 
-        log = ("Another data export is pending. Trying again in 1 minute",)
-
-        with self.assertLogs() as cm:
-            logging.info(log)
-
-        self.assertEqual(cm.output, [f"INFO:root:{log}"])
+        log = {
+            "message": "Another data export is pending. Trying again in 1 minute",
+            "level": logging.INFO,
+        }
+        assert_logs(self, [log])
 
     @patch("time.sleep", return_value=1)
     @patch("processing.GeodiensteApi._get_client")
@@ -75,12 +77,11 @@ class TestGeodiensteApi(unittest.TestCase):
             "Cannot start data export because there is another data export pending",
         )
 
-        log = ("Another data export is pending. Starting export timed out",)
-
-        with self.assertLogs() as cm:
-            logging.error(log)
-
-        self.assertEqual(cm.output, [f"ERROR:root:{log}"])
+        log = {
+            "message": "Another data export is pending. Starting export timed out",
+            "level": logging.ERROR,
+        }
+        assert_logs(self, [log])
 
     @patch("time.sleep", return_value=1)
     @patch("processing.GeodiensteApi._get_client")
@@ -103,16 +104,14 @@ class TestGeodiensteApi(unittest.TestCase):
         self.assertEqual(json.loads(response.text)["status"], "success")
         self.assertEqual(mock_client.get.call_count, 3)
 
-        topics_log = [
-            "Export is queued. Trying again in 1 minute",
-            "Export is working. Trying again in 1 minute",
+        logs = [
+            {
+                "message": "Export is queued. Trying again in 1 minute",
+                "level": logging.INFO,
+            },
+            {
+                "message": "Export is working. Trying again in 1 minute",
+                "level": logging.INFO,
+            },
         ]
-
-        with self.assertLogs() as cm:
-            for topic_log in topics_log:
-                logging.info(topic_log)
-
-        self.assertEqual(
-            cm.output,
-            [f"INFO:root:{topic_log}" for topic_log in topics_log],
-        )
+        assert_logs(self, logs)

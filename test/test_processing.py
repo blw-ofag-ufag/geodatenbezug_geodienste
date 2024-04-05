@@ -6,6 +6,9 @@ from datetime import datetime, timedelta
 import httpx
 import processing
 
+# pylint: disable-next=wrong-import-order
+from test import assert_logs
+
 
 class TestProcessing(unittest.TestCase):
     """Test class for processing functions"""
@@ -52,20 +55,6 @@ class TestProcessing(unittest.TestCase):
             ]
         }
 
-        topics_log = [
-            (
-                f"Thema Perimeter LN- und Sömmerungsflächen (SH) wurde am {datestring_delta4} "
-                "aktualisiert und wird verarbeitet"
-            ),
-            (
-                f"Thema Perimeter LN- und Sömmerungsflächen (ZG) wurde am {datestring_delta23} "
-                "aktualisiert und wird verarbeitet"
-            ),
-            f"Thema Rebbaukataster (SH) wurde seit {datestring_delta30} nicht aktualisiert",
-            "Thema Rebbaukataster (ZG) ist nicht verfügbar",
-            "2 Themen werden prozessiert",
-        ]
-
         mock_response = httpx.Response(200, json=response_body)
         mock_client = httpx.Client(transport=httpx.MockTransport(lambda request: mock_response))
         topics_to_process = processing.get_topics_to_update(mock_client)
@@ -75,31 +64,54 @@ class TestProcessing(unittest.TestCase):
         self.assertEqual(topics_to_process[1].get("base_topic"), "lwb_perimeter_ln_sf")
         self.assertEqual(topics_to_process[1].get("canton"), "ZG")
 
-        with self.assertLogs() as cm:
-            for topic_log in topics_log:
-                logging.info(topic_log)
-
-        self.assertEqual(
-            cm.output,
-            [f"INFO:root:{topic_log}" for topic_log in topics_log],
-        )
+        logs = [
+            {
+                "message": (
+                    f"Thema Perimeter LN- und Sömmerungsflächen (SH) wurde am {datestring_delta4} "
+                    "aktualisiert und wird verarbeitet"
+                ),
+                "level": logging.INFO,
+            },
+            {
+                "message": (
+                    f"Thema Perimeter LN- und Sömmerungsflächen (ZG) wurde am {datestring_delta23} "
+                    "aktualisiert und wird verarbeitet"
+                ),
+                "level": logging.INFO,
+            },
+            {
+                "message": (
+                    f"Thema Rebbaukataster (SH) wurde seit {datestring_delta30} "
+                    "nicht aktualisiert"
+                ),
+                "level": logging.INFO,
+            },
+            {
+                "message": "Thema Rebbaukataster (ZG) ist nicht verfügbar",
+                "level": logging.INFO,
+            },
+            {
+                "message": "2 Themen werden prozessiert",
+                "level": logging.INFO,
+            },
+        ]
+        assert_logs(self, logs)
 
     def test_get_topics_to_update_request_failed(self):
         """Test if an error is logged when the request fails"""
-        error_log = (
-            "Fehler beim Abrufen der Themeninformationen von geodienste.ch: "
-            "500  - Internal Server Error"
-        )
-
         mock_response = httpx.Response(500)
         mock_client = httpx.Client(transport=httpx.MockTransport(lambda request: mock_response))
         topics_to_process = processing.get_topics_to_update(mock_client)
         self.assertEqual(len(topics_to_process), 0)
 
-        with self.assertLogs() as cm:
-            logging.error(error_log)
-
-        self.assertEqual(cm.output, [f"ERROR:root:{error_log}"])
+        log = {
+            "message": (
+                "Fehler beim Abrufen der Themeninformationen von geodienste.ch: "
+                "500  - Internal Server Error"
+            ),
+            "level": logging.ERROR,
+        }
+        assert_logs(self, [log])
 
     @patch.dict(os.environ, {"tokens_lwb_rebbaukataster": "AG=token1;BE=token2"})
     def test_get_token(self):
@@ -169,15 +181,14 @@ class TestProcessing(unittest.TestCase):
         mock_geodienste_api.return_value.start_export.assert_called_once()
         mock_geodienste_api.return_value.check_export_status.assert_not_called()
 
-        error_log = (
-            "Fehler beim Starten des Datenexports:"
-            "404  - Data export information not found. Invalid token?"
-        )
-
-        with self.assertLogs() as cm:
-            logging.error(error_log)
-
-        self.assertEqual(cm.output, [f"ERROR:root:{error_log}"])
+        log = {
+            "message": (
+                "Fehler beim Starten des Datenexports:"
+                "404  - Data export information not found. Invalid token?"
+            ),
+            "level": logging.ERROR,
+        }
+        assert_logs(self, [log])
 
     @patch("processing.GeodiensteApi")
     @patch.dict(os.environ, {"tokens_lwb_rebbaukataster": "AG=token1;BE=token2"})
@@ -219,15 +230,14 @@ class TestProcessing(unittest.TestCase):
         mock_geodienste_api.return_value.start_export.assert_called_once()
         mock_geodienste_api.return_value.check_export_status.assert_called_once()
 
-        error_log = (
-            "Fehler bei der Statusabfrage des Datenexports:"
-            "200  - An unexpected error occurred. Please try again by starting a new data export."
-        )
-
-        with self.assertLogs() as cm:
-            logging.error(error_log)
-
-        self.assertEqual(cm.output, [f"ERROR:root:{error_log}"])
+        log = {
+            "message": (
+                "Fehler bei der Statusabfrage des Datenexports:"
+                "200  - An unexpected error occurred. Please try again by starting a new data export."
+            ),
+            "level": logging.ERROR,
+        }
+        assert_logs(self, [log])
 
     @patch("processing.GeodiensteApi")
     @patch.dict(os.environ, {"tokens_lwb_rebbaukataster": "AG=token1;BE=token2"})
@@ -262,9 +272,8 @@ class TestProcessing(unittest.TestCase):
         mock_geodienste_api.return_value.start_export.assert_called_once()
         mock_geodienste_api.return_value.check_export_status.assert_called_once()
 
-        error_log = "Fehler bei der Statusabfrage des Datenexports: 404  - Not Found"
-
-        with self.assertLogs() as cm:
-            logging.error(error_log)
-
-        self.assertEqual(cm.output, [f"ERROR:root:{error_log}"])
+        log = {
+            "message": "Fehler bei der Statusabfrage des Datenexports: 404  - Not Found",
+            "level": logging.ERROR,
+        }
+        assert_logs(self, [log])
