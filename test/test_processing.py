@@ -233,7 +233,8 @@ class TestProcessing(unittest.TestCase):
         log = {
             "message": (
                 "Fehler bei der Statusabfrage des Datenexports:"
-                "200  - An unexpected error occurred. Please try again by starting a new data export."
+                "200  - An unexpected error occurred. "
+                "Please try again by starting a new data export."
             ),
             "level": logging.ERROR,
         }
