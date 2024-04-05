@@ -58,12 +58,16 @@ def process_topic(topic, client=None):
         logging.error(
             "Fehler beim Starten des Datenexports: %s - %s",
             export_response.status_code,
-            export_message.get("error"),
+            (
+                export_message.get("error")
+                if export_response.status_code != 401
+                else export_response.reason_phrase
+            ),
         )
         return {
             "code": export_response.status_code,
             "reason": export_response.reason_phrase,
-            "info": export_message.get("error"),
+            "info": export_message.get("error") if export_response.status_code != 401 else "",
             "topic": topic_name,
             "canton": canton,
         }
@@ -72,7 +76,7 @@ def process_topic(topic, client=None):
     status_message = json.loads(status_reponse.text)
     if status_message.get("status") == "failed":
         logging.error(
-            "Fehler beim Datenexport: %s - %s",
+            "Fehler bei der Statusabfrage des Datenexports: %s - %s",
             status_reponse.status_code,
             status_message.get("info"),
         )
@@ -80,6 +84,19 @@ def process_topic(topic, client=None):
             "code": status_reponse.status_code,
             "reason": status_message.get("status"),
             "info": status_message.get("info"),
+            "topic": topic_name,
+            "canton": canton,
+        }
+    if status_reponse.status_code != 200:
+        logging.error(
+            "Fehler bei der Statusabfrage des Datenexports: %s - %s",
+            status_reponse.status_code,
+            status_message.get("error"),
+        )
+        return {
+            "code": status_reponse.status_code,
+            "reason": status_reponse.reason_phrase,
+            "info": status_message.get("error") if status_reponse.status_code == 404 else "",
             "topic": topic_name,
             "canton": canton,
         }
@@ -91,7 +108,7 @@ def process_topic(topic, client=None):
     download_url = ""
 
     return {
-        "code": "200",
+        "code": 200,
         "reason:": "success",
         "info": "Processing completed",
         "topic": topic_name,

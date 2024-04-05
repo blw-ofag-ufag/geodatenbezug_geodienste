@@ -60,7 +60,7 @@ class GeodiensteApi:
                 == "Cannot start data export because there is another data export pending"
             ):
                 start_time_diff = datetime.now() - start_time
-                if start_time_diff.seconds < 600:
+                if start_time_diff.seconds > 600:
                     logging.error("Another data export is pending. Starting export timed out")
                     return response
 

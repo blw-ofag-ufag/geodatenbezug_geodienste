@@ -1,4 +1,6 @@
+import os
 import unittest
+from unittest.mock import patch
 import logging
 from datetime import datetime, timedelta
 import httpx
@@ -93,6 +95,174 @@ class TestProcessing(unittest.TestCase):
         mock_client = httpx.Client(transport=httpx.MockTransport(lambda request: mock_response))
         topics_to_process = processing.get_topics_to_update(mock_client)
         self.assertEqual(len(topics_to_process), 0)
+
+        with self.assertLogs() as cm:
+            logging.error(error_log)
+
+        self.assertEqual(cm.output, [f"ERROR:root:{error_log}"])
+
+    @patch.dict(os.environ, {"tokens_lwb_rebbaukataster": "AG=token1;BE=token2"})
+    def test_get_token(self):
+        """Test if the correct token is returned"""
+        # pylint: disable-next=protected-access
+        token = processing._get_token("lwb_rebbaukataster", "BE")
+        self.assertEqual(token, "token2")
+
+    @patch("processing.GeodiensteApi")
+    @patch.dict(os.environ, {"tokens_lwb_rebbaukataster": "AG=token1;BE=token2"})
+    def test_process_topic(self, mock_geodienste_api):
+        """Test if a topic is processed correctly"""
+        mock_geodienste_api.return_value.start_export.return_value = httpx.Response(
+            200, json={"info": "success", "status_url": "http://example.com"}
+        )
+        mock_geodienste_api.return_value.check_export_status.return_value = httpx.Response(
+            200, json={"status": "success", "download_url": "http://example.com"}
+        )
+
+        topic = {
+            "topic_title": "Rebbaukataster",
+            "base_topic": "lwb_rebbaukataster",
+            "canton": "BE",
+        }
+        result = processing.process_topic(topic)
+        self.assertEqual(
+            result,
+            {
+                "code": 200,
+                "reason:": "success",
+                "info": "Processing completed",
+                "topic": "lwb_rebbaukataster",
+                "canton": "BE",
+                "download_url": "",
+            },
+        )
+        mock_geodienste_api.return_value.start_export.assert_called_once()
+        mock_geodienste_api.return_value.check_export_status.assert_called_once()
+
+    @patch("processing.GeodiensteApi")
+    @patch.dict(os.environ, {"tokens_lwb_rebbaukataster": "AG=token1;BE=token2"})
+    def test_process_topic_start_export_failed(self, mock_geodienste_api):
+        """Test if a topic is processed correctly when the start of the export fails"""
+        mock_geodienste_api.return_value.start_export.return_value = httpx.Response(
+            404, json={"error": "Data export information not found. Invalid token?"}
+        )
+        mock_geodienste_api.return_value.check_export_status.return_value = httpx.Response(
+            200, json={"status": "success", "download_url": "http://example.com"}
+        )
+
+        topic = {
+            "topic_title": "Rebbaukataster",
+            "base_topic": "lwb_rebbaukataster",
+            "canton": "BE",
+        }
+        result = processing.process_topic(topic)
+        self.assertEqual(
+            result,
+            {
+                "code": 404,
+                "reason": "Not Found",
+                "info": "Data export information not found. Invalid token?",
+                "topic": "lwb_rebbaukataster",
+                "canton": "BE",
+            },
+        )
+        mock_geodienste_api.return_value.start_export.assert_called_once()
+        mock_geodienste_api.return_value.check_export_status.assert_not_called()
+
+        error_log = (
+            "Fehler beim Starten des Datenexports:"
+            "404  - Data export information not found. Invalid token?"
+        )
+
+        with self.assertLogs() as cm:
+            logging.error(error_log)
+
+        self.assertEqual(cm.output, [f"ERROR:root:{error_log}"])
+
+    @patch("processing.GeodiensteApi")
+    @patch.dict(os.environ, {"tokens_lwb_rebbaukataster": "AG=token1;BE=token2"})
+    def test_process_topic_check_export_status_failed(self, mock_geodienste_api):
+        """Test if a topic is processed correctly when the start of the export fails"""
+        mock_geodienste_api.return_value.start_export.return_value = httpx.Response(
+            200, json={"info": "success", "status_url": "http://example.com"}
+        )
+        mock_geodienste_api.return_value.check_export_status.return_value = httpx.Response(
+            200,
+            json={
+                "status": "failed",
+                "info": (
+                    "An unexpected error occurred. "
+                    "Please try again by starting a new data export."
+                ),
+            },
+        )
+
+        topic = {
+            "topic_title": "Rebbaukataster",
+            "base_topic": "lwb_rebbaukataster",
+            "canton": "BE",
+        }
+        result = processing.process_topic(topic)
+        self.assertEqual(
+            result,
+            {
+                "code": 200,
+                "reason": "failed",
+                "info": (
+                    "An unexpected error occurred. "
+                    "Please try again by starting a new data export."
+                ),
+                "topic": "lwb_rebbaukataster",
+                "canton": "BE",
+            },
+        )
+        mock_geodienste_api.return_value.start_export.assert_called_once()
+        mock_geodienste_api.return_value.check_export_status.assert_called_once()
+
+        error_log = (
+            "Fehler bei der Statusabfrage des Datenexports:"
+            "200  - An unexpected error occurred. Please try again by starting a new data export."
+        )
+
+        with self.assertLogs() as cm:
+            logging.error(error_log)
+
+        self.assertEqual(cm.output, [f"ERROR:root:{error_log}"])
+
+    @patch("processing.GeodiensteApi")
+    @patch.dict(os.environ, {"tokens_lwb_rebbaukataster": "AG=token1;BE=token2"})
+    def test_process_topic_check_export_status_error(self, mock_geodienste_api):
+        """Test if a topic is processed correctly when the start of the export fails"""
+        mock_geodienste_api.return_value.start_export.return_value = httpx.Response(
+            200, json={"info": "success", "status_url": "http://example.com"}
+        )
+        mock_geodienste_api.return_value.check_export_status.return_value = httpx.Response(
+            404,
+            json={
+                "error": "Data export information not found. Invalid token?",
+            },
+        )
+
+        topic = {
+            "topic_title": "Rebbaukataster",
+            "base_topic": "lwb_rebbaukataster",
+            "canton": "BE",
+        }
+        result = processing.process_topic(topic)
+        self.assertEqual(
+            result,
+            {
+                "code": 404,
+                "reason": "Not Found",
+                "info": "Data export information not found. Invalid token?",
+                "topic": "lwb_rebbaukataster",
+                "canton": "BE",
+            },
+        )
+        mock_geodienste_api.return_value.start_export.assert_called_once()
+        mock_geodienste_api.return_value.check_export_status.assert_called_once()
+
+        error_log = "Fehler bei der Statusabfrage des Datenexports: 404  - Not Found"
 
         with self.assertLogs() as cm:
             logging.error(error_log)
