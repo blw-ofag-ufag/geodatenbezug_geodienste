@@ -1,7 +1,7 @@
 import os
 import logging
 import azure.durable_functions as df
-from src.geodienste_api import GeodiensteApi
+import processing
 
 app = df.DFApp()
 
@@ -25,7 +25,6 @@ async def trigger_topic_processor(timer, client) -> None:
 def run_topic_processor(context):
     """Orchestration function which handles the processing"""
     logging.info("Start der Prozessierung...")
-
     topics = yield context.call_activity("retrieve_topics", None)
     tasks = [context.call_activity("process_topic", topic) for topic in topics]
     results = yield context.task_all(tasks)
@@ -38,16 +37,14 @@ def run_topic_processor(context):
 def retrieve_topics(test):
     """Retrieves the topics from the geodienste API"""
     logging.info("Laden der Themen...")
-    return GeodiensteApi.get_topics_to_update()
+    return processing.get_topics_to_update()
 
 
 @app.activity_trigger(input_name="topic")
-# We have to pass this parameter, else the function will fail
-# pylint: disable-next=unused-argument
 def process_topic(topic):
     """Processes the given topic"""
     logging.info("Verarbeite Thema %s", topic["topic_title"])
-    return topic
+    return processing.process_topic(topic)
 
 
 @app.activity_trigger(input_name="results")

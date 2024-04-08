@@ -29,6 +29,19 @@ Um Lint- und Formatierungsfehler automatisch zu erkennen/beheben, können im Use
 }
 ```
 
+### Umgebungsvariablen definieren
+
+Für die Requests ans Geodienste API müssen folgende Umgebungsvariablen eingerichtet werden:
+
+-   AuthUser: _User im KeePass_
+-   AuthPw: _Passwort im KeePass_
+-   tokens_lwb_perimeter_ln_sf: _Aus dem Azure Portal kopieren_
+-   tokens_lwb_rebbaukataster: _Aus dem Azure Portal kopieren_
+-   tokens_lwb_perimeter_terrassenreben: _Aus dem Azure Portal kopieren_
+-   tokens_lwb_biodiversitaetsfoerderflaechen: _Aus dem Azure Portal kopieren_
+-   tokens_lwb_bewirtschaftungseinheit: _Aus dem Azure Portal kopieren_
+-   tokens_lwb_nutzungsflaechen: _Aus dem Azure Portal kopieren_
+
 ### Azure Function ausführen
 
 1. Mit <kbd>F1</kbd> die Commands öffnen und **Azurite: Start** ausführen.
