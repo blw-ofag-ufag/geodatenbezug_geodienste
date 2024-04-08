@@ -1,0 +1,19 @@
+name: GDAL
+
+on:
+    push:
+
+jobs:
+    ci:
+        runs-on: ubuntu-latest
+        name: Build GDAL wheel
+        steps:
+            - name: Build GDAL wheel
+              id: gdal
+              uses: trundev/setup-gdal@main
+              with:
+                  gdal-version: "v3.8.5"
+                  rebuild-cache: "false"
+                  base-dir: "GDAL~"
+                  cache-key-prefix: ""
+                  use-conda: "false"
