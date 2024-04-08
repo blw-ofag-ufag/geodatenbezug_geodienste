@@ -38,9 +38,9 @@ def get_topics_to_update(client=None):
             )
 
     logging.info(
-        "%s %s werden prozessiert",
+        "%s %s prozessiert",
         len(topics_to_process),
-        "Themen" if len(topics_to_process) > 1 else "Thema",
+        "Themen werden" if len(topics_to_process) != 1 else "Thema wird",
     )
     return topics_to_process
 
