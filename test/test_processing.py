@@ -6,6 +6,9 @@ from datetime import datetime, timedelta
 import httpx
 import processing
 
+# pylint: disable-next=wrong-import-order
+from test import assert_logs
+
 
 class TestProcessing(unittest.TestCase):
     """Test class for processing functions"""
@@ -97,11 +100,7 @@ class TestProcessing(unittest.TestCase):
                     "level": logging.INFO,
                 },
             ]
-            for log in logs:
-                self.assertIn(
-                    f"{logging.getLevelName(log['level'])}:root:{log['message']}",
-                    cm.output,
-                )
+            assert_logs(self, cm, logs)
 
     def test_get_topics_to_update_request_failed(self):
         """Test if an error is logged when the request fails"""
@@ -118,10 +117,7 @@ class TestProcessing(unittest.TestCase):
                 ),
                 "level": logging.ERROR,
             }
-            self.assertIn(
-                f"{logging.getLevelName(log['level'])}:root:{log['message']}",
-                cm.output,
-            )
+            assert_logs(self, cm, [log])
 
     @patch.dict(os.environ, {"tokens_lwb_rebbaukataster": "AG=token1;BE=token2"})
     def test_get_token(self):
@@ -199,10 +195,7 @@ class TestProcessing(unittest.TestCase):
                 ),
                 "level": logging.ERROR,
             }
-            self.assertIn(
-                f"{logging.getLevelName(log['level'])}:root:{log['message']}",
-                cm.output,
-            )
+            assert_logs(self, cm, [log])
 
     @patch("processing.GeodiensteApi")
     @patch.dict(os.environ, {"tokens_lwb_rebbaukataster": "AG=token1;BE=token2"})
@@ -253,10 +246,7 @@ class TestProcessing(unittest.TestCase):
                 ),
                 "level": logging.ERROR,
             }
-            self.assertIn(
-                f"{logging.getLevelName(log['level'])}:root:{log['message']}",
-                cm.output,
-            )
+            assert_logs(self, cm, [log])
 
     @patch("processing.GeodiensteApi")
     @patch.dict(os.environ, {"tokens_lwb_rebbaukataster": "AG=token1;BE=token2"})
@@ -299,7 +289,4 @@ class TestProcessing(unittest.TestCase):
                 ),
                 "level": logging.ERROR,
             }
-            self.assertIn(
-                f"{logging.getLevelName(log['level'])}:root:{log['message']}",
-                cm.output,
-            )
+            assert_logs(self, cm, [log])

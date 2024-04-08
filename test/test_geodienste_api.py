@@ -6,6 +6,9 @@ from datetime import datetime, timedelta
 import httpx
 from processing.geodienste_api import GeodiensteApi
 
+# pylint: disable-next=wrong-import-order
+from test import assert_logs
+
 
 class TestGeodiensteApi(unittest.TestCase):
     """Test class for Geodienste API calls"""
@@ -48,10 +51,7 @@ class TestGeodiensteApi(unittest.TestCase):
                 "message": "Another data export is pending. Trying again in 1 minute",
                 "level": logging.INFO,
             }
-            self.assertIn(
-                f"{logging.getLevelName(log['level'])}:root:{log['message']}",
-                cm.output,
-            )
+            assert_logs(self, cm, [log])
 
     @patch("time.sleep", return_value=1)
     @patch("processing.GeodiensteApi._get_client")
@@ -85,10 +85,7 @@ class TestGeodiensteApi(unittest.TestCase):
                 "message": "Another data export is pending. Starting export timed out",
                 "level": logging.ERROR,
             }
-            self.assertIn(
-                f"{logging.getLevelName(log['level'])}:root:{log['message']}",
-                cm.output,
-            )
+            assert_logs(self, cm, [log])
 
     @patch("time.sleep", return_value=1)
     @patch("processing.GeodiensteApi._get_client")
@@ -122,8 +119,4 @@ class TestGeodiensteApi(unittest.TestCase):
                     "level": logging.INFO,
                 },
             ]
-            for log in logs:
-                self.assertIn(
-                    f"{logging.getLevelName(log['level'])}:root:{log['message']}",
-                    cm.output,
-                )
+            assert_logs(self, cm, logs)
