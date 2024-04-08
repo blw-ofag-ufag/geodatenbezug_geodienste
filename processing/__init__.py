@@ -46,14 +46,14 @@ def get_topics_to_update(client=None):
     return topics_to_process
 
 
-def process_topic(topic, client=None):
+def process_topic(topic):
     """Downloads and processes the data of a specific topic"""
     topic_name = topic.get("base_topic")
     canton = topic.get("canton")
     token = _get_token(topic_name, canton)
 
     geodienste_api = GeodiensteApi()
-    export_response = geodienste_api.start_export(topic_name, token, datetime.now(), client)
+    export_response = geodienste_api.start_export(topic_name, canton, token)
     export_message = json.loads(export_response.text)
     if export_response.status_code != httpx.codes.OK:
         logging.error(
@@ -77,7 +77,7 @@ def process_topic(topic, client=None):
             "canton": canton,
         }
 
-    status_reponse = geodienste_api.check_export_status(topic_name, token, client)
+    status_reponse = geodienste_api.check_export_status(topic_name, canton, token)
     status_message = json.loads(status_reponse.text)
     if status_message.get("status") == GEODIENSTE_EXPORT_STATUS_FAILED:
         logging.error(

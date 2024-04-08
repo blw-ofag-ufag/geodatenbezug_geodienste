@@ -44,17 +44,25 @@ class TestGeodiensteApi(unittest.TestCase):
             ]
 
             geodienste_api = GeodiensteApi()
-            response = geodienste_api.start_export("test_topic", "test_token", datetime.now())
+            response = geodienste_api.start_export("test_topic", "ZH", "test_token", datetime.now())
 
             self.assertEqual(response.status_code, httpx.codes.OK)
             self.assertEqual(json.loads(response.text)["info"], "Data export successfully started.")
             self.assertEqual(mock_client.get.call_count, 2)
 
-            log = {
-                "message": "Another data export is pending. Trying again in 1 minute",
-                "level": logging.INFO,
-            }
-            assert_logs(self, cm, [log])
+            logs = [
+                {
+                    "message": "Starten des Datenexports für test_topic (ZH)...",
+                    "level": logging.INFO,
+                },
+                {
+                    "message": (
+                        "Es läuft gerade ein anderer Export. Versuche es in 1 Minute erneut."
+                    ),
+                    "level": logging.INFO,
+                },
+            ]
+            assert_logs(self, cm, logs)
 
     @patch("time.sleep", return_value=1)
     @patch("processing.GeodiensteApi._get_client")
@@ -73,7 +81,7 @@ class TestGeodiensteApi(unittest.TestCase):
 
             geodienste_api = GeodiensteApi()
             response = geodienste_api.start_export(
-                "test_topic", "test_token", datetime.now() + timedelta(seconds=600)
+                "test_topic", "ZH", "test_token", datetime.now() + timedelta(seconds=600)
             )
 
             self.assertEqual(response.status_code, httpx.codes.NOT_FOUND)
@@ -82,11 +90,17 @@ class TestGeodiensteApi(unittest.TestCase):
                 GEODIENSTE_EXPORT_ERROR_PENDING,
             )
 
-            log = {
-                "message": "Another data export is pending. Starting export timed out",
-                "level": logging.ERROR,
-            }
-            assert_logs(self, cm, [log])
+            logs = [
+                {
+                    "message": "Starten des Datenexports für test_topic (ZH)...",
+                    "level": logging.INFO,
+                },
+                {
+                    "message": "Es läuft bereits ein anderer Export. Zeitlimite überschritten.",
+                    "level": logging.ERROR,
+                },
+            ]
+            assert_logs(self, cm, logs)
 
     @patch("time.sleep", return_value=1)
     @patch("processing.GeodiensteApi._get_client")
@@ -113,7 +127,7 @@ class TestGeodiensteApi(unittest.TestCase):
             ]
 
             geodienste_api = GeodiensteApi()
-            response = geodienste_api.check_export_status("test_topic", "test_token")
+            response = geodienste_api.check_export_status("test_topic", "ZH", "test_token")
 
             self.assertEqual(response.status_code, httpx.codes.OK)
             self.assertEqual(json.loads(response.text)["status"], GEODIENSTE_EXPORT_STATUS_SUCCESS)
@@ -121,12 +135,54 @@ class TestGeodiensteApi(unittest.TestCase):
 
             logs = [
                 {
-                    "message": "Export is queued. Trying again in 1 minute",
+                    "message": "Überprüfen des Exportstatus für test_topic (ZH)...",
                     "level": logging.INFO,
                 },
                 {
-                    "message": "Export is working. Trying again in 1 minute",
+                    "message": "Export ist in Warteschlange. Versuche es in 1 Minute erneut.",
                     "level": logging.INFO,
+                },
+                {
+                    "message": "Export ist in Bearbeitung. Versuche es in 1 Minute erneut.",
+                    "level": logging.INFO,
+                },
+            ]
+            assert_logs(self, cm, logs)
+
+    @patch("time.sleep", return_value=1)
+    @patch("processing.GeodiensteApi._get_client")
+    # We have to pass this parameter, else the test will fail
+    # pylint: disable-next=unused-argument
+    def test_check_export_status_timeout(self, mock_get_client, mock_sleep):
+        """Test the check_export_status method of the GeodiensteApi class"""
+        with self.assertLogs() as cm:
+            mock_client = MagicMock()
+            mock_get_client.return_value = mock_client
+            mock_client.get.side_effect = [
+                MagicMock(
+                    status_code=httpx.codes.OK,
+                    text=json.dumps({"status": GEODIENSTE_EXPORT_STATUS_QUEUED}),
+                ),
+            ]
+            geodienste_api = GeodiensteApi()
+            response = geodienste_api.check_export_status(
+                "test_topic", "ZH", "test_token", datetime.now() + timedelta(seconds=600)
+            )
+
+            self.assertEqual(response.status_code, httpx.codes.OK)
+            self.assertEqual(
+                json.loads(response.text)["status"],
+                GEODIENSTE_EXPORT_STATUS_QUEUED,
+            )
+
+            logs = [
+                {
+                    "message": "Überprüfen des Exportstatus für test_topic (ZH)...",
+                    "level": logging.INFO,
+                },
+                {
+                    "message": "Zeitlimite überschritten. Status ist in Warteschlange",
+                    "level": logging.ERROR,
                 },
             ]
             assert_logs(self, cm, logs)

@@ -61,8 +61,9 @@ class GeodiensteApi:
 
         return json.loads(response.text)["services"]
 
-    def start_export(self, topic, token, start_time, client=None):
+    def start_export(self, topic, canton, token, start_time=datetime.now(), client=None):
         """Starts the data export of a specific topic and token"""
+        logging.info("Starten des Datenexports für %s (%s)...", topic, canton)
         if client is None:
             client = self._get_client()
         url = self.GEODIENSTE_DOWNLOAD_URL.format(topic=topic, token=token)
@@ -71,17 +72,18 @@ class GeodiensteApi:
             message = json.loads(response.text)
             if message.get("error") == GEODIENSTE_EXPORT_ERROR_PENDING:
                 start_time_diff = datetime.now() - start_time
-                if start_time_diff.seconds > 600:
-                    logging.error("Another data export is pending. Starting export timed out")
+                if start_time_diff.seconds > 60 * 10:
+                    logging.error("Es läuft bereits ein anderer Export. Zeitlimite überschritten.")
                     return response
 
-                logging.info("Another data export is pending. Trying again in 1 minute")
+                logging.info("Es läuft gerade ein anderer Export. Versuche es in 1 Minute erneut.")
                 time.sleep(self.SLEEP_TIME)
-                return self.start_export(topic, token, start_time, client)
+                return self.start_export(topic, canton, token, start_time, client)
         return response
 
-    def check_export_status(self, topic, token, client=None):
+    def check_export_status(self, topic, canton, token, start_time=datetime.now(), client=None):
         """Checks the export status of a specific topic and token"""
+        logging.info("Überprüfen des Exportstatus für %s (%s)...", topic, canton)
         if client is None:
             client = self._get_client()
         url = self.GEODIENSTE_STATUS_URL.format(topic=topic, token=token)
@@ -92,7 +94,17 @@ class GeodiensteApi:
                 message.get("status") == GEODIENSTE_EXPORT_STATUS_QUEUED
                 or message.get("status") == GEODIENSTE_EXPORT_STATUS_WORKING
             ):
-                logging.info("Export is %s. Trying again in 1 minute", message.get("status"))
+                status = (
+                    "in Bearbeitung"
+                    if message.get("status") == GEODIENSTE_EXPORT_STATUS_WORKING
+                    else "in Warteschlange"
+                )
+                start_time_diff = datetime.now() - start_time
+                if start_time_diff.seconds > 60 * 10:
+                    logging.error("Zeitlimite überschritten. Status ist %s", status)
+                    return response
+
+                logging.info("Export ist %s. Versuche es in 1 Minute erneut.", status)
                 time.sleep(self.SLEEP_TIME)
-                return self.check_export_status(topic, token, client)
+                return self.check_export_status(topic, canton, token, start_time, client)
         return response
