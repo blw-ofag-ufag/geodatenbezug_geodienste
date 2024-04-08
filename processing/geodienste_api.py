@@ -31,6 +31,8 @@ class GeodiensteApi:
     GEODIENSTE_DOWNLOAD_URL = GEODIENSTE_BASE_URL + "/downloads/{topic}/{token}/export.json"
     GEODIENSTE_STATUS_URL = GEODIENSTE_BASE_URL + "/downloads/{topic}/{token}/status.json"
 
+    SLEEP_TIME = 60
+
     def __init__(self):
         pass
 
@@ -74,7 +76,7 @@ class GeodiensteApi:
                     return response
 
                 logging.info("Another data export is pending. Trying again in 1 minute")
-                time.sleep(60)
+                time.sleep(self.SLEEP_TIME)
                 return self.start_export(topic, token, start_time, client)
         return response
 
@@ -91,6 +93,6 @@ class GeodiensteApi:
                 or message.get("status") == GEODIENSTE_EXPORT_STATUS_WORKING
             ):
                 logging.info("Export is %s. Trying again in 1 minute", message.get("status"))
-                time.sleep(60)
+                time.sleep(self.SLEEP_TIME)
                 return self.check_export_status(topic, token, client)
         return response
