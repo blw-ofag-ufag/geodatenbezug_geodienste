@@ -37,7 +37,7 @@ class GeodiensteApi:
             base_topics=base_topics, topics=topics, cantons=cantons
         )
         response = client.get(url)
-        if response.status_code != 200:
+        if response.status_code != httpx.codes.OK:
             logging.error(
                 "Fehler beim Abrufen der Themeninformationen von geodienste.ch: %s  - %s",
                 response.status_code,
@@ -53,7 +53,7 @@ class GeodiensteApi:
             client = self._get_client()
         url = self.GEODIENSTE_DOWNLOAD_URL.format(topic=topic, token=token)
         response = client.get(url)
-        if response.status_code == 404:
+        if response.status_code == httpx.codes.NOT_FOUND:
             message = json.loads(response.text)
             if (
                 message.get("error")
@@ -75,7 +75,7 @@ class GeodiensteApi:
             client = self._get_client()
         url = self.GEODIENSTE_STATUS_URL.format(topic=topic, token=token)
         response = client.get(url)
-        if response.status_code == 200:
+        if response.status_code == httpx.codes.OK:
             message = json.loads(response.text)
             if message.get("status") == "queued" or message.get("status") == "working":
                 logging.info("Export is %s. Trying again in 1 minute", message.get("status"))

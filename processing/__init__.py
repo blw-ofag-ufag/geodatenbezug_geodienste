@@ -2,6 +2,7 @@ import os
 import json
 import logging
 from datetime import datetime
+import httpx
 from processing.geodienste_api import GeodiensteApi
 
 
@@ -54,20 +55,24 @@ def process_topic(topic, client=None):
     geodienste_api = GeodiensteApi()
     export_response = geodienste_api.start_export(topic_name, token, datetime.now(), client)
     export_message = json.loads(export_response.text)
-    if export_response.status_code != 200:
+    if export_response.status_code != httpx.codes.OK:
         logging.error(
             "Fehler beim Starten des Datenexports: %s - %s",
             export_response.status_code,
             (
                 export_message.get("error")
-                if export_response.status_code != 401
+                if export_response.status_code != httpx.codes.UNAUTHORIZED
                 else export_response.reason_phrase
             ),
         )
         return {
             "code": export_response.status_code,
             "reason": export_response.reason_phrase,
-            "info": export_message.get("error") if export_response.status_code != 401 else "",
+            "info": (
+                export_message.get("error")
+                if export_response.status_code != httpx.codes.UNAUTHORIZED
+                else ""
+            ),
             "topic": topic_name,
             "canton": canton,
         }
@@ -87,7 +92,7 @@ def process_topic(topic, client=None):
             "topic": topic_name,
             "canton": canton,
         }
-    if status_reponse.status_code != 200:
+    if status_reponse.status_code != httpx.codes.OK:
         logging.error(
             "Fehler bei der Statusabfrage des Datenexports: %s - %s",
             status_reponse.status_code,
@@ -96,7 +101,11 @@ def process_topic(topic, client=None):
         return {
             "code": status_reponse.status_code,
             "reason": status_reponse.reason_phrase,
-            "info": status_message.get("error") if status_reponse.status_code == 404 else "",
+            "info": (
+                status_message.get("error")
+                if status_reponse.status_code == httpx.codes.NOT_FOUND
+                else ""
+            ),
             "topic": topic_name,
             "canton": canton,
         }
@@ -108,7 +117,7 @@ def process_topic(topic, client=None):
     download_url = ""
 
     return {
-        "code": 200,
+        "code": httpx.codes.OK,
         "reason:": "success",
         "info": "Processing completed",
         "topic": topic_name,
