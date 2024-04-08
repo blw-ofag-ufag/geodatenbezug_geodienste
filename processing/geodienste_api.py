@@ -6,6 +6,18 @@ import logging
 import httpx
 from processing.constants import CANTONS, TOPICS
 
+GEODIENSTE_EXPORT_ERROR_INVALID_TOKEN = "Data export information not found. Invalid token?"
+GEODIENSTE_EXPORT_ERROR_PENDING = (
+    "Cannot start data export because there is another data export pending"
+)
+GEODIENSTE_EXPORT_ERROR_UNEXPECTED = (
+    "An unexpected error occurred. Please try again by starting a new data export."
+)
+GEODIENSTE_EXPORT_STATUS_QUEUED = "queued"
+GEODIENSTE_EXPORT_STATUS_WORKING = "working"
+GEODIENSTE_EXPORT_STATUS_FAILED = "failed"
+GEODIENSTE_EXPORT_STATUS_SUCCESS = "success"
+
 
 class GeodiensteApi:
     """Handles all calls to the geodienste API"""
@@ -55,10 +67,7 @@ class GeodiensteApi:
         response = client.get(url)
         if response.status_code == httpx.codes.NOT_FOUND:
             message = json.loads(response.text)
-            if (
-                message.get("error")
-                == "Cannot start data export because there is another data export pending"
-            ):
+            if message.get("error") == GEODIENSTE_EXPORT_ERROR_PENDING:
                 start_time_diff = datetime.now() - start_time
                 if start_time_diff.seconds > 600:
                     logging.error("Another data export is pending. Starting export timed out")
@@ -77,7 +86,10 @@ class GeodiensteApi:
         response = client.get(url)
         if response.status_code == httpx.codes.OK:
             message = json.loads(response.text)
-            if message.get("status") == "queued" or message.get("status") == "working":
+            if (
+                message.get("status") == GEODIENSTE_EXPORT_STATUS_QUEUED
+                or message.get("status") == GEODIENSTE_EXPORT_STATUS_WORKING
+            ):
                 logging.info("Export is %s. Trying again in 1 minute", message.get("status"))
                 time.sleep(60)
                 return self.check_export_status(topic, token, client)

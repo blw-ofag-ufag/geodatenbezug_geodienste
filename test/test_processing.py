@@ -5,6 +5,10 @@ import logging
 from datetime import datetime, timedelta
 import httpx
 import processing
+from processing.geodienste_api import (
+    GEODIENSTE_EXPORT_ERROR_INVALID_TOKEN,
+    GEODIENSTE_EXPORT_ERROR_UNEXPECTED,
+)
 
 # pylint: disable-next=wrong-import-order
 from test import assert_logs
@@ -60,7 +64,7 @@ class TestProcessing(unittest.TestCase):
                 ]
             }
 
-            mock_response = httpx.Response(200, json=response_body)
+            mock_response = httpx.Response(httpx.codes.OK, json=response_body)
             mock_client = httpx.Client(transport=httpx.MockTransport(lambda request: mock_response))
             topics_to_process = processing.get_topics_to_update(mock_client)
             self.assertEqual(len(topics_to_process), 2)
@@ -105,7 +109,7 @@ class TestProcessing(unittest.TestCase):
     def test_get_topics_to_update_request_failed(self):
         """Test if an error is logged when the request fails"""
         with self.assertLogs() as cm:
-            mock_response = httpx.Response(500)
+            mock_response = httpx.Response(httpx.codes.INTERNAL_SERVER_ERROR)
             mock_client = httpx.Client(transport=httpx.MockTransport(lambda request: mock_response))
             topics_to_process = processing.get_topics_to_update(mock_client)
             self.assertEqual(len(topics_to_process), 0)
@@ -113,7 +117,7 @@ class TestProcessing(unittest.TestCase):
             log = {
                 "message": (
                     "Fehler beim Abrufen der Themeninformationen von geodienste.ch: "
-                    "500  - Internal Server Error"
+                    f"{httpx.codes.INTERNAL_SERVER_ERROR}  - Internal Server Error"
                 ),
                 "level": logging.ERROR,
             }
@@ -131,10 +135,10 @@ class TestProcessing(unittest.TestCase):
     def test_process_topic(self, mock_geodienste_api):
         """Test if a topic is processed correctly"""
         mock_geodienste_api.return_value.start_export.return_value = httpx.Response(
-            200, json={"info": "success", "status_url": "http://example.com"}
+            httpx.codes.OK, json={"info": "success", "status_url": "http://example.com"}
         )
         mock_geodienste_api.return_value.check_export_status.return_value = httpx.Response(
-            200, json={"status": "success", "download_url": "http://example.com"}
+            httpx.codes.OK, json={"status": "success", "download_url": "http://example.com"}
         )
 
         topic = {
@@ -146,7 +150,7 @@ class TestProcessing(unittest.TestCase):
         self.assertEqual(
             result,
             {
-                "code": 200,
+                "code": httpx.codes.OK,
                 "reason:": "success",
                 "info": "Processing completed",
                 "topic": "lwb_rebbaukataster",
@@ -163,10 +167,10 @@ class TestProcessing(unittest.TestCase):
         """Test if a topic is processed correctly when the start of the export fails"""
         with self.assertLogs() as cm:
             mock_geodienste_api.return_value.start_export.return_value = httpx.Response(
-                404, json={"error": "Data export information not found. Invalid token?"}
+                httpx.codes.NOT_FOUND, json={"error": GEODIENSTE_EXPORT_ERROR_INVALID_TOKEN}
             )
             mock_geodienste_api.return_value.check_export_status.return_value = httpx.Response(
-                200, json={"status": "success", "download_url": "http://example.com"}
+                httpx.codes.OK, json={"status": "success", "download_url": "http://example.com"}
             )
 
             topic = {
@@ -178,9 +182,9 @@ class TestProcessing(unittest.TestCase):
             self.assertEqual(
                 result,
                 {
-                    "code": 404,
+                    "code": httpx.codes.NOT_FOUND,
                     "reason": "Not Found",
-                    "info": "Data export information not found. Invalid token?",
+                    "info": GEODIENSTE_EXPORT_ERROR_INVALID_TOKEN,
                     "topic": "lwb_rebbaukataster",
                     "canton": "BE",
                 },
@@ -191,7 +195,7 @@ class TestProcessing(unittest.TestCase):
             log = {
                 "message": (
                     "Fehler beim Starten des Datenexports: "
-                    "404 - Data export information not found. Invalid token?"
+                    f"{httpx.codes.NOT_FOUND} - {GEODIENSTE_EXPORT_ERROR_INVALID_TOKEN}"
                 ),
                 "level": logging.ERROR,
             }
@@ -203,10 +207,10 @@ class TestProcessing(unittest.TestCase):
         """Test if a topic is processed correctly when the start of the export fails"""
         with self.assertLogs() as cm:
             mock_geodienste_api.return_value.start_export.return_value = httpx.Response(
-                200, json={"info": "success", "status_url": "http://example.com"}
+                httpx.codes.OK, json={"info": "success", "status_url": "http://example.com"}
             )
             mock_geodienste_api.return_value.check_export_status.return_value = httpx.Response(
-                200,
+                httpx.codes.OK,
                 json={
                     "status": "failed",
                     "info": (
@@ -225,12 +229,9 @@ class TestProcessing(unittest.TestCase):
             self.assertEqual(
                 result,
                 {
-                    "code": 200,
+                    "code": httpx.codes.OK,
                     "reason": "failed",
-                    "info": (
-                        "An unexpected error occurred. "
-                        "Please try again by starting a new data export."
-                    ),
+                    "info": GEODIENSTE_EXPORT_ERROR_UNEXPECTED,
                     "topic": "lwb_rebbaukataster",
                     "canton": "BE",
                 },
@@ -241,8 +242,7 @@ class TestProcessing(unittest.TestCase):
             log = {
                 "message": (
                     "Fehler bei der Statusabfrage des Datenexports: "
-                    "200 - An unexpected error occurred. "
-                    "Please try again by starting a new data export."
+                    f"{httpx.codes.OK} - {GEODIENSTE_EXPORT_ERROR_UNEXPECTED}"
                 ),
                 "level": logging.ERROR,
             }
@@ -254,12 +254,12 @@ class TestProcessing(unittest.TestCase):
         """Test if a topic is processed correctly when the start of the export fails"""
         with self.assertLogs() as cm:
             mock_geodienste_api.return_value.start_export.return_value = httpx.Response(
-                200, json={"info": "success", "status_url": "http://example.com"}
+                httpx.codes.OK, json={"info": "success", "status_url": "http://example.com"}
             )
             mock_geodienste_api.return_value.check_export_status.return_value = httpx.Response(
-                404,
+                httpx.codes.NOT_FOUND,
                 json={
-                    "error": "Data export information not found. Invalid token?",
+                    "error": GEODIENSTE_EXPORT_ERROR_INVALID_TOKEN,
                 },
             )
 
@@ -272,9 +272,9 @@ class TestProcessing(unittest.TestCase):
             self.assertEqual(
                 result,
                 {
-                    "code": 404,
+                    "code": httpx.codes.NOT_FOUND,
                     "reason": "Not Found",
-                    "info": "Data export information not found. Invalid token?",
+                    "info": GEODIENSTE_EXPORT_ERROR_INVALID_TOKEN,
                     "topic": "lwb_rebbaukataster",
                     "canton": "BE",
                 },
@@ -285,7 +285,7 @@ class TestProcessing(unittest.TestCase):
             log = {
                 "message": (
                     "Fehler bei der Statusabfrage des Datenexports: "
-                    "404 - Data export information not found. Invalid token?"
+                    f"{httpx.codes.NOT_FOUND} - {GEODIENSTE_EXPORT_ERROR_INVALID_TOKEN}"
                 ),
                 "level": logging.ERROR,
             }

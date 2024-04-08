@@ -4,7 +4,13 @@ import logging
 import json
 from datetime import datetime, timedelta
 import httpx
-from processing.geodienste_api import GeodiensteApi
+from processing.geodienste_api import (
+    GeodiensteApi,
+    GEODIENSTE_EXPORT_ERROR_PENDING,
+    GEODIENSTE_EXPORT_STATUS_QUEUED,
+    GEODIENSTE_EXPORT_STATUS_WORKING,
+    GEODIENSTE_EXPORT_STATUS_SUCCESS,
+)
 
 # pylint: disable-next=wrong-import-order
 from test import assert_logs
@@ -24,18 +30,15 @@ class TestGeodiensteApi(unittest.TestCase):
             mock_get_client.return_value = mock_client
             mock_client.get.side_effect = [
                 MagicMock(
-                    status_code=404,
+                    status_code=httpx.codes.NOT_FOUND,
                     text=json.dumps(
                         {
-                            "error": (
-                                "Cannot start data export because "
-                                "there is another data export pending"
-                            )
+                            "error": GEODIENSTE_EXPORT_ERROR_PENDING,
                         }
                     ),
                 ),
                 MagicMock(
-                    status_code=200,
+                    status_code=httpx.codes.OK,
                     text=json.dumps({"info": "Data export successfully started."}),
                 ),
             ]
@@ -43,7 +46,7 @@ class TestGeodiensteApi(unittest.TestCase):
             geodienste_api = GeodiensteApi()
             response = geodienste_api.start_export("test_topic", "test_token", datetime.now())
 
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, httpx.codes.OK)
             self.assertEqual(json.loads(response.text)["info"], "Data export successfully started.")
             self.assertEqual(mock_client.get.call_count, 2)
 
@@ -61,10 +64,8 @@ class TestGeodiensteApi(unittest.TestCase):
         """Test the check_export_status method of the GeodiensteApi class"""
         with self.assertLogs() as cm:
             mock_response = httpx.Response(
-                404,
-                json={
-                    "error": "Cannot start data export because there is another data export pending"
-                },
+                httpx.codes.NOT_FOUND,
+                json={"error": GEODIENSTE_EXPORT_ERROR_PENDING},
             )
             mock_get_client.return_value = httpx.Client(
                 transport=httpx.MockTransport(lambda request: mock_response)
@@ -75,10 +76,10 @@ class TestGeodiensteApi(unittest.TestCase):
                 "test_topic", "test_token", datetime.now() + timedelta(seconds=600)
             )
 
-            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.status_code, httpx.codes.NOT_FOUND)
             self.assertEqual(
                 json.loads(response.text)["error"],
-                "Cannot start data export because there is another data export pending",
+                GEODIENSTE_EXPORT_ERROR_PENDING,
             )
 
             log = {
@@ -97,16 +98,25 @@ class TestGeodiensteApi(unittest.TestCase):
             mock_client = MagicMock()
             mock_get_client.return_value = mock_client
             mock_client.get.side_effect = [
-                MagicMock(status_code=200, text=json.dumps({"status": "queued"})),
-                MagicMock(status_code=200, text=json.dumps({"status": "working"})),
-                MagicMock(status_code=200, text=json.dumps({"status": "success"})),
+                MagicMock(
+                    status_code=httpx.codes.OK,
+                    text=json.dumps({"status": GEODIENSTE_EXPORT_STATUS_QUEUED}),
+                ),
+                MagicMock(
+                    status_code=httpx.codes.OK,
+                    text=json.dumps({"status": GEODIENSTE_EXPORT_STATUS_WORKING}),
+                ),
+                MagicMock(
+                    status_code=httpx.codes.OK,
+                    text=json.dumps({"status": GEODIENSTE_EXPORT_STATUS_SUCCESS}),
+                ),
             ]
 
             geodienste_api = GeodiensteApi()
             response = geodienste_api.check_export_status("test_topic", "test_token")
 
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(json.loads(response.text)["status"], "success")
+            self.assertEqual(response.status_code, httpx.codes.OK)
+            self.assertEqual(json.loads(response.text)["status"], GEODIENSTE_EXPORT_STATUS_SUCCESS)
             self.assertEqual(mock_client.get.call_count, 3)
 
             logs = [

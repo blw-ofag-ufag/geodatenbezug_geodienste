@@ -3,7 +3,7 @@ import json
 import logging
 from datetime import datetime
 import httpx
-from processing.geodienste_api import GeodiensteApi
+from processing.geodienste_api import GeodiensteApi, GEODIENSTE_EXPORT_STATUS_FAILED
 
 
 def get_topics_to_update(client=None):
@@ -79,7 +79,7 @@ def process_topic(topic, client=None):
 
     status_reponse = geodienste_api.check_export_status(topic_name, token, client)
     status_message = json.loads(status_reponse.text)
-    if status_message.get("status") == "failed":
+    if status_message.get("status") == GEODIENSTE_EXPORT_STATUS_FAILED:
         logging.error(
             "Fehler bei der Statusabfrage des Datenexports: %s - %s",
             status_reponse.status_code,
