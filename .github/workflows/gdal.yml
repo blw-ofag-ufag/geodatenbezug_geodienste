@@ -1,0 +1,37 @@
+name: GDAL
+
+on:
+    workflow_dispatch:
+        inputs:
+            gdal-version:
+                description: "GDAL version"
+                required: true
+                default: "3.8.5"
+            python-version:
+                description: "Python version"
+                required: true
+                default: "3.11"
+
+jobs:
+    linux:
+        runs-on: ubuntu-latest
+        name: Build GDAL wheel for Linux
+        steps:
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ github.event.inputs.python-version }}
+            - name: Build GDAL wheel
+              id: gdal
+              uses: trundev/setup-gdal@main
+              with:
+                  gdal-version: "v${{ github.event.inputs.gdal-version }}"
+                  rebuild-cache: "false"
+                  base-dir: "GDAL~"
+                  cache-key-prefix: ""
+                  use-conda: "false"
+            - name: Upload wheel
+              uses: actions/upload-artifact@v4
+              with:
+                  name: linux-wheel
+                  path: ${{steps.gdal.outputs.wheel-path}}
