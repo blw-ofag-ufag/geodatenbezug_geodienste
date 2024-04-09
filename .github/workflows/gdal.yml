@@ -8,6 +8,10 @@ on:
                 description: "GDAL version"
                 required: true
                 default: "3.8.5"
+            python-version:
+                description: "Python version"
+                required: true
+                default: "3.11"
 
 jobs:
     linux:
@@ -17,12 +21,12 @@ jobs:
             - name: Set up Python
               uses: actions/setup-python@v5
               with:
-                  python-version: "3.11"
+                  python-version: ${{ github.event.inputs.python-version }}
             - name: Build GDAL wheel
               id: gdal
               uses: trundev/setup-gdal@main
               with:
-                  gdal-version: "v3.8.5"
+                  gdal-version: "v${{ github.event.inputs.gdal-version }}"
                   rebuild-cache: "false"
                   base-dir: "GDAL~"
                   cache-key-prefix: ""
