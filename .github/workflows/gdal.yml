@@ -1,6 +1,7 @@
 name: GDAL
 
 on:
+    push:
     workflow_dispatch:
         inputs:
             gdal-version:
@@ -17,7 +18,7 @@ jobs:
               id: gdal
               uses: trundev/setup-gdal@main
               with:
-                  gdal-version: "v${{ github.event.inputs.gdal-version }}"
+                  gdal-version: "v3.8.5"
                   rebuild-cache: "false"
                   base-dir: "GDAL~"
                   cache-key-prefix: ""
