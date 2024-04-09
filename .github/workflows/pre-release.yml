@@ -1,77 +1,51 @@
-name: Pre-release
+# Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy dotnet core app to Azure Function App - topic-processing
 
 on:
     push:
         branches:
-            - main
+            - csharp-function
     workflow_dispatch:
 
 env:
-    AZURE_FUNCTIONAPP_NAME: "geodatenbezug"
-    AZURE_FUNCTIONAPP_SLOT_NAME: "production"
-    AZURE_FUNCTIONAPP_PACKAGE_PATH: "."
-    PYTHON_VERSION: "3.11"
+    AZURE_FUNCTIONAPP_PACKAGE_PATH: "." # set this to the path to your web app project, defaults to the repository root
+    DOTNET_VERSION: "8.0.x" # set this to the dotnet version to use
 
 jobs:
-    prepare-deployment:
-        runs-on: ubuntu-latest
+    build-and-deploy:
+        runs-on: windows-latest
+        permissions:
+            id-token: write #This is required for requesting the JWT
+
         steps:
-            - name: Checkout repository
+            - name: "Checkout GitHub Action"
               uses: actions/checkout@v4
 
-            - name: Set up Python
-              uses: actions/setup-python@v5
+            - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+              uses: actions/setup-dotnet@v1
               with:
-                  python-version: ${{ env.PYTHON_VERSION }}
+                  dotnet-version: ${{ env.DOTNET_VERSION }}
 
-            - name: Create and start virtual environment
+            - name: "Resolve Project Dependencies Using Dotnet"
+              shell: pwsh
               run: |
-                  python -m venv venv
-                  source venv/bin/activate
-
-            - name: Install dependencies
-              run: pip install -r requirements.txt
-
-            - name: Zip artifact for deployment
-              run: zip -r release.zip .
-
-            - name: Upload artifact for deployment job
-              uses: actions/upload-artifact@v4
-              with:
-                  name: python-app
-                  path: |
-                      release.zip
-                      !venv/
-
-    deploy:
-        runs-on: ubuntu-latest
-        needs: prepare-deployment
-        permissions:
-            id-token: write
-
-        steps:
-            - name: Download artifact from build job
-              uses: actions/download-artifact@v4
-              with:
-                  name: python-app
-
-            - name: Unzip artifact for deployment
-              run: unzip release.zip
+                  pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+                  dotnet build --configuration Release --output ./output
+                  popd
 
             - name: Login to Azure
-              uses: azure/login@v2
+              uses: azure/login@v1
               with:
-                  client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4DEC88A8D4E9449FB95137483FD586C1 }}
-                  tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_D31EB2CA5C2A41E493832FAA4D289313 }}
-                  subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_53F79E670D784A1C884DFE31CFF3B8E4 }}
+                  client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E3E9FCDDEE12468CBEA1084C3737126E }}
+                  tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_89DC18AF6EDA4EC0A2C534AF8F19840A }}
+                  subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_0921DF05326A437B84A2568C32C60926 }}
 
-            - name: "Deploy to Azure Functions"
+            - name: "Run Azure Functions Action"
               uses: Azure/functions-action@v1
-              id: deploy-to-function
+              id: fa
               with:
-                  app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-                  slot-name: ${{ env.AZURE_FUNCTIONAPP_SLOT_NAME }}
-                  package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-                  respect-funcignore: true
-                  scm-do-build-during-deployment: true
-                  enable-oryx-build: true
+                  app-name: "topic-processing"
+                  slot-name: "production"
+                  package: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output"
