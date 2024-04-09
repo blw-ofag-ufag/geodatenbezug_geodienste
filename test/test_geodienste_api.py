@@ -1,111 +1,188 @@
 import unittest
+from unittest.mock import patch, MagicMock
 import logging
+import json
 from datetime import datetime, timedelta
 import httpx
-from src.geodienste_api import GeodiensteApi
+from processing.geodienste_api import (
+    GeodiensteApi,
+    GEODIENSTE_EXPORT_ERROR_PENDING,
+    GEODIENSTE_EXPORT_STATUS_QUEUED,
+    GEODIENSTE_EXPORT_STATUS_WORKING,
+    GEODIENSTE_EXPORT_STATUS_SUCCESS,
+)
+
+# pylint: disable-next=wrong-import-order
+from test import assert_logs
 
 
 class TestGeodiensteApi(unittest.TestCase):
-    """Test class for Geodienste API"""
+    """Test class for Geodienste API calls"""
 
-    datestring_delta4 = (datetime.now() - timedelta(hours=4)).strftime("%Y-%m-%dT%H:%M:%S")
-    datestring_delta23 = (datetime.now() - timedelta(hours=23)).strftime("%Y-%m-%dT%H:%M:%S")
-    datestring_delta30 = (datetime.now() - timedelta(hours=30)).strftime("%Y-%m-%dT%H:%M:%S")
-    request_url = (
-        "https://geodienste.ch/info/services.json?"
-        "base_topics=lwb_perimeter_ln_sf,lwb_rebbaukataster,lwb_perimeter_terrassenreben,"
-        "lwb_biodiversitaetsfoerderflaechen,lwb_bewirtschaftungseinheit,lwb_nutzungsflaechen&"
-        "topics=lwb_perimeter_ln_sf_v2_0,lwb_rebbaukataster_v2_0,"
-        "lwb_perimeter_terrassenreben_v2_0,lwb_biodiversitaetsfoerderflaechen_v2_0,"
-        "lwb_bewirtschaftungseinheit_v2_0,lwb_nutzungsflaechen_v2_0&"
-        "cantons=AG,AI,AR,BE,BL,BS,FR,GE,GL,GR,JU,LU,NE,NW,OW,SG,"
-        "SH,SO,SZ,TG,TI,UR,VD,VS,ZG,ZH&"
-        "language=de"
-    )
-    response_body = {
-        "services": [
-            {
-                "topic_title": "Perimeter LN- und Sömmerungsflächen",
-                "base_topic": "lwb_perimeter_ln_sf",
-                "topic": "lwb_perimeter_ln_sf_v2_0",
-                "version": "2.0",
-                "canton": "SH",
-                "updated_at": datestring_delta4,
-            },
-            {
-                "topic_title": "Perimeter LN- und Sömmerungsflächen",
-                "base_topic": "lwb_perimeter_ln_sf",
-                "topic": "lwb_perimeter_ln_sf_v2_0",
-                "version": "2.0",
-                "canton": "ZG",
-                "updated_at": datestring_delta23,
-            },
-            {
-                "topic_title": "Rebbaukataster",
-                "base_topic": "lwb_rebbaukataster",
-                "topic": "lwb_rebbaukataster_v2_0",
-                "version": "2.0",
-                "canton": "SH",
-                "updated_at": datestring_delta30,
-            },
-            {
-                "topic_title": "Rebbaukataster",
-                "base_topic": "lwb_rebbaukataster",
-                "topic": "lwb_rebbaukataster_v2_0",
-                "version": "2.0",
-                "canton": "ZG",
-                "updated_at": None,
-            },
-        ]
-    }
-
-    topics_log = [
-        (
-            f"Thema Perimeter LN- und Sömmerungsflächen (SH) wurde am {datestring_delta4} "
-            "aktualisiert und wird verarbeitet"
-        ),
-        (
-            f"Thema Perimeter LN- und Sömmerungsflächen (ZG) wurde am {datestring_delta23} "
-            "aktualisiert und wird verarbeitet"
-        ),
-        f"Thema Rebbaukataster (SH) wurde seit {datestring_delta30} nicht aktualisiert",
-        "Thema Rebbaukataster (ZG) ist nicht verfügbar",
-        "2 Themen werden prozessiert",
-    ]
-
-    error_log = (
-        "Fehler beim Abrufen der Themeninformationen von geodienste.ch: "
-        "500  - Internal Server Error"
-    )
-
-    def test_topic_has_changed(self):
-        """Test if the correct topics are returned and logged"""
-        mock_response = httpx.Response(200, json=self.response_body)
-        mock_client = httpx.Client(transport=httpx.MockTransport(lambda request: mock_response))
-        topics_to_process = GeodiensteApi.get_topics_to_update(mock_client)
-        self.assertEqual(len(topics_to_process), 2)
-        self.assertEqual(topics_to_process[0].get("base_topic"), "lwb_perimeter_ln_sf")
-        self.assertEqual(topics_to_process[0].get("canton"), "SH")
-        self.assertEqual(topics_to_process[1].get("base_topic"), "lwb_perimeter_ln_sf")
-        self.assertEqual(topics_to_process[1].get("canton"), "ZG")
-
+    @patch("time.sleep", return_value=1)
+    @patch("processing.GeodiensteApi._get_client")
+    # We have to pass this parameter, else the test will fail
+    # pylint: disable-next=unused-argument
+    def test_start_export(self, mock_get_client, mock_sleep):
+        """Test the check_export_status method of the GeodiensteApi class"""
         with self.assertLogs() as cm:
-            for topic_log in self.topics_log:
-                logging.info(topic_log)
+            mock_client = MagicMock()
+            mock_get_client.return_value = mock_client
+            mock_client.get.side_effect = [
+                MagicMock(
+                    status_code=httpx.codes.NOT_FOUND,
+                    text=json.dumps(
+                        {
+                            "error": GEODIENSTE_EXPORT_ERROR_PENDING,
+                        }
+                    ),
+                ),
+                MagicMock(
+                    status_code=httpx.codes.OK,
+                    text=json.dumps({"info": "Data export successfully started."}),
+                ),
+            ]
 
-        self.assertEqual(
-            cm.output,
-            [f"INFO:root:{topic_log}" for topic_log in self.topics_log],
-        )
+            geodienste_api = GeodiensteApi()
+            response = geodienste_api.start_export("test_topic", "ZH", "test_token", datetime.now())
 
-    def test_topic_has_changed_request_failed(self):
-        """Test if an error is logged when the request fails"""
-        mock_response = httpx.Response(500)
-        mock_client = httpx.Client(transport=httpx.MockTransport(lambda request: mock_response))
-        topics_to_process = GeodiensteApi.get_topics_to_update(mock_client)
-        self.assertEqual(len(topics_to_process), 0)
+            self.assertEqual(response.status_code, httpx.codes.OK)
+            self.assertEqual(json.loads(response.text)["info"], "Data export successfully started.")
+            self.assertEqual(mock_client.get.call_count, 2)
 
+            logs = [
+                {
+                    "message": "Starten des Datenexports für test_topic (ZH)...",
+                    "level": logging.INFO,
+                },
+                {
+                    "message": (
+                        "Es läuft gerade ein anderer Export. Versuche es in 1 Minute erneut."
+                    ),
+                    "level": logging.INFO,
+                },
+            ]
+            assert_logs(self, cm, logs)
+
+    @patch("time.sleep", return_value=1)
+    @patch("processing.GeodiensteApi._get_client")
+    # We have to pass this parameter, else the test will fail
+    # pylint: disable-next=unused-argument
+    def test_start_export_timeout(self, mock_get_client, mock_sleep):
+        """Test the check_export_status method of the GeodiensteApi class"""
         with self.assertLogs() as cm:
-            logging.error(self.error_log)
+            mock_response = httpx.Response(
+                httpx.codes.NOT_FOUND,
+                json={"error": GEODIENSTE_EXPORT_ERROR_PENDING},
+            )
+            mock_get_client.return_value = httpx.Client(
+                transport=httpx.MockTransport(lambda request: mock_response)
+            )
 
-        self.assertEqual(cm.output, [f"ERROR:root:{self.error_log}"])
+            geodienste_api = GeodiensteApi()
+            response = geodienste_api.start_export(
+                "test_topic", "ZH", "test_token", datetime.now() + timedelta(seconds=600)
+            )
+
+            self.assertEqual(response.status_code, httpx.codes.NOT_FOUND)
+            self.assertEqual(
+                json.loads(response.text)["error"],
+                GEODIENSTE_EXPORT_ERROR_PENDING,
+            )
+
+            logs = [
+                {
+                    "message": "Starten des Datenexports für test_topic (ZH)...",
+                    "level": logging.INFO,
+                },
+                {
+                    "message": "Es läuft bereits ein anderer Export. Zeitlimite überschritten.",
+                    "level": logging.ERROR,
+                },
+            ]
+            assert_logs(self, cm, logs)
+
+    @patch("time.sleep", return_value=1)
+    @patch("processing.GeodiensteApi._get_client")
+    # We have to pass this parameter, else the test will fail
+    # pylint: disable-next=unused-argument
+    def test_check_export_status(self, mock_get_client, mock_sleep):
+        """Test the check_export_status method of the GeodiensteApi class"""
+        with self.assertLogs() as cm:
+            mock_client = MagicMock()
+            mock_get_client.return_value = mock_client
+            mock_client.get.side_effect = [
+                MagicMock(
+                    status_code=httpx.codes.OK,
+                    text=json.dumps({"status": GEODIENSTE_EXPORT_STATUS_QUEUED}),
+                ),
+                MagicMock(
+                    status_code=httpx.codes.OK,
+                    text=json.dumps({"status": GEODIENSTE_EXPORT_STATUS_WORKING}),
+                ),
+                MagicMock(
+                    status_code=httpx.codes.OK,
+                    text=json.dumps({"status": GEODIENSTE_EXPORT_STATUS_SUCCESS}),
+                ),
+            ]
+
+            geodienste_api = GeodiensteApi()
+            response = geodienste_api.check_export_status("test_topic", "ZH", "test_token")
+
+            self.assertEqual(response.status_code, httpx.codes.OK)
+            self.assertEqual(json.loads(response.text)["status"], GEODIENSTE_EXPORT_STATUS_SUCCESS)
+            self.assertEqual(mock_client.get.call_count, 3)
+
+            logs = [
+                {
+                    "message": "Überprüfen des Exportstatus für test_topic (ZH)...",
+                    "level": logging.INFO,
+                },
+                {
+                    "message": "Export ist in Warteschlange. Versuche es in 1 Minute erneut.",
+                    "level": logging.INFO,
+                },
+                {
+                    "message": "Export ist in Bearbeitung. Versuche es in 1 Minute erneut.",
+                    "level": logging.INFO,
+                },
+            ]
+            assert_logs(self, cm, logs)
+
+    @patch("time.sleep", return_value=1)
+    @patch("processing.GeodiensteApi._get_client")
+    # We have to pass this parameter, else the test will fail
+    # pylint: disable-next=unused-argument
+    def test_check_export_status_timeout(self, mock_get_client, mock_sleep):
+        """Test the check_export_status method of the GeodiensteApi class"""
+        with self.assertLogs() as cm:
+            mock_client = MagicMock()
+            mock_get_client.return_value = mock_client
+            mock_client.get.side_effect = [
+                MagicMock(
+                    status_code=httpx.codes.OK,
+                    text=json.dumps({"status": GEODIENSTE_EXPORT_STATUS_QUEUED}),
+                ),
+            ]
+            geodienste_api = GeodiensteApi()
+            response = geodienste_api.check_export_status(
+                "test_topic", "ZH", "test_token", datetime.now() + timedelta(seconds=600)
+            )
+
+            self.assertEqual(response.status_code, httpx.codes.OK)
+            self.assertEqual(
+                json.loads(response.text)["status"],
+                GEODIENSTE_EXPORT_STATUS_QUEUED,
+            )
+
+            logs = [
+                {
+                    "message": "Überprüfen des Exportstatus für test_topic (ZH)...",
+                    "level": logging.INFO,
+                },
+                {
+                    "message": "Zeitlimite überschritten. Status ist in Warteschlange",
+                    "level": logging.ERROR,
+                },
+            ]
+            assert_logs(self, cm, logs)
