@@ -73,10 +73,18 @@ class GeodiensteApi:
             if message.get("error") == GEODIENSTE_EXPORT_ERROR_PENDING:
                 start_time_diff = datetime.now() - start_time
                 if start_time_diff.seconds > 60 * 10:
-                    logging.error("Es läuft bereits ein anderer Export. Zeitlimite überschritten.")
+                    logging.error(
+                        "%s (%s): Es läuft bereits ein anderer Export. Zeitlimite überschritten.",
+                        topic,
+                        canton,
+                    )
                     return response
 
-                logging.info("Es läuft gerade ein anderer Export. Versuche es in 1 Minute erneut.")
+                logging.info(
+                    "%s (%s): Es läuft gerade ein anderer Export. Versuche es in 1 Minute erneut.",
+                    topic,
+                    canton,
+                )
                 time.sleep(self.SLEEP_TIME)
                 return self.start_export(topic, canton, token, start_time, client)
         return response
@@ -101,10 +109,14 @@ class GeodiensteApi:
                 )
                 start_time_diff = datetime.now() - start_time
                 if start_time_diff.seconds > 60 * 10:
-                    logging.error("Zeitlimite überschritten. Status ist %s", status)
+                    logging.error(
+                        "%s (%s): Zeitlimite überschritten. Status ist %s", topic, canton, status
+                    )
                     return response
 
-                logging.info("Export ist %s. Versuche es in 1 Minute erneut.", status)
+                logging.info(
+                    "%s (%s): Export ist %s. Versuche es in 1 Minute erneut.", topic, canton, status
+                )
                 time.sleep(self.SLEEP_TIME)
                 return self.check_export_status(topic, canton, token, start_time, client)
         return response
