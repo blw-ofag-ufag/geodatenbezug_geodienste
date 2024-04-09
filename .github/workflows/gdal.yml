@@ -32,26 +32,3 @@ jobs:
               with:
                   name: linux-wheel
                   path: ${{steps.gdal.outputs.wheel-path}}
-
-    windows:
-        runs-on: windows-latest
-        name: Build GDAL wheel for Windows
-        steps:
-            - name: Set up Python
-              uses: actions/setup-python@v5
-              with:
-                  python-version: "3.11"
-            - name: Build GDAL wheel
-              id: gdal
-              uses: trundev/setup-gdal@main
-              with:
-                  gdal-version: "v3.8.5"
-                  rebuild-cache: "false"
-                  base-dir: "GDAL~"
-                  cache-key-prefix: ""
-                  use-conda: "false"
-            - name: Upload wheel
-              uses: actions/upload-artifact@v4
-              with:
-                  name: windows-wheel
-                  path: ${{steps.gdal.outputs.wheel-path}}
