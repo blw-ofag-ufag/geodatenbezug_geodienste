@@ -57,7 +57,9 @@ def process_topic(topic):
     export_message = json.loads(export_response.text)
     if export_response.status_code != httpx.codes.OK:
         logging.error(
-            "Fehler beim Starten des Datenexports: %s - %s",
+            "%s (%s): Fehler beim Starten des Datenexports: %s - %s",
+            topic_name,
+            canton,
             export_response.status_code,
             (
                 export_message.get("error")
@@ -81,7 +83,9 @@ def process_topic(topic):
     status_message = json.loads(status_reponse.text)
     if status_message.get("status") == GEODIENSTE_EXPORT_STATUS_FAILED:
         logging.error(
-            "Fehler bei der Statusabfrage des Datenexports: %s - %s",
+            "%s (%s): Fehler bei der Statusabfrage des Datenexports: %s - %s",
+            topic_name,
+            canton,
             status_reponse.status_code,
             status_message.get("info"),
         )
@@ -94,7 +98,9 @@ def process_topic(topic):
         }
     if status_reponse.status_code != httpx.codes.OK:
         logging.error(
-            "Fehler bei der Statusabfrage des Datenexports: %s - %s",
+            "%s (%s): Fehler bei der Statusabfrage des Datenexports: %s - %s",
+            topic_name,
+            canton,
             status_reponse.status_code,
             status_message.get("error"),
         )

@@ -194,7 +194,7 @@ class TestProcessing(unittest.TestCase):
 
             log = {
                 "message": (
-                    "Fehler beim Starten des Datenexports: "
+                    "lwb_rebbaukataster (BE): Fehler beim Starten des Datenexports: "
                     f"{httpx.codes.NOT_FOUND} - {GEODIENSTE_EXPORT_ERROR_INVALID_TOKEN}"
                 ),
                 "level": logging.ERROR,
@@ -241,7 +241,7 @@ class TestProcessing(unittest.TestCase):
 
             log = {
                 "message": (
-                    "Fehler bei der Statusabfrage des Datenexports: "
+                    "lwb_rebbaukataster (BE): Fehler bei der Statusabfrage des Datenexports: "
                     f"{httpx.codes.OK} - {GEODIENSTE_EXPORT_ERROR_UNEXPECTED}"
                 ),
                 "level": logging.ERROR,
@@ -284,7 +284,7 @@ class TestProcessing(unittest.TestCase):
 
             log = {
                 "message": (
-                    "Fehler bei der Statusabfrage des Datenexports: "
+                    "lwb_rebbaukataster (BE): Fehler bei der Statusabfrage des Datenexports: "
                     f"{httpx.codes.NOT_FOUND} - {GEODIENSTE_EXPORT_ERROR_INVALID_TOKEN}"
                 ),
                 "level": logging.ERROR,
