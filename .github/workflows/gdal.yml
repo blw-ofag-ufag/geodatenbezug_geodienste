@@ -14,6 +14,10 @@ jobs:
         runs-on: ubuntu-latest
         name: Build GDAL wheel for Linux
         steps:
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.11"
             - name: Build GDAL wheel
               id: gdal
               uses: trundev/setup-gdal@main
@@ -33,6 +37,10 @@ jobs:
         runs-on: windows-latest
         name: Build GDAL wheel for Windows
         steps:
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.11"
             - name: Build GDAL wheel
               id: gdal
               uses: trundev/setup-gdal@main
