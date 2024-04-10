@@ -1,7 +1,4 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy dotnet core app to Azure Function App - topic-processing
+name: Pre-release
 
 on:
     push:
@@ -10,21 +7,23 @@ on:
     workflow_dispatch:
 
 env:
-    AZURE_FUNCTIONAPP_PACKAGE_PATH: "." # set this to the path to your web app project, defaults to the repository root
-    DOTNET_VERSION: "8.0.x" # set this to the dotnet version to use
+    AZURE_FUNCTIONAPP_PACKAGE_PATH: "."
+    AZURE_FUNCTIONAPP_NAME: "geodatenbezug"
+    AZURE_FUNCTIONAPP_SLOT: "production"
+    DOTNET_VERSION: "8.0.x"
 
 jobs:
     build-and-deploy:
         runs-on: windows-latest
         permissions:
-            id-token: write #This is required for requesting the JWT
+            id-token: write
 
         steps:
             - name: "Checkout GitHub Action"
               uses: actions/checkout@v4
 
             - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
-              uses: actions/setup-dotnet@v1
+              uses: actions/setup-dotnet@v4
               with:
                   dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -36,16 +35,16 @@ jobs:
                   popd
 
             - name: Login to Azure
-              uses: azure/login@v1
+              uses: azure/login@v2
               with:
-                  client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E3E9FCDDEE12468CBEA1084C3737126E }}
-                  tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_89DC18AF6EDA4EC0A2C534AF8F19840A }}
-                  subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_0921DF05326A437B84A2568C32C60926 }}
+                  client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_FC79ACD3493F4D6CB09C619860F15688 }}
+                  tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_DC41E352EF2D471992D5623CB1879E27 }}
+                  subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_28EB1A5320E2429ABBCF9298EB712AD3 }}
 
             - name: "Run Azure Functions Action"
               uses: Azure/functions-action@v1
               id: fa
               with:
-                  app-name: "topic-processing"
-                  slot-name: "production"
+                  app-name: "${{ env.AZURE_FUNCTIONAPP_NAME }}"
+                  slot-name: "${{ env.AZURE_FUNCTIONAPP_SLOT }}"
                   package: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output"
