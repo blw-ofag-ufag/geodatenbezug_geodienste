@@ -5,6 +5,7 @@
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RootNamespace>BLW</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MaxRev.Gdal.Core" Version="3.8.3.286" />
