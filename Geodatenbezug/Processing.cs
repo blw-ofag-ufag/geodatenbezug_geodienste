@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 
 namespace BLW;
-public class Processing(GeodiensteApi geodiensteApi, ILogger<Processing> logger)
+public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger)
 {
     public async Task<List<Topic>> GetTopicsToUpdate()
     {

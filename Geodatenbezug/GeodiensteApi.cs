@@ -3,7 +3,7 @@ using BLW.Models;
 using Microsoft.Extensions.Logging;
 
 namespace BLW;
-public class GeodiensteApi(ILogger<GeodiensteApi> logger) : IDisposable
+public class GeodiensteApi(ILogger<GeodiensteApi> logger) : IGeodiensteApi, IDisposable
 {
     private const string GEODIENSTE_BASE_URL = "https://geodienste.ch";
 
