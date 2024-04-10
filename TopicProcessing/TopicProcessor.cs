@@ -4,6 +4,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
+using MaxRev.Gdal.Core;
 using OSGeo.GDAL;
 
 namespace TopicProcessing
@@ -41,14 +42,22 @@ namespace TopicProcessing
         FunctionContext executionContext)
         {
             ILogger logger = executionContext.GetLogger(nameof(Function1));
-            logger.LogInformation("C# Timer trigger function executed at: {0}", DateTime.Now);
-            GdalConfiguration.ConfigureGdal();
-            GdalConfiguration.ConfigureOgr();
-            Gdal.UseExceptions();
-            logger.LogInformation("Gdal version: " + Gdal.VersionInfo(null));
+            try
+            {
+                logger.LogInformation("C# Timer trigger function executed at: {0}", DateTime.Now);
+                logger.LogInformation("Version with MaxRev.Gdal.Core");
+                GdalBase.ConfigureAll();
+                Gdal.VersionInfo(null);
+                logger.LogInformation("Gdal version: " + Gdal.VersionInfo(null));
 
-            string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(nameof(HelloCities));
-            logger.LogInformation("Created new orchestration with instance ID = {instanceId}", instanceId);
+                string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(nameof(HelloCities));
+                logger.LogInformation("Created new orchestration with instance ID = {instanceId}", instanceId);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Error in Function1: {ex}");
+            }   
+            
         }
     }
 }
