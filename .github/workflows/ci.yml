@@ -17,4 +17,4 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Build solution
-        run: dotnet build BDMS.sln -c Release /warnaserror
+        run: dotnet build Geodatenbezug.sln -c Release /warnaserror
