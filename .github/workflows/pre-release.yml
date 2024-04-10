@@ -1,50 +1,50 @@
 name: Pre-release
 
 on:
-    push:
-        branches:
-            - csharp-function
-    workflow_dispatch:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 env:
-    AZURE_FUNCTIONAPP_PACKAGE_PATH: "."
-    AZURE_FUNCTIONAPP_NAME: "geodatenbezug"
-    AZURE_FUNCTIONAPP_SLOT: "production"
-    DOTNET_VERSION: "8.0.x"
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: "."
+  AZURE_FUNCTIONAPP_NAME: "geodatenbezug"
+  AZURE_FUNCTIONAPP_SLOT: "production"
+  DOTNET_VERSION: "8.0.x"
 
 jobs:
-    build-and-deploy:
-        runs-on: windows-latest
-        permissions:
-            id-token: write
+  build-and-deploy:
+    runs-on: windows-latest
+    permissions:
+      id-token: write
 
-        steps:
-            - name: "Checkout GitHub Action"
-              uses: actions/checkout@v4
+    steps:
+      - name: "Checkout GitHub Action"
+        uses: actions/checkout@v4
 
-            - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
-              uses: actions/setup-dotnet@v4
-              with:
-                  dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-            - name: "Resolve Project Dependencies Using Dotnet"
-              shell: pwsh
-              run: |
-                  pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-                  dotnet build --configuration Release --output ./output
-                  popd
+      - name: "Resolve Project Dependencies Using Dotnet"
+        shell: pwsh
+        run: |
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          dotnet build --configuration Release --output ./output
+          popd
 
-            - name: Login to Azure
-              uses: azure/login@v2
-              with:
-                  client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_FC79ACD3493F4D6CB09C619860F15688 }}
-                  tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_DC41E352EF2D471992D5623CB1879E27 }}
-                  subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_28EB1A5320E2429ABBCF9298EB712AD3 }}
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_FC79ACD3493F4D6CB09C619860F15688 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_DC41E352EF2D471992D5623CB1879E27 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_28EB1A5320E2429ABBCF9298EB712AD3 }}
 
-            - name: "Run Azure Functions Action"
-              uses: Azure/functions-action@v1
-              id: fa
-              with:
-                  app-name: "${{ env.AZURE_FUNCTIONAPP_NAME }}"
-                  slot-name: "${{ env.AZURE_FUNCTIONAPP_SLOT }}"
-                  package: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output"
+      - name: "Run Azure Functions Action"
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: "${{ env.AZURE_FUNCTIONAPP_NAME }}"
+          slot-name: "${{ env.AZURE_FUNCTIONAPP_SLOT }}"
+          package: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output"
