@@ -1,4 +1,4 @@
-﻿namespace BLW.Models;
+﻿namespace Geodatenbezug.Models;
 public enum Canton
 {
     AG,

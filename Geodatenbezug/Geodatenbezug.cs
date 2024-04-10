@@ -4,10 +4,10 @@ using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 using MaxRev.Gdal.Core;
 using OSGeo.GDAL;
-using BLW.Models;
+using Geodatenbezug.Models;
 using System.Text.Json;
 
-namespace BLW;
+namespace Geodatenbezug;
 
 public class Geodatenbezug
 {

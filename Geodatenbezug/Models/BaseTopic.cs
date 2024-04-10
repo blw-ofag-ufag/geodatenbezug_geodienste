@@ -1,4 +1,4 @@
-﻿namespace BLW.Models;
+﻿namespace Geodatenbezug.Models;
 public enum BaseTopic
 {
     lwb_perimeter_ln_sf,

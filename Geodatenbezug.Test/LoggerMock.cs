@@ -2,6 +2,8 @@
 using Moq;
 using System.Collections.ObjectModel;
 
+namespace Geodatenbezug.Test;
+
 public class LogMessage
 {
     public LogLevel LogLevel { get; set; }

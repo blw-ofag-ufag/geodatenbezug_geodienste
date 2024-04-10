@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
-using BLW.Models;
+using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 
-namespace BLW;
+namespace Geodatenbezug;
 public class GeodiensteApi(ILogger<GeodiensteApi> logger) : IGeodiensteApi, IDisposable
 {
     private const string GEODIENSTE_BASE_URL = "https://geodienste.ch";

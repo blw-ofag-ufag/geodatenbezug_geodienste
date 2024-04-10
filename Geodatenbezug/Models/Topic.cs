@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace BLW.Models;
+namespace Geodatenbezug.Models;
 public class GeodiensteInfoData
 {
     [JsonPropertyName("services")]

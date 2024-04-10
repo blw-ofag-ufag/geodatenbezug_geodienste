@@ -1,6 +1,6 @@
-﻿using BLW.Models;
+﻿using Geodatenbezug.Models;
 
-namespace BLW;
+namespace Geodatenbezug;
 public interface IGeodiensteApi
 {
     Task<List<Topic>> RequestTopicInfoAsync();
