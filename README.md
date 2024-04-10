@@ -4,14 +4,8 @@
 
 ### Voraussetzungen
 
--   Python 3.11
--   Visual Studio Code mit den Erweiterungen
-    -   [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
-    -   [Python Debugger](https://marketplace.visualstudio.com/items?itemName=ms-python.debugpy)
-    -   [Azure Functions](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurefunctions)
-    -   [Azurite V3](https://marketplace.visualstudio.com/items?itemName=Azurite.azurite)
-    -   [Pylint](https://marketplace.visualstudio.com/items?itemName=ms-python.pylint)
-    -   [Black Formatter](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter)
+- .NET 8
+- Visual Studio 2022
 
 Im Visual Studio Code Terminal `python -m venv .venv` ausführen. Dies erstellt das Verzeichnis _.venv_, in welchem unter Scripts die zu verwendende _Python.exe_ liegt. In der Statusbar nun die Python-Version suchen (3.11.\*, evt. muss dazu eine \*.py-Datei geöffnet sein), draufklicken und als Interpreter den Pfad _.\\.venv\Scripts\python.exe_ auswählen.
 
@@ -33,21 +27,20 @@ Um Lint- und Formatierungsfehler automatisch zu erkennen/beheben, können im Use
 
 Für die Requests ans Geodienste API müssen folgende Umgebungsvariablen eingerichtet werden:
 
--   AuthUser: _User im KeePass_
--   AuthPw: _Passwort im KeePass_
--   tokens_lwb_perimeter_ln_sf: _Aus dem Azure Portal kopieren_
--   tokens_lwb_rebbaukataster: _Aus dem Azure Portal kopieren_
--   tokens_lwb_perimeter_terrassenreben: _Aus dem Azure Portal kopieren_
--   tokens_lwb_biodiversitaetsfoerderflaechen: _Aus dem Azure Portal kopieren_
--   tokens_lwb_bewirtschaftungseinheit: _Aus dem Azure Portal kopieren_
--   tokens_lwb_nutzungsflaechen: _Aus dem Azure Portal kopieren_
+- AuthUser: _User im KeePass_
+- AuthPw: _Passwort im KeePass_
+- tokens*lwb_perimeter_ln_sf: \_Aus dem Azure Portal kopieren*
+- tokens*lwb_rebbaukataster: \_Aus dem Azure Portal kopieren*
+- tokens*lwb_perimeter_terrassenreben: \_Aus dem Azure Portal kopieren*
+- tokens*lwb_biodiversitaetsfoerderflaechen: \_Aus dem Azure Portal kopieren*
+- tokens*lwb_bewirtschaftungseinheit: \_Aus dem Azure Portal kopieren*
+- tokens*lwb_nutzungsflaechen: \_Aus dem Azure Portal kopieren*
 
 ### Azure Function ausführen
 
-1. Mit <kbd>F1</kbd> die Commands öffnen und **Azurite: Start** ausführen.
 2. Mit <kbd>F5</kbd> die Funktion starten.
 
 Falls die Ausführung mit dem Fehler _cannot be loaded because running scripts is disabled on this system_ fehlschlägt, muss die PowerShell _Execution Policy_ angepasst werden:
 
--   PowerShell als Admin starten und `Get-ExecutionPolicy` ausführen.
--   Wenn die _Policy_ auf _Restricted_ gesetzt ist, `Set-ExecutionPolicy RemoteSigned` ausführen.
+- PowerShell als Admin starten und `Get-ExecutionPolicy` ausführen.
+- Wenn die _Policy_ auf _Restricted_ gesetzt ist, `Set-ExecutionPolicy RemoteSigned` ausführen.
