@@ -12,7 +12,7 @@ public class GeoDiensteApiTest
 {
     private GeodiensteApi api;
     private LoggerMock<GeodiensteApi> loggerMock;
-    private MockHttpMessageHandler mockHttp;
+    private MockHttpMessageHandler messageHandlerMock;
     private Mock<IHttpClientFactory> httpClientFactoryMock;
 
 
@@ -21,7 +21,7 @@ public class GeoDiensteApiTest
     {
         loggerMock = LoggerMock<GeodiensteApi>.CreateDefault();
         httpClientFactoryMock = new Mock<IHttpClientFactory>(MockBehavior.Strict);
-        mockHttp = new MockHttpMessageHandler();
+        messageHandlerMock = new MockHttpMessageHandler();
         api = new GeodiensteApi(loggerMock.Object, httpClientFactoryMock.Object);
     }
 
@@ -29,7 +29,8 @@ public class GeoDiensteApiTest
     public void Cleanup()
     {
         httpClientFactoryMock.Verify();
-        mockHttp.Dispose();
+        messageHandlerMock.VerifyNoOutstandingExpectation();
+        messageHandlerMock.Dispose();
     }
 
     [TestMethod]
@@ -58,9 +59,9 @@ public class GeoDiensteApiTest
         ]
         };
         var responseBody = JsonSerializer.Serialize(data);
-        mockHttp.When("https://geodienste.ch/info/services.json*")
+        messageHandlerMock.When("https://geodienste.ch/info/services.json*")
             .Respond("application/json", responseBody);
-        httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(mockHttp.ToHttpClient()).Verifiable();
+        httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(messageHandlerMock.ToHttpClient()).Verifiable();
         var result = await api.RequestTopicInfoAsync();
         Assert.AreEqual(data.Services.Count, result.Count);
         for (var i = 0; i < data.Services.Count; i++)
@@ -85,9 +86,9 @@ public class GeoDiensteApiTest
     [TestMethod]
     public async Task TestRequestTopicInfoAsyncFailed()
     {
-        mockHttp.When("https://geodienste.ch/info/services.json*")
+        messageHandlerMock.When("https://geodienste.ch/info/services.json*")
             .Respond(HttpStatusCode.InternalServerError);
-        httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(mockHttp.ToHttpClient()).Verifiable();
+        httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(messageHandlerMock.ToHttpClient()).Verifiable();
         var loggerMock = LoggerMock<GeodiensteApi>.CreateDefault();
         var result = await api.RequestTopicInfoAsync();
         Assert.AreEqual(0, result.Count);
