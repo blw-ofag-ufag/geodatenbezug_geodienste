@@ -30,5 +30,5 @@ public enum Canton
     VD,
     VS,
     ZG,
-    ZH
+    ZH,
 }

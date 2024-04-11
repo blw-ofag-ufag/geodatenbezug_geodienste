@@ -1,4 +1,4 @@
-namespace Geodatenbezug.Models;
+﻿namespace Geodatenbezug.Models;
 
 /// <summary>
 /// Represents the base topic names of the geodata.
@@ -12,5 +12,5 @@ public enum BaseTopic
     lwb_perimeter_terrassenreben,
     lwb_biodiversitaetsfoerderflaechen,
     lwb_bewirtschaftungseinheit,
-    lwb_nutzungsflaechen
+    lwb_nutzungsflaechen,
 }
