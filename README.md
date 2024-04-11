@@ -1,27 +1,15 @@
-# geodatenbezug_geodienste
+[![.github/workflows/ci.yml](https://github.com/blw-ofag-ufag/geodatenbezug_geodienste/actions/workflows/ci.yml/badge.svg)](https://github.com/blw-ofag-ufag/geodatenbezug_geodienste/actions/workflows/ci.yml) [![License](https://img.shields.io/github/license/blw-ofag-ufag/geodatenbezug_geodienste)](https://github.com/blw-ofag-ufag/geodatenbezug_geodienste/blob/main/LICENSE)
 
-## Entwicklungsumgebung
+# Automatisierter Datenintegrationsprozess geodienste.ch
 
-### Voraussetzungen
+Dieses Projekt implementiert einen automatisierten Datenintegrationsprozess für landwirtschaftliche Geodaten, die von der Plattform geodienste.ch bereitgestellt werden.
 
-- .NET 8
-- Visual Studio 2022
+## Einrichten der Entwicklungsumgebung
 
-Im Visual Studio Code Terminal `python -m venv .venv` ausführen. Dies erstellt das Verzeichnis _.venv_, in welchem unter Scripts die zu verwendende _Python.exe_ liegt. In der Statusbar nun die Python-Version suchen (3.11.\*, evt. muss dazu eine \*.py-Datei geöffnet sein), draufklicken und als Interpreter den Pfad _.\\.venv\Scripts\python.exe_ auswählen.
+Folgende Komponenten müssen auf dem Entwicklungsrechner installiert sein:
 
-Mit <kbd>F1</kbd> die Commands öffnen und **Azure Functions: Install or Update Core Tools** ausführen. Falls die Installation fehlschlägt, können die Tools manuell installiert werden: [azure-functions-core-tools](https://github.com/Azure/azure-functions-core-tools).
-
-Um Lint- und Formatierungsfehler automatisch zu erkennen/beheben, können im User _settings.json_ (<kbd>F1</kbd> &rarr; **Preferences: Open user settings (json)** ) folgende Änderungen vorgenommen werden:
-
-```
-{
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "[python]": {
-    "editor.defaultFormatter": "ms-python.black-formatter"
-  },
-  "pylint.lintOnChange": true
-}
-```
+✔️ Git  
+✔️ Visual Studio 2022
 
 ### Umgebungsvariablen definieren
 
