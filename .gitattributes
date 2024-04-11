@@ -1,6 +1,14 @@
 # By default text files use native line endings for the platform
 * text=auto
 
+# Visual Studio solution and project files
+*.sln         text
+*.csproj      text
+*.fsproj      text
+*.rptproj     text
+*.sqlproj     text
+*.wixproj     text
+
 # Source files
 *.cmd         text
 *.config      text
