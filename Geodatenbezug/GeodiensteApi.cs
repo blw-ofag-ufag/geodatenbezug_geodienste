@@ -9,7 +9,7 @@ namespace Geodatenbezug;
 /// </summary>
 public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory httpClientFactory) : IGeodiensteApi
 {
-    private const string GEODIENSTE_BASE_URL = "https://geodienste.ch";
+    private const string GEODIENSTEBASEURL = "https://geodienste.ch";
 
     /// <inheritdoc />
     public async Task<List<Topic>> RequestTopicInfoAsync()
@@ -19,7 +19,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
         var cantons = string.Join(",", Enum.GetValues(typeof(Canton)).Cast<Canton>().Select(e => e.ToString()));
         var baseTopics = string.Join(",", Enum.GetValues(typeof(BaseTopic)).Cast<BaseTopic>().Select(e => e.ToString()));
         var topics = string.Join(",", Enum.GetValues(typeof(BaseTopic)).Cast<BaseTopic>().Select(e => e.ToString() + "_v2_0"));
-        var url = $"{GEODIENSTE_BASE_URL}/info/services.json?base_topics={baseTopics}&topics={topics}&cantons={cantons}&language=de";
+        var url = $"{GEODIENSTEBASEURL}/info/services.json?base_topics={baseTopics}&topics={topics}&cantons={cantons}&language=de";
 
         var httpResponse = await httpClient.GetAsync(url).ConfigureAwait(false);
         if (!httpResponse.IsSuccessStatusCode)
