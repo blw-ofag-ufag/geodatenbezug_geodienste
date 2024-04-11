@@ -83,6 +83,6 @@ public class ProcessingTest
         Assert.AreEqual("SH", topicsToProcess[0].Canton);
         Assert.AreEqual("lwb_perimeter_ln_sf", topicsToProcess[1].BaseTopic);
         Assert.AreEqual("ZG", topicsToProcess[1].Canton);
-        Helpers.AssertLogs(loggerMock.LogMessages, logs);
+        loggerMock.AssertLogs(logs);
     }
 }

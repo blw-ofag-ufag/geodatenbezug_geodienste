@@ -8,7 +8,7 @@ public class LogMessage
 {
     public LogLevel LogLevel { get; set; }
     public EventId EventId { get; set; }
-    public object State { get; set; }
+    public object? State { get; set; }
     public Exception? Exception { get; set; }
     public string? Message { get; set; }
 }
@@ -21,6 +21,15 @@ public class LoggerMock<TCategoryName> : Mock<ILogger<TCategoryName>>
 
     protected LoggerMock()
     {
+    }
+    public void AssertLogs(List<LogMessage> expectedLogs)
+    {
+        Assert.AreEqual(expectedLogs.Count, logMessages.Count);
+        for (int i = 0; i < logMessages.Count; i++)
+        {
+            Assert.AreEqual(expectedLogs[i].LogLevel, logMessages[i].LogLevel);
+            Assert.AreEqual(expectedLogs[i].Message, logMessages[i].Message);
+        }
     }
 
     public static LoggerMock<TCategoryName> CreateDefault()

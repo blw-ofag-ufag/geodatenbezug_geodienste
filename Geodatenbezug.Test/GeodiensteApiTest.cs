@@ -80,7 +80,7 @@ public class GeoDiensteApiTest
                         LogLevel = LogLevel.Information
                     },
             };
-        Helpers.AssertLogs(loggerMock.LogMessages, logs);
+        loggerMock.AssertLogs(logs);
     }
 
     [TestMethod]
@@ -104,6 +104,6 @@ public class GeoDiensteApiTest
                         LogLevel = LogLevel.Error
                     }
             };
-        Helpers.AssertLogs(loggerMock.LogMessages, logs);
+        loggerMock.AssertLogs(logs);
     }
 }
