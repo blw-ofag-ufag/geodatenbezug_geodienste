@@ -8,5 +8,5 @@ namespace Geodatenbezug.Models;
 public record GeodiensteInfoData
 {
     [JsonPropertyName("services")]
-    public required List<Topic> Services { get; set; }
+    required public List<Topic> Services { get; set; }
 }
