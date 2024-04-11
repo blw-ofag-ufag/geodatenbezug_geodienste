@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Geodatenbezug.Test;
+namespace Geodatenbezug;
 
 [TestClass]
 public class ProcessingTest

@@ -2,7 +2,7 @@
 using Moq;
 using System.Collections.ObjectModel;
 
-namespace Geodatenbezug.Test;
+namespace Geodatenbezug;
 
 public class LogMessage
 {

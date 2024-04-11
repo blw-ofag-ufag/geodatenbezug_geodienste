@@ -1,11 +1,11 @@
-﻿using Geodatenbezug.Models;
+using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RichardSzalay.MockHttp;
 using System.Net;
 using System.Text.Json;
 
-namespace Geodatenbezug.Test;
+namespace Geodatenbezug;
 
 [TestClass]
 public class GeoDiensteApiTest
