@@ -1,5 +1,6 @@
-using Geodatenbezug.Models;
+﻿using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 
 namespace Geodatenbezug;
 
@@ -19,7 +20,7 @@ public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger
         {
             if (topic.UpdatedAt.HasValue)
             {
-                var updatedAtString = topic.UpdatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss");
+                var updatedAtString = topic.UpdatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
                 var timeDifference = currentTime - topic.UpdatedAt.Value;
                 if (timeDifference.Days < 1)
                 {
