@@ -71,7 +71,7 @@ public class ProcessingTest
         loggerMock.Setup(LogLevel.Information, "Thema Rebbaukataster (ZG) ist nicht verfügbar");
         loggerMock.Setup(LogLevel.Information, "2 Themen werden prozessiert");
 
-        var topicsToProcess = await new Processing(geodiensteApiMock.Object, loggerMock.Object).GetTopicsToUpdate();
+        var topicsToProcess = await new Processing(geodiensteApiMock.Object, loggerMock.Object).GetTopicsToProcess();
         Assert.AreEqual(2, topicsToProcess.Count);
         Assert.AreEqual("lwb_perimeter_ln_sf", topicsToProcess[0].BaseTopic);
         Assert.AreEqual("SH", topicsToProcess[0].Canton);
