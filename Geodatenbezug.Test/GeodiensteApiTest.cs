@@ -1,5 +1,6 @@
 ﻿using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
+using Moq;
 using RichardSzalay.MockHttp;
 using System.Net;
 using System.Text.Json;
@@ -9,19 +10,25 @@ namespace Geodatenbezug.Test;
 [TestClass]
 public class GeoDiensteApiTest
 {
+    private GeodiensteApi api;
     private LoggerMock<GeodiensteApi> loggerMock;
     private MockHttpMessageHandler mockHttp;
+    private Mock<IHttpClientFactory> httpClientFactoryMock;
+
 
     [TestInitialize]
     public void Initialize()
     {
         loggerMock = LoggerMock<GeodiensteApi>.CreateDefault();
+        httpClientFactoryMock = new Mock<IHttpClientFactory>(MockBehavior.Strict);
         mockHttp = new MockHttpMessageHandler();
+        api = new GeodiensteApi(loggerMock.Object, httpClientFactoryMock.Object);
     }
 
     [TestCleanup]
     public void Cleanup()
     {
+        httpClientFactoryMock.Verify();
         mockHttp.Dispose();
     }
 
@@ -53,11 +60,7 @@ public class GeoDiensteApiTest
         var responseBody = JsonSerializer.Serialize(data);
         mockHttp.When("https://geodienste.ch/info/services.json*")
             .Respond("application/json", responseBody);
-        var client = mockHttp.ToHttpClient();
-        var api = new GeodiensteApi(loggerMock.Object)
-        {
-            GetHttpClient = () => client
-        };
+        httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(mockHttp.ToHttpClient()).Verifiable();
         var result = await api.RequestTopicInfoAsync();
         Assert.AreEqual(data.Services.Count, result.Count);
         for (var i = 0; i < data.Services.Count; i++)
@@ -68,7 +71,15 @@ public class GeoDiensteApiTest
             Assert.AreEqual(data.Services[i].Canton, result[i].Canton);
             Assert.AreEqual(data.Services[i].UpdatedAt, result[i].UpdatedAt);
         }
-        Helpers.AssertLogs(loggerMock.LogMessages, []);
+        var logs = new List<LogMessage>
+            {
+            new()
+                {
+                    Message = "Rufe die Themeninformationen ab...",
+                    LogLevel = LogLevel.Information
+                },
+            };
+        Helpers.AssertLogs(loggerMock.LogMessages, logs);
     }
 
     [TestMethod]
@@ -76,12 +87,8 @@ public class GeoDiensteApiTest
     {
         mockHttp.When("https://geodienste.ch/info/services.json*")
             .Respond(HttpStatusCode.InternalServerError);
-        var client = mockHttp.ToHttpClient();
+        httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(mockHttp.ToHttpClient()).Verifiable();
         var loggerMock = LoggerMock<GeodiensteApi>.CreateDefault();
-        var api = new GeodiensteApi(loggerMock.Object)
-        {
-            GetHttpClient = () => client
-        };
         var result = await api.RequestTopicInfoAsync();
         Assert.AreEqual(0, result.Count);
         var logs = new List<LogMessage>
