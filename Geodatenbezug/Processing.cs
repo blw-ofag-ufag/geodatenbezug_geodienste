@@ -10,7 +10,7 @@ public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger
 {
     public async Task<List<Topic>> GetTopicsToUpdate()
     {
-        var topics = await geodiensteApi.RequestTopicInfoAsync();
+        var topics = await geodiensteApi.RequestTopicInfoAsync().ConfigureAwait(false);
         var currentTime = DateTime.Now;
         var topicsToProcess = topics.FindAll(topic =>
         {

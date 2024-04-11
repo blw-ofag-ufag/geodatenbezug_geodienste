@@ -26,7 +26,7 @@ public class Geodatenbezug
         try
         {
             logger.LogInformation("Start der Prozessierung...");
-            var topicsString = await context.CallActivityAsync<string>(nameof(RetrieveTopics));
+            var topicsString = await context.CallActivityAsync<string>(nameof(RetrieveTopics)).ConfigureAwait(false);
             var topics = JsonSerializer.Deserialize<List<Topic>>(topicsString);
         }
         catch (Exception ex)
@@ -41,7 +41,7 @@ public class Geodatenbezug
         try
         {
             logger.LogInformation("Laden der Themen...");
-            var topics = await processing.GetTopicsToUpdate();
+            var topics = await processing.GetTopicsToUpdate().ConfigureAwait(false);
             return JsonSerializer.Serialize(topics);
         }
         catch (Exception ex)
@@ -61,7 +61,7 @@ public class Geodatenbezug
             GdalBase.ConfigureAll();
             logger.LogInformation("Verwendete GDAL-Version: " + Gdal.VersionInfo(null));
 
-            await client.ScheduleNewOrchestrationInstanceAsync(nameof(OrchestrateProcessing));
+            await client.ScheduleNewOrchestrationInstanceAsync(nameof(OrchestrateProcessing)).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
