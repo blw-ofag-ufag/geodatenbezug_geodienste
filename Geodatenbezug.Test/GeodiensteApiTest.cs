@@ -9,6 +9,22 @@ namespace Geodatenbezug.Test;
 [TestClass]
 public class GeoDiensteApiTest
 {
+    private LoggerMock<GeodiensteApi> loggerMock;
+    private MockHttpMessageHandler mockHttp;
+
+    [TestInitialize]
+    public void Initialize()
+    {
+        loggerMock = LoggerMock<GeodiensteApi>.CreateDefault();
+        mockHttp = new MockHttpMessageHandler();
+    }
+
+    [TestCleanup]
+    public void Cleanup()
+    {
+        mockHttp.Dispose();
+    }
+
     [TestMethod]
     public async Task TestRequestTopicInfoAsync()
     {
@@ -35,11 +51,9 @@ public class GeoDiensteApiTest
         ]
         };
         var responseBody = JsonSerializer.Serialize(data);
-        var mockHttp = new MockHttpMessageHandler();
         mockHttp.When("https://geodienste.ch/info/services.json*")
             .Respond("application/json", responseBody);
         var client = mockHttp.ToHttpClient();
-        var loggerMock = LoggerMock<GeodiensteApi>.CreateDefault();
         var api = new GeodiensteApi(loggerMock.Object)
         {
             GetHttpClient = () => client
@@ -60,7 +74,6 @@ public class GeoDiensteApiTest
     [TestMethod]
     public async Task TestRequestTopicInfoAsyncFailed()
     {
-        var mockHttp = new MockHttpMessageHandler();
         mockHttp.When("https://geodienste.ch/info/services.json*")
             .Respond(HttpStatusCode.InternalServerError);
         var client = mockHttp.ToHttpClient();
