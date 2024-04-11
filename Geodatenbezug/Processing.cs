@@ -2,6 +2,7 @@ using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Geodatenbezug;
+
 public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger)
 {
     public async Task<List<Topic>> GetTopicsToUpdate()
