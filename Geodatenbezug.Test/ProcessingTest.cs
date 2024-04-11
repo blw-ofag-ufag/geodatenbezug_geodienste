@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Geodatenbezug;
@@ -37,7 +37,7 @@ public class ProcessingTest
                     TopicName = "lwb_perimeter_ln_sf_v2_0",
                     TopicTitle = "Perimeter LN- und Sömmerungsflächen",
                     Canton = "SH",
-                    UpdatedAt = datestring_delta4
+                    UpdatedAt = datestring_delta4,
                 },
                 new()
                 {
@@ -45,7 +45,7 @@ public class ProcessingTest
                     TopicName = "lwb_perimeter_ln_sf_v2_0",
                     TopicTitle = "Perimeter LN- und Sömmerungsflächen",
                     Canton = "ZG",
-                    UpdatedAt = datestring_delta23
+                    UpdatedAt = datestring_delta23,
                 },
                 new() 
                 {
@@ -53,7 +53,7 @@ public class ProcessingTest
                     TopicName = "lwb_rebbaukataster_v2_0",
                     TopicTitle = "Rebbaukataster",
                     Canton = "SH",
-                    UpdatedAt = datestring_delta30
+                    UpdatedAt = datestring_delta30,
                 },
                 new()
                 {
@@ -61,8 +61,8 @@ public class ProcessingTest
                     TopicName = "lwb_rebbaukataster_v2_0",
                     TopicTitle = "Rebbaukataster",
                     Canton = "ZG",
-                    UpdatedAt = null
-                }
+                    UpdatedAt = null,
+                },
             ]);
 
         loggerMock.Setup(LogLevel.Information, $"Thema Perimeter LN- und Sömmerungsflächen (SH) wurde am {datestring_delta4:yyyy-MM-dd HH:mm:ss} aktualisiert und wird verarbeitet");

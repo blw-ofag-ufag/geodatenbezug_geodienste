@@ -1,4 +1,4 @@
-using Geodatenbezug.Models;
+﻿using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
 using RichardSzalay.MockHttp;
@@ -45,7 +45,7 @@ public class GeodiensteApiTest
                     TopicName = "lwb_perimeter_ln_sf_v2_0",
                     TopicTitle = "Perimeter LN- und Sömmerungsflächen",
                     Canton = "ZG",
-                    UpdatedAt = DateTime.Now.AddHours(-23)
+                    UpdatedAt = DateTime.Now.AddHours(-23),
                 },
                 new Topic
                 {
@@ -55,7 +55,7 @@ public class GeodiensteApiTest
                     Canton = "ZG",
                     UpdatedAt = null,
                 },
-            ]
+            ],
         };
         var responseBody = JsonSerializer.Serialize(data);
 
