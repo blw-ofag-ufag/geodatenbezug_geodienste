@@ -74,11 +74,11 @@ public class GeoDiensteApiTest
         }
         var logs = new List<LogMessage>
             {
-            new()
-                {
-                    Message = "Rufe die Themeninformationen ab...",
-                    LogLevel = LogLevel.Information
-                },
+                new()
+                    {
+                        Message = "Rufe die Themeninformationen ab...",
+                        LogLevel = LogLevel.Information
+                    },
             };
         Helpers.AssertLogs(loggerMock.LogMessages, logs);
     }
@@ -89,16 +89,20 @@ public class GeoDiensteApiTest
         messageHandlerMock.When("https://geodienste.ch/info/services.json*")
             .Respond(HttpStatusCode.InternalServerError);
         httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(messageHandlerMock.ToHttpClient()).Verifiable();
-        var loggerMock = LoggerMock<GeodiensteApi>.CreateDefault();
         var result = await api.RequestTopicInfoAsync();
         Assert.AreEqual(0, result.Count);
         var logs = new List<LogMessage>
             {
                 new()
-                {
-                    Message = $"Fehler beim Abrufen der Themeninformationen von geodienste.ch: {HttpStatusCode.InternalServerError}  - Internal Server Error",
-                    LogLevel = LogLevel.Error
-                },
+                    {
+                        Message = "Rufe die Themeninformationen ab...",
+                        LogLevel = LogLevel.Information
+                    },
+                new()
+                    {
+                        Message = $"Fehler beim Abrufen der Themeninformationen von geodienste.ch: {HttpStatusCode.InternalServerError}  - Internal Server Error",
+                        LogLevel = LogLevel.Error
+                    }
             };
         Helpers.AssertLogs(loggerMock.LogMessages, logs);
     }
