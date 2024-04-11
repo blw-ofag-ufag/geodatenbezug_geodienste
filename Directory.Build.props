@@ -1,0 +1,10 @@
+<Project>
+
+  <PropertyGroup>
+    <PackageProjectUrl>https://github.com/blw-ofag-ufag/geodatenbezug_geodienste</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/blw-ofag-ufag/geodatenbezug_geodienste.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <AnalysisLevel>8.0-all</AnalysisLevel>
+  </PropertyGroup>
+
+</Project>
