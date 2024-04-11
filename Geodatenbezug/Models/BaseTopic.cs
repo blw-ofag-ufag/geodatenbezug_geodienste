@@ -1,4 +1,8 @@
 ﻿namespace Geodatenbezug.Models;
+
+/// <summary>
+/// Represents the base topic names of the geodata.
+/// </summary>
 public enum BaseTopic
 {
     lwb_perimeter_ln_sf,

@@ -1,13 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace Geodatenbezug.Models;
-public class GeodiensteInfoData
-{
-    [JsonPropertyName("services")]
-    public required List<Topic> Services { get; set; }
-}
 
-public class Topic
+/// <summary>
+/// Represents the topic information from geodienste.ch.
+/// </summary>
+public record Topic
 {
     [JsonPropertyName("base_topic")]
     public required string BaseTopic { get; set; }

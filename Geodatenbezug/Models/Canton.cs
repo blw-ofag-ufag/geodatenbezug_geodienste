@@ -1,4 +1,8 @@
 ﻿namespace Geodatenbezug.Models;
+
+/// <summary>
+/// Represents the cantons for which the geodata is processed.
+/// </summary>
 public enum Canton
 {
     AG,
