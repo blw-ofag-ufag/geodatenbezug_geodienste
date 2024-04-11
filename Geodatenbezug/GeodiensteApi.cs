@@ -7,7 +7,9 @@ namespace Geodatenbezug;
 /// <summary>
 /// Accesses the geodienste.ch API.
 /// </summary>
+#pragma warning disable SA1009 // Closing parenthesis should be spaced correctly
 public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory httpClientFactory) : IGeodiensteApi
+#pragma warning restore SA1009 // Closing parenthesis should be spaced correctly
 {
     private const string GEODIENSTEBASEURL = "https://geodienste.ch";
 
@@ -25,7 +27,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
         if (!httpResponse.IsSuccessStatusCode)
         {
             logger.LogError($"Fehler beim Abrufen der Themeninformationen von geodienste.ch: {httpResponse.StatusCode}  - {httpResponse.ReasonPhrase}");
-            return [];
+            return default!;
         }
 
         var jsonString = await httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
