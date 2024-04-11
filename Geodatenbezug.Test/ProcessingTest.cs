@@ -31,7 +31,7 @@ public class ProcessingTest
             .Setup(api => api.RequestTopicInfoAsync())
             .ReturnsAsync(
             [
-                new()
+                new ()
                 {
                     BaseTopic = "lwb_perimeter_ln_sf",
                     TopicName = "lwb_perimeter_ln_sf_v2_0",
@@ -39,7 +39,7 @@ public class ProcessingTest
                     Canton = "SH",
                     UpdatedAt = datestring_delta4,
                 },
-                new()
+                new ()
                 {
                     BaseTopic = "lwb_perimeter_ln_sf",
                     TopicName = "lwb_perimeter_ln_sf_v2_0",
@@ -47,7 +47,7 @@ public class ProcessingTest
                     Canton = "ZG",
                     UpdatedAt = datestring_delta23,
                 },
-                new()
+                new ()
                 {
                     BaseTopic = "lwb_rebbaukataster",
                     TopicName = "lwb_rebbaukataster_v2_0",
@@ -55,7 +55,7 @@ public class ProcessingTest
                     Canton = "SH",
                     UpdatedAt = datestring_delta30,
                 },
-                new()
+                new ()
                 {
                     BaseTopic = "lwb_rebbaukataster",
                     TopicName = "lwb_rebbaukataster_v2_0",
