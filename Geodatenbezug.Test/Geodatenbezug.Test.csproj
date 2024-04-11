@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -7,7 +7,7 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <RootNamespace>Geodatenbezug</RootNamespace>
-    <NoWarn>CS1591,CS8604,CS8618,CS8620,CS8629,CA1001,CA1014,CS8625,CA2000,CA2007</NoWarn>
+    <NoWarn>SA0001,CS1591,CS8604,CS8618,CS8620,CS8629,CA1001,CA1014,CS8625,CA2000,CA2007</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
