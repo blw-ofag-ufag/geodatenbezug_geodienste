@@ -1,4 +1,4 @@
-using Geodatenbezug.Models;
+﻿using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Geodatenbezug;
@@ -11,11 +11,10 @@ public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger
         var currentTime = DateTime.Now;
         var topicsToProcess = topics.FindAll((topic) =>
         {
-            if (topic.UpdatedAt != null)
+            if (topic.UpdatedAt.HasValue)
             {
-                var updatedAt = (DateTime)topic.UpdatedAt;
-                var updatedAtString = updatedAt.ToString("yyyy-MM-dd HH:mm:ss");
-                var timeDifference = currentTime - updatedAt;
+                var updatedAtString = topic.UpdatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss");
+                var timeDifference = currentTime - topic.UpdatedAt.Value;
                 if (timeDifference.Days < 1)
                 {
                     logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) wurde am {updatedAtString} aktualisiert und wird verarbeitet");
