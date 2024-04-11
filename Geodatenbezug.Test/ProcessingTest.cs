@@ -21,7 +21,7 @@ public class ProcessingTest
     }
 
     [TestMethod]
-    public async Task TestGetTopicsToUpdate()
+    public async Task GetTopicsToUpdateTest()
     {
         var datestring_delta4 = DateTime.Now.AddHours(-4);
         var datestring_delta23 = DateTime.Now.AddHours(-23);

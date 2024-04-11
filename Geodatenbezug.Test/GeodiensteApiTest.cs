@@ -33,7 +33,7 @@ public class GeodiensteApiTest
     }
 
     [TestMethod]
-    public async Task TestRequestTopicInfoAsync()
+    public async Task RequestTopicInfoAsyncTest()
     {
         var data = new GeodiensteInfoData
         {
@@ -77,7 +77,7 @@ public class GeodiensteApiTest
     }
 
     [TestMethod]
-    public async Task TestRequestTopicInfoAsyncFailed()
+    public async Task RequestTopicInfoAsyncFailsTest()
     {
         messageHandlerMock.When("https://geodienste.ch/info/services.json*")
             .Respond(HttpStatusCode.InternalServerError);
