@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Geodatenbezug.Models;
 using MaxRev.Gdal.Core;
 using Microsoft.Azure.Functions.Worker;
@@ -41,7 +41,7 @@ public class Geodatenbezug
         try
         {
             logger.LogInformation("Laden der Themen...");
-            var topics = await processing.GetTopicsToUpdate().ConfigureAwait(false);
+            var topics = await processing.GetTopicsToProcess().ConfigureAwait(false);
             return JsonSerializer.Serialize(topics);
         }
         catch (Exception ex)

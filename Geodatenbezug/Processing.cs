@@ -1,4 +1,4 @@
-﻿using Geodatenbezug.Models;
+using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Geodatenbezug;
@@ -8,7 +8,10 @@ namespace Geodatenbezug;
 /// </summary>
 public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger)
 {
-    public async Task<List<Topic>> GetTopicsToUpdate()
+    /// <summary>
+    /// Gets the topics that have new data and need to be processed.
+    /// </summary>
+    public async Task<List<Topic>> GetTopicsToProcess()
     {
         var topics = await geodiensteApi.RequestTopicInfoAsync().ConfigureAwait(false);
         var currentTime = DateTime.Now;
