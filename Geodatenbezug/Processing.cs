@@ -8,7 +8,7 @@ public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger
     {
         var topics = await geodiensteApi.RequestTopicInfoAsync();
         var currentTime = DateTime.Now;
-        var topicsToProcess = topics.FindAll((topic) =>
+        var topicsToProcess = topics.FindAll(topic =>
         {
             if (topic.UpdatedAt != null)
             {
