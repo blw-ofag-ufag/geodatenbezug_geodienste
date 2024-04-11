@@ -11,19 +11,18 @@ namespace Geodatenbezug;
 
 public class Geodatenbezug
 {
-    private readonly ILogger _logger;
-    private readonly Processing _processing;
+    private readonly ILogger logger;
+    private readonly Processing processing;
 
     public Geodatenbezug(ILoggerFactory loggerFactory, Processing processing)
     {
-        _logger = loggerFactory.CreateLogger<Geodatenbezug>();
-        _processing = processing;
+        logger = loggerFactory.CreateLogger<Geodatenbezug>();
+        this.processing = processing;
     }
 
     [Function(nameof(OrchestrateProcessing))]
-    public async Task OrchestrateProcessing([OrchestrationTrigger] TaskOrchestrationContext context, FunctionContext executionContext)
+    public async Task OrchestrateProcessing([OrchestrationTrigger] TaskOrchestrationContext context)
     {
-        var logger = executionContext.GetLogger(nameof(OrchestrateProcessing));
         try
         {
             logger.LogInformation("Start der Prozessierung...");
@@ -37,13 +36,12 @@ public class Geodatenbezug
     }
 
     [Function(nameof(RetrieveTopics))]
-    public async Task<string> RetrieveTopics([ActivityTrigger] string test, FunctionContext executionContext)
+    public async Task<string> RetrieveTopics([ActivityTrigger] string test)
     {
-        var logger = executionContext.GetLogger(nameof(RetrieveTopics));
         try
         {
             logger.LogInformation("Laden der Themen...");
-            var topics = await _processing.GetTopicsToUpdate();
+            var topics = await processing.GetTopicsToUpdate();
             return JsonSerializer.Serialize(topics);
         }
         catch (Exception ex)
@@ -55,10 +53,8 @@ public class Geodatenbezug
 
     [Function(nameof(TriggerProcessing))]
     public async Task TriggerProcessing([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer,
-    [DurableClient] DurableTaskClient client,
-    FunctionContext executionContext)
+    [DurableClient] DurableTaskClient client)
     {
-        var logger = executionContext.GetLogger(nameof(TriggerProcessing));
         try
         {
             logger.LogInformation("Die Prozessierung wurde gestartet");
