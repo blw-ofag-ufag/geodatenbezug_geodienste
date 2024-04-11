@@ -9,6 +9,7 @@ using OSGeo.GDAL;
 
 namespace Geodatenbezug;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Parameters are required by azure function.")]
 public class Geodatenbezug
 {
     private readonly ILogger logger;
@@ -36,7 +37,7 @@ public class Geodatenbezug
     }
 
     [Function(nameof(RetrieveTopics))]
-    public async Task<string> RetrieveTopics([ActivityTrigger] string test)
+    public async Task<string> RetrieveTopics([ActivityTrigger] string _)
     {
         try
         {
@@ -53,7 +54,7 @@ public class Geodatenbezug
 
     [Function(nameof(TriggerProcessing))]
     public async Task TriggerProcessing(
-        [TimerTrigger("0 */1 * * * *")] TimerInfo myTimer,
+        [TimerTrigger("0 */1 * * * *")] TimerInfo _,
         [DurableClient] DurableTaskClient client)
     {
         try
