@@ -14,6 +14,4 @@ internal static class TestExtensions
                 It.IsAny<Exception>(),
                 (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()))
             .Verifiable();
-
-
 }

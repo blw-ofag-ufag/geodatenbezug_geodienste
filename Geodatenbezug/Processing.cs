@@ -1,4 +1,4 @@
-﻿using Geodatenbezug.Models;
+using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Geodatenbezug;
@@ -32,7 +32,8 @@ public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger
                 return false;
             }
         });
-        string topicsProcessedMessage = topicsToProcess.Count != 1 ? "Themen werden" : "Thema wird";
+        
+        var topicsProcessedMessage = topicsToProcess.Count != 1 ? "Themen werden" : "Thema wird";
         logger.LogInformation($"{topicsToProcess.Count} {topicsProcessedMessage} prozessiert");
         return topicsToProcess;
     }

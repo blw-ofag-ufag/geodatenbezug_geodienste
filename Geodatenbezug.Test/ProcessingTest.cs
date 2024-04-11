@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Geodatenbezug;
@@ -7,7 +7,6 @@ namespace Geodatenbezug;
 public class ProcessingTest
 {
     private Mock<ILogger<Processing>> loggerMock;
-
 
     [TestInitialize]
     public void Initialize()
@@ -28,7 +27,8 @@ public class ProcessingTest
         var datestring_delta23 = DateTime.Now.AddHours(-23);
         var datestring_delta30 = DateTime.Now.AddHours(-30);
         var geodiensteApiMock = new Mock<IGeodiensteApi>();
-        geodiensteApiMock.Setup(api => api.RequestTopicInfoAsync())
+        geodiensteApiMock
+            .Setup(api => api.RequestTopicInfoAsync())
             .ReturnsAsync(
             [
                 new()
@@ -47,7 +47,8 @@ public class ProcessingTest
                     Canton = "ZG",
                     UpdatedAt = datestring_delta23
                 },
-                new() {
+                new() 
+                {
                     BaseTopic = "lwb_rebbaukataster",
                     TopicName = "lwb_rebbaukataster_v2_0",
                     TopicTitle = "Rebbaukataster",
@@ -69,6 +70,7 @@ public class ProcessingTest
         loggerMock.Setup(LogLevel.Information, $"Thema Rebbaukataster (SH) wurde seit {datestring_delta30:yyyy-MM-dd HH:mm:ss} nicht aktualisiert");
         loggerMock.Setup(LogLevel.Information, "Thema Rebbaukataster (ZG) ist nicht verfügbar");
         loggerMock.Setup(LogLevel.Information, "2 Themen werden prozessiert");
+
         var topicsToProcess = await new Processing(geodiensteApiMock.Object, loggerMock.Object).GetTopicsToUpdate();
         Assert.AreEqual(2, topicsToProcess.Count);
         Assert.AreEqual("lwb_perimeter_ln_sf", topicsToProcess[0].BaseTopic);
