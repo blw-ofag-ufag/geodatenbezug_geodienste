@@ -20,4 +20,4 @@ jobs:
         run: dotnet build Geodatenbezug.sln -c Release /warnaserror
 
       - name: Run tests
-        run: dotnet test Geodatenbezug.sln -c Release --verbosity normal
+        run: dotnet test Geodatenbezug.sln -c Release --no-build --verbosity normal
