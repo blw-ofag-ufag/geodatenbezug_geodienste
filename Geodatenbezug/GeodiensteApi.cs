@@ -4,10 +4,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Geodatenbezug;
 
+/// <summary>
+/// Accesses the geodienste.ch API.
+/// </summary>
 public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory httpClientFactory) : IGeodiensteApi
 {
     private const string GEODIENSTE_BASE_URL = "https://geodienste.ch";
 
+    /// <inheritdoc />
     public async Task<List<Topic>> RequestTopicInfoAsync()
     {
         logger.LogInformation("Rufe die Themeninformationen ab...");

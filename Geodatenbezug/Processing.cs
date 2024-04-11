@@ -3,6 +3,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Geodatenbezug;
 
+/// <summary>
+/// Handles the processing of the topics.
+/// </summary>
 public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger)
 {
     public async Task<List<Topic>> GetTopicsToUpdate()
