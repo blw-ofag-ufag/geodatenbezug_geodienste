@@ -6,6 +6,21 @@ namespace Geodatenbezug;
 [TestClass]
 public class ProcessingTest
 {
+    private Mock<ILogger<Processing>> loggerMock;
+
+
+    [TestInitialize]
+    public void Initialize()
+    {
+        loggerMock = new Mock<ILogger<Processing>>();
+    }
+
+    [TestCleanup]
+    public void Cleanup()
+    {
+        loggerMock.VerifyAll();
+    }
+
     [TestMethod]
     public async Task TestGetTopicsToUpdate()
     {
@@ -48,41 +63,17 @@ public class ProcessingTest
                     UpdatedAt = null
                 }
             ]);
-        var logs = new List<LogMessage>
-            {
-                new()
-                {
-                    Message = $"Thema Perimeter LN- und Sömmerungsflächen (SH) wurde am {datestring_delta4:yyyy-MM-dd HH:mm:ss} aktualisiert und wird verarbeitet",
-                    LogLevel = LogLevel.Information
-                },
-                new()
-                {
-                    Message = $"Thema Perimeter LN- und Sömmerungsflächen (ZG) wurde am {datestring_delta23:yyyy-MM-dd HH:mm:ss} aktualisiert und wird verarbeitet",
-                    LogLevel = LogLevel.Information
-                },
-                new()
-                {
-                    Message = $"Thema Rebbaukataster (SH) wurde seit {datestring_delta30:yyyy-MM-dd HH:mm:ss} nicht aktualisiert",
-                    LogLevel = LogLevel.Information
-                },
-                new()
-                {
-                    Message = "Thema Rebbaukataster (ZG) ist nicht verfügbar",
-                    LogLevel = LogLevel.Information
-                },
-                new() {
-                    Message = "2 Themen werden prozessiert",
-                    LogLevel = LogLevel.Information
-                }
-            };
 
-        var loggerMock = LoggerMock<Processing>.CreateDefault();
+        loggerMock.Setup(LogLevel.Information, $"Thema Perimeter LN- und Sömmerungsflächen (SH) wurde am {datestring_delta4:yyyy-MM-dd HH:mm:ss} aktualisiert und wird verarbeitet");
+        loggerMock.Setup(LogLevel.Information, $"Thema Perimeter LN- und Sömmerungsflächen (ZG) wurde am {datestring_delta23:yyyy-MM-dd HH:mm:ss} aktualisiert und wird verarbeitet");
+        loggerMock.Setup(LogLevel.Information, $"Thema Rebbaukataster (SH) wurde seit {datestring_delta30:yyyy-MM-dd HH:mm:ss} nicht aktualisiert");
+        loggerMock.Setup(LogLevel.Information, "Thema Rebbaukataster (ZG) ist nicht verfügbar");
+        loggerMock.Setup(LogLevel.Information, "2 Themen werden prozessiert");
         var topicsToProcess = await new Processing(geodiensteApiMock.Object, loggerMock.Object).GetTopicsToUpdate();
         Assert.AreEqual(2, topicsToProcess.Count);
         Assert.AreEqual("lwb_perimeter_ln_sf", topicsToProcess[0].BaseTopic);
         Assert.AreEqual("SH", topicsToProcess[0].Canton);
         Assert.AreEqual("lwb_perimeter_ln_sf", topicsToProcess[1].BaseTopic);
         Assert.AreEqual("ZG", topicsToProcess[1].Canton);
-        loggerMock.AssertLogs(logs);
     }
 }
