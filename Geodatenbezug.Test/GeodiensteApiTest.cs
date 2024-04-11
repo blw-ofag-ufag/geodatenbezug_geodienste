@@ -18,7 +18,7 @@ public class GeodiensteApiTest
     [TestInitialize]
     public void Initialize()
     {
-        loggerMock = new Mock<ILogger<GeodiensteApi>>();
+        loggerMock = new Mock<ILogger<GeodiensteApi>>(MockBehavior.Strict);
         httpClientFactoryMock = new Mock<IHttpClientFactory>(MockBehavior.Strict);
         messageHandlerMock = new MockHttpMessageHandler();
     }

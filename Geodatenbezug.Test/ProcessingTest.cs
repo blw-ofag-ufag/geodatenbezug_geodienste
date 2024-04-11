@@ -11,7 +11,7 @@ public class ProcessingTest
     [TestInitialize]
     public void Initialize()
     {
-        loggerMock = new Mock<ILogger<Processing>>();
+        loggerMock = new Mock<ILogger<Processing>>(MockBehavior.Strict);
     }
 
     [TestCleanup]
@@ -26,7 +26,7 @@ public class ProcessingTest
         var datestring_delta4 = DateTime.Now.AddHours(-4);
         var datestring_delta23 = DateTime.Now.AddHours(-23);
         var datestring_delta30 = DateTime.Now.AddHours(-30);
-        var geodiensteApiMock = new Mock<IGeodiensteApi>();
+        var geodiensteApiMock = new Mock<IGeodiensteApi>(MockBehavior.Strict);
         geodiensteApiMock
             .Setup(api => api.RequestTopicInfoAsync())
             .ReturnsAsync(
