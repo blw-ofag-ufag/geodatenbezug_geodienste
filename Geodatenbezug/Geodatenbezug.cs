@@ -52,8 +52,9 @@ public class Geodatenbezug
     }
 
     [Function(nameof(TriggerProcessing))]
-    public async Task TriggerProcessing([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer,
-    [DurableClient] DurableTaskClient client)
+    public async Task TriggerProcessing(
+        [TimerTrigger("0 */1 * * * *")] TimerInfo myTimer,
+        [DurableClient] DurableTaskClient client)
     {
         try
         {
@@ -66,6 +67,6 @@ public class Geodatenbezug
         catch (Exception ex)
         {
             logger.LogError(ex, $"Fehler in {nameof(TriggerProcessing)}: {ex}");
-        }   
+        }
     }
 }

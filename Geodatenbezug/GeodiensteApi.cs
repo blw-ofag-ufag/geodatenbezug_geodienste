@@ -27,6 +27,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
             logger.LogError($"Fehler beim Abrufen der Themeninformationen von geodienste.ch: {httpResponse.StatusCode}  - {httpResponse.ReasonPhrase}");
             return [];
         }
+
         var jsonString = await httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
         var result = JsonSerializer.Deserialize<GeodiensteInfoData>(jsonString);
         return result.Services;

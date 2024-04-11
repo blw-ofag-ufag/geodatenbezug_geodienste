@@ -35,7 +35,7 @@ public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger
                 return false;
             }
         });
-        
+
         var topicsProcessedMessage = topicsToProcess.Count != 1 ? "Themen werden" : "Thema wird";
         logger.LogInformation($"{topicsToProcess.Count} {topicsProcessedMessage} prozessiert");
         return topicsToProcess;
