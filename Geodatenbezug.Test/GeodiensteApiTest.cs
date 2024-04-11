@@ -8,7 +8,7 @@ using System.Text.Json;
 namespace Geodatenbezug;
 
 [TestClass]
-public class GeoDiensteApiTest
+public class GeodiensteApiTest
 {
     private Mock<ILogger<GeodiensteApi>> loggerMock;
     private MockHttpMessageHandler messageHandlerMock;
