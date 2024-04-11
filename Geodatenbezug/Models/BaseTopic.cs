@@ -1,8 +1,10 @@
-﻿namespace Geodatenbezug.Models;
+namespace Geodatenbezug.Models;
 
 /// <summary>
 /// Represents the base topic names of the geodata.
 /// </summary>
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "Names come from geodienste.ch and cannot be changed.")]
+[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "Names come from geodienste.ch and cannot be changed.")]
 public enum BaseTopic
 {
     lwb_perimeter_ln_sf,
