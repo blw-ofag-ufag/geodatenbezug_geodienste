@@ -1,10 +1,19 @@
 <Project>
 
   <PropertyGroup>
+    <Authors>GeoWerkstatt GmbH</Authors>  
+    <Company>GeoWerkstatt GmbH</Company>
     <PackageProjectUrl>https://github.com/blw-ofag-ufag/geodatenbezug_geodienste</PackageProjectUrl>
     <RepositoryUrl>https://github.com/blw-ofag-ufag/geodatenbezug_geodienste.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <AnalysisLevel>8.0-all</AnalysisLevel>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
 </Project>
