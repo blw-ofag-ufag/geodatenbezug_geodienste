@@ -70,7 +70,7 @@ public class ProcessingTest
         loggerMock.Setup(LogLevel.Information, $"Thema Rebbaukataster (SH) wurde seit {datestring_delta30:yyyy-MM-dd HH:mm:ss} nicht aktualisiert");
         loggerMock.Setup(LogLevel.Information, "Thema Rebbaukataster (ZG) ist nicht verfügbar");
         loggerMock.Setup(LogLevel.Information, "2 Themen werden prozessiert");
-
+        
         var topicsToProcess = await new Processing(geodiensteApiMock.Object, loggerMock.Object).GetTopicsToUpdate();
         Assert.AreEqual(2, topicsToProcess.Count);
         Assert.AreEqual("lwb_perimeter_ln_sf", topicsToProcess[0].BaseTopic);
