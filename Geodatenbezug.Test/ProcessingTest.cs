@@ -8,11 +8,13 @@ namespace Geodatenbezug;
 public class ProcessingTest
 {
     private Mock<ILogger<Processing>> loggerMock;
+    private Mock<IGeodiensteApi> geodiensteApiMock;
 
     [TestInitialize]
     public void Initialize()
     {
         loggerMock = new Mock<ILogger<Processing>>(MockBehavior.Strict);
+        geodiensteApiMock = new Mock<IGeodiensteApi>(MockBehavior.Strict);
     }
 
     [TestCleanup]
@@ -27,7 +29,6 @@ public class ProcessingTest
         var datestring_delta4 = DateTime.Now.AddHours(-4);
         var datestring_delta23 = DateTime.Now.AddHours(-23);
         var datestring_delta30 = DateTime.Now.AddHours(-30);
-        var geodiensteApiMock = new Mock<IGeodiensteApi>(MockBehavior.Strict);
         geodiensteApiMock
             .Setup(api => api.RequestTopicInfoAsync())
             .ReturnsAsync(
@@ -78,5 +79,18 @@ public class ProcessingTest
         Assert.AreEqual(Canton.SH, topicsToProcess[0].Canton);
         Assert.AreEqual(BaseTopic.lwb_perimeter_ln_sf, topicsToProcess[1].BaseTopic);
         Assert.AreEqual(Canton.ZG, topicsToProcess[1].Canton);
+    }
+
+    [TestMethod]
+    public void GetTokenTest()
+    {
+        var result = new Processing(geodiensteApiMock.Object, loggerMock.Object).GetToken(BaseTopic.lwb_rebbaukataster, Canton.BE);
+        Assert.AreEqual("token2", result);
+    }
+
+    [TestMethod]
+    public void GetTokenFailsTest()
+    {
+        Assert.ThrowsException<KeyNotFoundException>(() => new Processing(geodiensteApiMock.Object, loggerMock.Object).GetToken(BaseTopic.lwb_rebbaukataster, Canton.AI), "Token not found for topic lwb_rebbaukataster and canton AI");
     }
 }
