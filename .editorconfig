@@ -60,13 +60,13 @@ charset = utf-8-bom
 # Configure code analysis according to current standards by default.
 [*.cs]
 dotnet_diagnostic.CA1001.severity = warning
+dotnet_diagnostic.CA1002.severity = none
 dotnet_diagnostic.CA1003.severity = warning
 dotnet_diagnostic.CA1004.severity = warning
 dotnet_diagnostic.CA1005.severity = warning
 dotnet_diagnostic.CA1007.severity = warning
 dotnet_diagnostic.CA1009.severity = warning
 dotnet_diagnostic.CA1010.severity = warning
-dotnet_diagnostic.CA1012.severity = none
 dotnet_diagnostic.CA1013.severity = warning
 dotnet_diagnostic.CA1014.severity = none
 dotnet_diagnostic.CA1016.severity = warning
