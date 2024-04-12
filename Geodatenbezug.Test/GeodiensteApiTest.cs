@@ -10,6 +10,8 @@ namespace Geodatenbezug;
 [TestClass]
 public class GeodiensteApiTest
 {
+    private const string InfoServicesUrl = "https://geodienste.ch/info/services.json*";
+
     private Mock<ILogger<GeodiensteApi>> loggerMock;
     private MockHttpMessageHandler messageHandlerMock;
     private Mock<IHttpClientFactory> httpClientFactoryMock;
@@ -58,7 +60,7 @@ public class GeodiensteApiTest
         };
         var responseBody = JsonSerializer.Serialize(data);
 
-        messageHandlerMock.When("https://geodienste.ch/info/services.json*")
+        messageHandlerMock.When(InfoServicesUrl)
             .Respond("application/json", responseBody);
         httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(messageHandlerMock.ToHttpClient()).Verifiable();
         loggerMock.Setup(LogLevel.Information, "Rufe die Themeninformationen ab: https://geodienste.ch/info/services.json?base_topics=lwb_perimeter_ln_sf,lwb_rebbaukataster,lwb_perimeter_terrassenreben,lwb_biodiversitaetsfoerderflaechen,lwb_bewirtschaftungseinheit,lwb_nutzungsflaechen&topics=lwb_perimeter_ln_sf_v2_0,lwb_rebbaukataster_v2_0,lwb_perimeter_terrassenreben_v2_0,lwb_biodiversitaetsfoerderflaechen_v2_0,lwb_bewirtschaftungseinheit_v2_0,lwb_nutzungsflaechen_v2_0&cantons=AG,AI,AR,BE,BL,BS,FR,GE,GL,GR,JU,LU,NE,NW,OW,SG,SH,SO,SZ,TG,TI,UR,VD,VS,ZG,ZH&language=de");
@@ -70,7 +72,7 @@ public class GeodiensteApiTest
     [TestMethod]
     public async Task RequestTopicInfoAsyncFailsTest()
     {
-        messageHandlerMock.When("https://geodienste.ch/info/services.json*")
+        messageHandlerMock.When(InfoServicesUrl)
             .Respond(HttpStatusCode.InternalServerError);
         httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(messageHandlerMock.ToHttpClient()).Verifiable();
         loggerMock.Setup(LogLevel.Information, "Rufe die Themeninformationen ab: https://geodienste.ch/info/services.json?base_topics=lwb_perimeter_ln_sf,lwb_rebbaukataster,lwb_perimeter_terrassenreben,lwb_biodiversitaetsfoerderflaechen,lwb_bewirtschaftungseinheit,lwb_nutzungsflaechen&topics=lwb_perimeter_ln_sf_v2_0,lwb_rebbaukataster_v2_0,lwb_perimeter_terrassenreben_v2_0,lwb_biodiversitaetsfoerderflaechen_v2_0,lwb_bewirtschaftungseinheit_v2_0,lwb_nutzungsflaechen_v2_0&cantons=AG,AI,AR,BE,BL,BS,FR,GE,GL,GR,JU,LU,NE,NW,OW,SG,SH,SO,SZ,TG,TI,UR,VD,VS,ZG,ZH&language=de");

@@ -11,7 +11,7 @@ namespace Geodatenbezug;
 public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory httpClientFactory) : IGeodiensteApi
 #pragma warning restore SA1009 // Closing parenthesis should be spaced correctly
 {
-    private const string GEODIENSTEBASEURL = "https://geodienste.ch";
+    private const string GeodiensteBaseUrl = "https://geodienste.ch";
 
     /// <inheritdoc />
     public async Task<List<Topic>> RequestTopicInfoAsync()
@@ -22,7 +22,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
             var cantons = string.Join(",", Enum.GetValues(typeof(Canton)).Cast<Canton>().Select(e => e.ToString()));
             var baseTopics = string.Join(",", Enum.GetValues(typeof(BaseTopic)).Cast<BaseTopic>().Select(e => e.ToString()));
             var topics = string.Join(",", Enum.GetValues(typeof(BaseTopic)).Cast<BaseTopic>().Select(e => e.ToString() + "_v2_0"));
-            var url = $"{GEODIENSTEBASEURL}/info/services.json?base_topics={baseTopics}&topics={topics}&cantons={cantons}&language=de";
+            var url = $"{GeodiensteBaseUrl}/info/services.json?base_topics={baseTopics}&topics={topics}&cantons={cantons}&language=de";
             logger.LogInformation($"Rufe die Themeninformationen ab: {url}");
 
             var infoData = await httpClient.GetFromJsonAsync<GeodiensteInfoData>(url).ConfigureAwait(false);
