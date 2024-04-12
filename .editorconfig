@@ -210,6 +210,7 @@ dotnet_diagnostic.CA2230.severity = warning
 dotnet_diagnostic.CA2231.severity = warning
 dotnet_diagnostic.CA2232.severity = warning
 dotnet_diagnostic.CA2233.severity = warning
+dotnet_diagnostic.CA2234.severity = none
 dotnet_diagnostic.CA2235.severity = warning
 dotnet_diagnostic.CA2236.severity = warning
 dotnet_diagnostic.CA2237.severity = warning
