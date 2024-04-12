@@ -1,62 +1,85 @@
-using System;
-using System.Threading;
+﻿using System.Text.Json;
+using Geodatenbezug.Models;
+using MaxRev.Gdal.Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
-using MaxRev.Gdal.Core;
 using OSGeo.GDAL;
 
-namespace BLW;
+namespace Geodatenbezug;
 
-public class Geodatenbezug
+/// <summary>
+/// Azure Function for processing geodata.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="Geodatenbezug"/> class.
+/// </remarks>
+public class Geodatenbezug(ILoggerFactory loggerFactory, Processing processing)
 {
-    private readonly ILogger _logger;
+    private readonly ILogger logger = loggerFactory.CreateLogger<Geodatenbezug>();
+    private readonly Processing processing = processing;
 
-    public Geodatenbezug(ILoggerFactory loggerFactory)
+    /// <summary>
+    /// Durable function to orchestrate the processing of geodata.
+    /// </summary>
+    [Function(nameof(OrchestrateProcessing))]
+    public async Task OrchestrateProcessing([OrchestrationTrigger] TaskOrchestrationContext context)
     {
-        _logger = loggerFactory.CreateLogger<Geodatenbezug>();
-    }
-
-    [Function(nameof(HelloCities))]
-    public static async Task<string> HelloCities([OrchestrationTrigger] TaskOrchestrationContext context)
-    {
-        string result = "";
-        result += await context.CallActivityAsync<string>(nameof(SayHello), "Tokyo") + " ";
-        result += await context.CallActivityAsync<string>(nameof(SayHello), "London") + " ";
-        result += await context.CallActivityAsync<string>(nameof(SayHello), "Seattle");
-        return result;
-    }
-
-    [Function(nameof(SayHello))]
-    public static string SayHello([ActivityTrigger] string cityName, FunctionContext executionContext)
-    {
-        ILogger logger = executionContext.GetLogger(nameof(SayHello));
-        logger.LogInformation("Saying hello to {name}", cityName);
-        return $"Hello, {cityName}!";
-    }
-
-    [Function(nameof(Function1))]
-    public static async Task Function1([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer,
-    [DurableClient] DurableTaskClient client,
-    FunctionContext executionContext)
-    {
-        ILogger logger = executionContext.GetLogger(nameof(Function1));
         try
         {
-            logger.LogInformation("C# Timer trigger function executed at: {0}", DateTime.Now);
-            logger.LogInformation("Version with MaxRev.Gdal.Core");
-            GdalBase.ConfigureAll();
-            Gdal.VersionInfo(null);
-            logger.LogInformation("Gdal version: " + Gdal.VersionInfo(null));
-
-            string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(nameof(HelloCities));
-            logger.LogInformation("Created new orchestration with instance ID = {instanceId}", instanceId);
+            logger.LogInformation("Start der Prozessierung...");
+            var topicsString = await context.CallActivityAsync<string>(nameof(RetrieveTopics)).ConfigureAwait(false);
+            var topics = JsonSerializer.Deserialize<List<Topic>>(topicsString);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Error in Function1: {ex}");
-        }   
-    
+            logger.LogError(ex, $"Fehler in {nameof(OrchestrateProcessing)}: {ex}");
+        }
+    }
+
+    /// <summary>
+    /// Durable function to retrieve the topics to process.
+    /// </summary>
+    /// <param name="param">An unused parameter that is required by the azure function.</param>
+    /// <returns>A JSON string with the <see cref="Topic"/>s to process.</returns>
+    [Function(nameof(RetrieveTopics))]
+    public async Task<string> RetrieveTopics([ActivityTrigger] string param)
+    {
+        try
+        {
+            logger.LogInformation("Laden der Themen...");
+            var topics = await processing.GetTopicsToProcess().ConfigureAwait(false);
+            return JsonSerializer.Serialize(topics);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Fehler in {nameof(RetrieveTopics)}: {ex}");
+            return string.Empty;
+        }
+    }
+
+    /// <summary>
+    /// Time trigger function to start the processing.
+    /// <param name="timeTrigger">An unused parameter that is required by the azure function.</param>
+    /// <param name="client">The durable task client.</param>
+    /// </summary>
+    [Function(nameof(TriggerProcessing))]
+    public async Task TriggerProcessing(
+        [TimerTrigger("0 */1 * * * *")] TimerInfo timeTrigger,
+        [DurableClient] DurableTaskClient client)
+    {
+        try
+        {
+            logger.LogInformation("Die Prozessierung wurde gestartet");
+            GdalBase.ConfigureAll();
+            logger.LogInformation("Verwendete GDAL-Version: " + Gdal.VersionInfo(null));
+
+            await client.ScheduleNewOrchestrationInstanceAsync(nameof(OrchestrateProcessing)).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Fehler in {nameof(TriggerProcessing)}: {ex}");
+        }
     }
 }
