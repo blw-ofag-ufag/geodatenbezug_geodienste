@@ -24,7 +24,7 @@ public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger
             {
                 var updatedAtString = topic.UpdatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
                 var timeDifference = currentTime - topic.UpdatedAt.Value;
-                if (timeDifference.Days < 4)
+                if (timeDifference.Days < 1)
                 {
                     logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) wurde am {updatedAtString} aktualisiert und wird verarbeitet");
                     return true;
