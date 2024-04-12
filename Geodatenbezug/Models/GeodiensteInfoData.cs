@@ -7,6 +7,9 @@ namespace Geodatenbezug.Models;
 /// </summary>
 public record GeodiensteInfoData
 {
+    /// <summary>
+    /// All services (topics) available for the given query parameters.
+    /// </summary>
     [JsonPropertyName("services")]
     required public List<Topic> Services { get; set; }
 }
