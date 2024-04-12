@@ -9,18 +9,20 @@ using OSGeo.GDAL;
 
 namespace Geodatenbezug;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Parameters are required by azure function.")]
-public class Geodatenbezug
+/// <summary>
+/// Azure Function for processing geodata.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="Geodatenbezug"/> class.
+/// </remarks>
+public class Geodatenbezug(ILoggerFactory loggerFactory, Processing processing)
 {
-    private readonly ILogger logger;
-    private readonly Processing processing;
+    private readonly ILogger logger = loggerFactory.CreateLogger<Geodatenbezug>();
+    private readonly Processing processing = processing;
 
-    public Geodatenbezug(ILoggerFactory loggerFactory, Processing processing)
-    {
-        logger = loggerFactory.CreateLogger<Geodatenbezug>();
-        this.processing = processing;
-    }
-
+    /// <summary>
+    /// Durable function to orchestrate the processing of geodata.
+    /// </summary>
     [Function(nameof(OrchestrateProcessing))]
     public async Task OrchestrateProcessing([OrchestrationTrigger] TaskOrchestrationContext context)
     {
@@ -36,8 +38,13 @@ public class Geodatenbezug
         }
     }
 
+    /// <summary>
+    /// Durable function to retrieve the topics to process.
+    /// </summary>
+    /// <param name="param">An unused parameter that is required by the azure function.</param>
+    /// <returns>A JSON string with the <see cref="Topic"/>s to process.</returns>
     [Function(nameof(RetrieveTopics))]
-    public async Task<string> RetrieveTopics([ActivityTrigger] string _)
+    public async Task<string> RetrieveTopics([ActivityTrigger] string param)
     {
         try
         {
@@ -52,9 +59,14 @@ public class Geodatenbezug
         }
     }
 
+    /// <summary>
+    /// Time trigger function to start the processing.
+    /// <param name="timeTrigger">An unused parameter that is required by the azure function.</param>
+    /// <param name="client">The durable task client.</param>
+    /// </summary>
     [Function(nameof(TriggerProcessing))]
     public async Task TriggerProcessing(
-        [TimerTrigger("0 */1 * * * *")] TimerInfo _,
+        [TimerTrigger("0 */1 * * * *")] TimerInfo timeTrigger,
         [DurableClient] DurableTaskClient client)
     {
         try
