@@ -8,6 +8,7 @@
     <IsTestProject>true</IsTestProject>
     <RootNamespace>Geodatenbezug</RootNamespace>
     <NoWarn>SA0001,CS1591,CS8604,CS8618,CS8620,CS8629,CA1001,CA1014,CS8625,CA2000,CA2007</NoWarn>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
