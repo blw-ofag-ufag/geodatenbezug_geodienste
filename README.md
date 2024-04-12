@@ -26,7 +26,7 @@ Für die Requests ans Geodienste API müssen folgende Umgebungsvariablen eingeri
 
 ### Azure Function ausführen
 
-2. Mit <kbd>F5</kbd> die Funktion starten.
+1. Mit <kbd>F5</kbd> die Funktion starten.
 
 Falls die Ausführung mit dem Fehler _cannot be loaded because running scripts is disabled on this system_ fehlschlägt, muss die PowerShell _Execution Policy_ angepasst werden:
 
