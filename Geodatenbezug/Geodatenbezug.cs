@@ -29,8 +29,16 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processing processing)
         try
         {
             logger.LogInformation("Start der Prozessierung...");
-            var topicsString = await context.CallActivityAsync<string>(nameof(RetrieveTopics)).ConfigureAwait(false);
-            var topics = JsonSerializer.Deserialize<List<Topic>>(topicsString);
+            var topics = await context.CallActivityAsync<List<Topic>>(nameof(RetrieveTopics)).ConfigureAwait(true);
+            var results = new List<ProcessingResult>();
+            foreach (var topic in topics)
+            {
+                var result = await context.CallActivityAsync<ProcessingResult?>(nameof(ProcessTopic), topic).ConfigureAwait(true);
+                if (result != null)
+                {
+                    results.Add(result);
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -44,18 +52,34 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processing processing)
     /// <param name="param">An unused parameter that is required by the azure function.</param>
     /// <returns>A JSON string with the <see cref="Topic"/>s to process.</returns>
     [Function(nameof(RetrieveTopics))]
-    public async Task<string> RetrieveTopics([ActivityTrigger] string param)
+    public async Task<List<Topic>?> RetrieveTopics([ActivityTrigger] string param)
     {
         try
         {
             logger.LogInformation("Laden der Themen...");
-            var topics = await processing.GetTopicsToProcess().ConfigureAwait(false);
-            return JsonSerializer.Serialize(topics);
+            return await processing.GetTopicsToProcess().ConfigureAwait(false);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, $"Fehler in {nameof(RetrieveTopics)}: {ex}");
-            return string.Empty;
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Durable function to process a single topic.
+    /// </summary>
+    [Function(nameof(ProcessTopic))]
+    public async Task<ProcessingResult?> ProcessTopic([ActivityTrigger] Topic topic)
+    {
+        try
+        {
+            return await processing.ProcessTopic(topic).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Fehler in {nameof(RetrieveTopics)}: {ex}");
+            return null;
         }
     }
 
