@@ -10,8 +10,8 @@ var host = new HostBuilder()
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services.AddHttpClient();
-        services.AddSingleton<Processing>();
-        services.AddSingleton<IGeodiensteApi, GeodiensteApi>();
+        services.AddTransient<Processing>();
+        services.AddTransient<IGeodiensteApi, GeodiensteApi>();
     })
     .Build();
 
