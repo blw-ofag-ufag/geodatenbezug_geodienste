@@ -24,11 +24,11 @@ public record GeodiensteStatusSuccess
     /// The download URL for the exported geodata.
     /// </summary>
     [JsonPropertyName("download_url")]
-    required public string DownloadUrl { get; set; }
+    public string? DownloadUrl { get; set; }
 
     /// <summary>
     /// The date and time when the geodata was exported.
     /// </summary>
     [JsonPropertyName("exported_at")]
-    required public DateTime ExportedAt { get; set; }
+    public DateTime? ExportedAt { get; set; }
 }
