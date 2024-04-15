@@ -58,10 +58,10 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     }
 
     /// <inheritdoc />
-    public async Task<HttpResponseMessage> StartExport(BaseTopic topic, Canton canton, string token, int attempts = 0)
+    public async Task<HttpResponseMessage> StartExportAsync(Topic topic, string token, int attempts = 0)
     {
-        logger.LogInformation($"Starte den Datenexport für {topic} ({canton})...");
-        var url = $"{GeodiensteBaseUrl}/downloads/{topic}/{token}/export.json";
+        var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/export.json";
+        logger.LogInformation($"Starte den Datenexport für {topic.TopicTitle} ({topic.Canton}) mit {url}...");
 
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Authorization = GetAuthenticationHeader();
@@ -77,7 +77,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
                 {
                     logger.LogInformation("Es läuft gerade ein anderer Export. Versuche es in 1 Minute erneut.");
                     await WaitBeforeRetry().ConfigureAwait(false);
-                    return await StartExport(topic, canton, token, attempts + 1).ConfigureAwait(false);
+                    return await StartExportAsync(topic, token, attempts + 1).ConfigureAwait(false);
                 }
                 else
                 {
@@ -91,10 +91,10 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     }
 
     /// <inheritdoc />
-    public async Task<HttpResponseMessage> CheckExportStatus(BaseTopic topic, Canton canton, string token, int attempts = 0)
+    public async Task<HttpResponseMessage> CheckExportStatusAsync(Topic topic, string token, int attempts = 0)
     {
-        logger.LogInformation($"Starte den Datenexport für {topic} ({canton})...");
-        var url = $"{GeodiensteBaseUrl}/downloads/{topic}/{token}/status.json";
+        var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/status.json";
+        logger.LogInformation($"Prüfe den Status des Datenexports für {topic.TopicTitle} ({topic.Canton}) mit {url}...");
 
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Authorization = GetAuthenticationHeader();
@@ -112,7 +112,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
                 {
                     logger.LogInformation($"Export ist {statusString}. Versuche es in 1 Minute erneut.");
                     await WaitBeforeRetry().ConfigureAwait(false);
-                    return await CheckExportStatus(topic, canton, token, attempts + 1).ConfigureAwait(false);
+                    return await CheckExportStatusAsync(topic, token, attempts + 1).ConfigureAwait(false);
                 }
                 else
                 {

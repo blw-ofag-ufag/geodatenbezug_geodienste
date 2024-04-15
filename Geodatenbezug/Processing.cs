@@ -57,7 +57,7 @@ public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger
             logger.LogInformation($"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})...");
             var token = GetToken(topic.BaseTopic, topic.Canton);
 
-            var exportResponse = await geodiensteApi.StartExport(topic.BaseTopic, topic.Canton, token).ConfigureAwait(false);
+            var exportResponse = await geodiensteApi.StartExportAsync(topic, token).ConfigureAwait(false);
             if (!exportResponse.IsSuccessStatusCode)
             {
                 var exportResponseContent = await exportResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -75,7 +75,7 @@ public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger
                 };
             }
 
-            var statusResponse = await geodiensteApi.CheckExportStatus(topic.BaseTopic, topic.Canton, token).ConfigureAwait(false);
+            var statusResponse = await geodiensteApi.CheckExportStatusAsync(topic, token).ConfigureAwait(false);
             var statusResponseContent = await statusResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (!statusResponse.IsSuccessStatusCode)
             {
