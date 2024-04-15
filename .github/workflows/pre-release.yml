@@ -11,6 +11,7 @@ env:
   AZURE_FUNCTIONAPP_NAME: "geodatenbezug"
   AZURE_FUNCTIONAPP_SLOT: "production"
   DOTNET_VERSION: "8.0.x"
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build-and-deploy:
@@ -19,8 +20,13 @@ jobs:
       id-token: write
 
     steps:
-      - name: "Checkout GitHub Action"
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set environment variables
+        shell: bash
+        run: |
+          echo VERSION=$(grep -oP "(?<=<VersionPrefix>)[^<]+" Directory.Build.props).$GITHUB_RUN_NUMBER >> $GITHUB_ENV
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -48,3 +54,14 @@ jobs:
           app-name: "${{ env.AZURE_FUNCTIONAPP_NAME }}"
           slot-name: "${{ env.AZURE_FUNCTIONAPP_SLOT }}"
           package: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output"
+
+      - name: Create GitHub pre-release
+        run: |
+          gh api \
+            --method POST \
+            --header "Accept: application/vnd.github+json" \
+            /repos/${GITHUB_REPOSITORY}/releases \
+            -f tag_name='v${{ env.VERSION }}' \
+            -f target_commitish='main' \
+            -f name='${{ env.VERSION }}' \
+            -F prerelease=true \
