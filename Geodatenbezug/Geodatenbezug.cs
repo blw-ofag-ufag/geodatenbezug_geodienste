@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Geodatenbezug.Models;
+﻿using Geodatenbezug.Models;
 using MaxRev.Gdal.Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
