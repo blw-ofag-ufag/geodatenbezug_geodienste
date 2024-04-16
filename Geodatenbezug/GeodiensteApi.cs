@@ -16,19 +16,11 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
 #pragma warning restore SA1009 // Closing parenthesis should be spaced correctly
 {
     private const string GeodiensteBaseUrl = "https://geodienste.ch";
-    private readonly string geodiensteUser = Environment.GetEnvironmentVariable("AuthUser") ?? throw new InvalidOperationException("AuthUser environment variable must be set.");
-    private readonly string geodienstePw = Environment.GetEnvironmentVariable("AuthPw") ?? throw new InvalidOperationException("AuthPw environment variable must be set.");
 
     /// <summary>
     /// Timeouts the execution for 1 minute before retrying.
     /// </summary>
     public virtual Task WaitBeforeRetry() => Task.Delay(TimeSpan.FromMinutes(1));
-
-    private AuthenticationHeaderValue GetAuthenticationHeader()
-    {
-        var encodedCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{geodiensteUser}:{geodienstePw}"));
-        return new AuthenticationHeaderValue("Basic", encodedCredentials);
-    }
 
     /// <inheritdoc />
     public async Task<List<Topic>> RequestTopicInfoAsync()
@@ -62,10 +54,8 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
         var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/export.json";
         logger.LogInformation($"Starte den Datenexport für {topic.TopicTitle} ({topic.Canton}) mit {url}...");
 
-        using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.Authorization = GetAuthenticationHeader();
         using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));
-        var httpResponse = await httpClient.SendAsync(request).ConfigureAwait(false);
+        var httpResponse = await httpClient.GetAsync(url).ConfigureAwait(false);
         if (httpResponse.StatusCode == HttpStatusCode.NotFound)
         {
             var jsonString = await httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -97,10 +87,8 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
         var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/status.json";
         logger.LogInformation($"Prüfe den Status des Datenexports für {topic.TopicTitle} ({topic.Canton}) mit {url}...");
 
-        using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.Authorization = GetAuthenticationHeader();
         using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));
-        var httpResponse = await httpClient.SendAsync(request).ConfigureAwait(false);
+        var httpResponse = await httpClient.GetAsync(url).ConfigureAwait(false);
         if (httpResponse.StatusCode == HttpStatusCode.OK)
         {
             var jsonString = await httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
