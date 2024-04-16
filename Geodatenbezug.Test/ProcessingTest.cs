@@ -126,8 +126,8 @@ public class ProcessingTest
 
         var result = await new Processing(geodiensteApiMock.Object, loggerMock.Object).ProcessTopic(topic);
         Assert.AreEqual(processingResult, result);
-        geodiensteApiMock.Verify(api => api.StartExportAsync(It.Is<Topic>(t => t == topic), It.Is<string>(s => s == token)), Times.Once);
-        geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(It.Is<Topic>(t => t == topic), It.Is<string>(s => s == token)), Times.Once);
+        geodiensteApiMock.Verify(api => api.StartExportAsync(topic, token), Times.Once);
+        geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(topic, token), Times.Once);
     }
 
     [TestMethod]
@@ -159,7 +159,7 @@ public class ProcessingTest
 
         var result = await new Processing(geodiensteApiMock.Object, loggerMock.Object).ProcessTopic(topic);
         Assert.AreEqual(processingResult, result);
-        geodiensteApiMock.Verify(api => api.StartExportAsync(It.Is<Topic>(t => t == topic), It.Is<string>(s => s == token)), Times.Once);
+        geodiensteApiMock.Verify(api => api.StartExportAsync(topic, token), Times.Once);
     }
 
     [TestMethod]
@@ -194,8 +194,8 @@ public class ProcessingTest
 
         var result = await new Processing(geodiensteApiMock.Object, loggerMock.Object).ProcessTopic(topic);
         Assert.AreEqual(processingResult, result);
-        geodiensteApiMock.Verify(api => api.StartExportAsync(It.Is<Topic>(t => t == topic), It.Is<string>(s => s == token)), Times.Once);
-        geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(It.Is<Topic>(t => t == topic), It.Is<string>(s => s == token)), Times.Once);
+        geodiensteApiMock.Verify(api => api.StartExportAsync(topic, token), Times.Once);
+        geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(topic, token), Times.Once);
     }
 
     [TestMethod]
@@ -230,7 +230,7 @@ public class ProcessingTest
 
         var result = await new Processing(geodiensteApiMock.Object, loggerMock.Object).ProcessTopic(topic);
         Assert.AreEqual(processingResult, result);
-        geodiensteApiMock.Verify(api => api.StartExportAsync(It.Is<Topic>(t => t == topic), It.Is<string>(s => s == token)), Times.Once);
-        geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(It.Is<Topic>(t => t == topic), It.Is<string>(s => s == token)), Times.Once);
+        geodiensteApiMock.Verify(api => api.StartExportAsync(topic, token), Times.Once);
+        geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(topic, token), Times.Once);
     }
 }
