@@ -58,7 +58,9 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     }
 
     /// <inheritdoc />
-    public async Task<HttpResponseMessage> StartExportAsync(Topic topic, string token, int attempts = 0)
+    public Task<HttpResponseMessage> StartExportAsync(Topic topic, string token) => StartExportAsync(topic, token, 0);
+
+    private async Task<HttpResponseMessage> StartExportAsync(Topic topic, string token, int attempts)
     {
         var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/export.json";
         logger.LogInformation($"Starte den Datenexport für {topic.TopicTitle} ({topic.Canton}) mit {url}...");
@@ -91,7 +93,9 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     }
 
     /// <inheritdoc />
-    public async Task<HttpResponseMessage> CheckExportStatusAsync(Topic topic, string token, int attempts = 0)
+    public Task<HttpResponseMessage> CheckExportStatusAsync(Topic topic, string token) => CheckExportStatusAsync(topic, token, 0);
+
+    private async Task<HttpResponseMessage> CheckExportStatusAsync(Topic topic, string token, int attempts)
     {
         var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/status.json";
         logger.LogInformation($"Prüfe den Status des Datenexports für {topic.TopicTitle} ({topic.Canton}) mit {url}...");

@@ -2,7 +2,9 @@
 <RunSettings>
   <RunConfiguration>
     <EnvironmentVariables>
-      <tokens_lwb_rebbaukataster>AG=token1;BE=token2;NW=token3</tokens_lwb_rebbaukataster>
+        <tokens_lwb_rebbaukataster>AG=token1;BE=token2;NW=token3</tokens_lwb_rebbaukataster>
+        <AuthUser>user123</AuthUser>
+        <AuthPw>password123</AuthPw>
     </EnvironmentVariables>
   </RunConfiguration>
 </RunSettings>

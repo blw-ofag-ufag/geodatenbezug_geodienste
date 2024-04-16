@@ -15,10 +15,10 @@ public interface IGeodiensteApi
     /// <summary>
     /// Starts the export of a topic at geodienste.ch.
     /// </summary>
-    Task<HttpResponseMessage> StartExportAsync(Topic topic, string token, int attempts = 0);
+    Task<HttpResponseMessage> StartExportAsync(Topic topic, string token);
 
     /// <summary>
     /// Checks the status of the export of a topic at geodienste.ch and returns the download URL if the export is complete.
     /// </summary>
-    Task<HttpResponseMessage> CheckExportStatusAsync(Topic topic, string token, int attempts = 0);
+    Task<HttpResponseMessage> CheckExportStatusAsync(Topic topic, string token);
 }
