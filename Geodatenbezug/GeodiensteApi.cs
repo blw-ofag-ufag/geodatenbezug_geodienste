@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -30,7 +31,8 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
             throw new InvalidOperationException("AuthUser and AuthPw environment variables must be set.");
         }
 
-        return new AuthenticationHeaderValue(username, password);
+        var encodedCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}"));
+        return new AuthenticationHeaderValue("Basic", encodedCredentials);
     }
 
     /// <inheritdoc />
