@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -47,7 +47,7 @@ public class ProcessingTest
                     BaseTopic = BaseTopic.lwb_perimeter_ln_sf,
                     TopicName = "lwb_perimeter_ln_sf_v2_0",
                     TopicTitle = "Perimeter LN- und Sömmerungsflächen",
-                    Canton = Models.Canton.ZG,
+                    Canton = Canton.ZG,
                     UpdatedAt = datestring_delta23,
                 },
                 new ()
