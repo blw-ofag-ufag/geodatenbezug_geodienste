@@ -26,7 +26,7 @@ jobs:
       - name: Set environment variables
         shell: bash
         run: |
-          echo VERSION=$(grep -oP "(?<=<VersionPrefix>)[^<]+" Directory.Build.props).$GITHUB_RUN_NUMBER >> $GITHUB_ENV
+          echo VERSION=$(grep -aoP "(?<=<VersionPrefix>)[^<]+" Directory.Build.props).$GITHUB_RUN_NUMBER >> $GITHUB_ENV
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
