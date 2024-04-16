@@ -16,6 +16,8 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
 #pragma warning restore SA1009 // Closing parenthesis should be spaced correctly
 {
     private const string GeodiensteBaseUrl = "https://geodienste.ch";
+    private readonly string geodiensteUser = Environment.GetEnvironmentVariable("AuthUser") ?? throw new InvalidOperationException("AuthUser environment variable must be set.");
+    private readonly string geodienstePw = Environment.GetEnvironmentVariable("AuthPw") ?? throw new InvalidOperationException("AuthPw environment variable must be set.");
 
     /// <summary>
     /// Timeouts the execution for 1 minute before retrying.
@@ -24,14 +26,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
 
     private AuthenticationHeaderValue GetAuthenticationHeader()
     {
-        var username = Environment.GetEnvironmentVariable("AuthUser");
-        var password = Environment.GetEnvironmentVariable("AuthPw");
-        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-        {
-            throw new InvalidOperationException("AuthUser and AuthPw environment variables must be set.");
-        }
-
-        var encodedCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}"));
+        var encodedCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{geodiensteUser}:{geodienstePw}"));
         return new AuthenticationHeaderValue("Basic", encodedCredentials);
     }
 
