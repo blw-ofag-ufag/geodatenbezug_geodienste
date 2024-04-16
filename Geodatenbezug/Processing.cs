@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Net;
 using System.Text.Json;
 using Geodatenbezug.Models;
@@ -154,7 +154,7 @@ public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger
         }
         else
         {
-            throw new KeyNotFoundException("Token not found for topic " + topic + " and canton " + canton);
+            throw new KeyNotFoundException($"Token not found for topic {topic} and canton {canton}");
         }
     }
 }
