@@ -147,7 +147,7 @@ public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger
     public string GetToken(BaseTopic topic, Canton canton)
     {
         var topicTokens = Environment.GetEnvironmentVariable("tokens_" + topic.ToString());
-        var selectedToken = topicTokens.Split(";").Where(token => token.StartsWith(canton.ToString(), StringComparison.CurrentCulture)).FirstOrDefault();
+        var selectedToken = topicTokens.Split(";").Where(token => token.StartsWith(canton.ToString(), StringComparison.InvariantCulture)).FirstOrDefault();
         if (selectedToken != null)
         {
             return selectedToken.Split("=")[1];
