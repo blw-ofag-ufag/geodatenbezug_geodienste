@@ -24,9 +24,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set environment variables
-        shell: bash
+        shell: pwsh
         run: |
-          echo VERSION=$(grep -aoP "(?<=<VersionPrefix>)[^<]+" Directory.Build.props).$GITHUB_RUN_NUMBER >> $GITHUB_ENV
+          $versionPrefix = Select-String -Path Directory.Build.props -Pattern '(?<=<VersionPrefix>)[^<]+' -AllMatches | ForEach-Object { $_.Matches } | ForEach-Object { $_.Value }
+          $version = "$versionPrefix.$env:GITHUB_RUN_NUMBER"
+          echo "VERSION=$version" | Out-File -Encoding utf8 -Append -FilePath $env:GITHUB_ENV
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
