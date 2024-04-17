@@ -26,12 +26,12 @@ var host = new HostBuilder()
         services.AddTransient<IGeodiensteApi, GeodiensteApi>();
         services = services.Configure<LoggerFilterOptions>(options =>
         {
-            var toRemove = options.Rules.FirstOrDefault(rule => rule.ProviderName
+            var logFilterToRemove = options.Rules.FirstOrDefault(rule => rule.ProviderName
                 == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
 
-            if (toRemove is not null)
+            if (logFilterToRemove is not null)
             {
-                options.Rules.Remove(toRemove);
+                options.Rules.Remove(logFilterToRemove);
             }
         });
     })
