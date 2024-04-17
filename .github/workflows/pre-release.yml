@@ -63,7 +63,7 @@ jobs:
           gh api \
             --method POST \
             --header "Accept: application/vnd.github+json" \
-            /repos/${GITHUB_REPOSITORY}/releases \
+            repos/${GITHUB_REPOSITORY}/releases \
             -f tag_name='v${{ env.VERSION }}' \
             -f target_commitish='main' \
             -f name='${{ env.VERSION }}' \
