@@ -29,7 +29,7 @@ public class HttpTestMessageHandler : HttpMessageHandler
     private List<TestMessageResponse> testMessageResponses;
 
     /// <summary>
-    /// Simulates the sending of an HTTP request and returns a predefined response.
+    /// Simulates the sending of a HTTP request and returns a predefined response.
     /// </summary>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
