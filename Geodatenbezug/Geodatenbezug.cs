@@ -25,23 +25,16 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processing processing)
     [Function(nameof(OrchestrateProcessing))]
     public async Task OrchestrateProcessing([OrchestrationTrigger] TaskOrchestrationContext context)
     {
-        try
+        logger.LogInformation("Start der Prozessierung...");
+        var topics = await context.CallActivityAsync<List<Topic>>(nameof(RetrieveTopics)).ConfigureAwait(true);
+        var results = new List<ProcessingResult>();
+        foreach (var topic in topics)
         {
-            logger.LogInformation("Start der Prozessierung...");
-            var topics = await context.CallActivityAsync<List<Topic>>(nameof(RetrieveTopics)).ConfigureAwait(true);
-            var results = new List<ProcessingResult>();
-            foreach (var topic in topics)
+            var result = await context.CallActivityAsync<ProcessingResult?>(nameof(ProcessTopic), topic).ConfigureAwait(true);
+            if (result != null)
             {
-                var result = await context.CallActivityAsync<ProcessingResult?>(nameof(ProcessTopic), topic).ConfigureAwait(true);
-                if (result != null)
-                {
-                    results.Add(result);
-                }
+                results.Add(result);
             }
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Fehler in {nameof(OrchestrateProcessing)}: {ex}");
         }
     }
 
@@ -53,16 +46,8 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processing processing)
     [Function(nameof(RetrieveTopics))]
     public async Task<List<Topic>?> RetrieveTopics([ActivityTrigger] string param)
     {
-        try
-        {
-            logger.LogInformation("Laden der Themen...");
-            return await processing.GetTopicsToProcess().ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Fehler in {nameof(RetrieveTopics)}: {ex}");
-            return null;
-        }
+        logger.LogInformation("Laden der Themen...");
+        return await processing.GetTopicsToProcess().ConfigureAwait(false);
     }
 
     /// <summary>
@@ -71,15 +56,7 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processing processing)
     [Function(nameof(ProcessTopic))]
     public async Task<ProcessingResult?> ProcessTopic([ActivityTrigger] Topic topic)
     {
-        try
-        {
-            return await processing.ProcessTopic(topic).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Fehler in {nameof(RetrieveTopics)}: {ex}");
-            return null;
-        }
+        return await processing.ProcessTopic(topic).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -92,17 +69,10 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processing processing)
         [TimerTrigger("%TimeTriggerSchedule%", RunOnStartup = true)] TimerInfo timeTrigger,
         [DurableClient] DurableTaskClient client)
     {
-        try
-        {
-            logger.LogInformation("Die Prozessierung wurde gestartet");
-            GdalBase.ConfigureAll();
-            logger.LogInformation("Verwendete GDAL-Version: " + Gdal.VersionInfo(null));
+        logger.LogInformation("Die Prozessierung wurde gestartet");
+        GdalBase.ConfigureAll();
+        logger.LogInformation("Verwendete GDAL-Version: " + Gdal.VersionInfo(null));
 
-            await client.ScheduleNewOrchestrationInstanceAsync(nameof(OrchestrateProcessing)).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Fehler in {nameof(TriggerProcessing)}: {ex}");
-        }
+        await client.ScheduleNewOrchestrationInstanceAsync(nameof(OrchestrateProcessing)).ConfigureAwait(false);
     }
 }

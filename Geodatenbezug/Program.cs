@@ -4,9 +4,13 @@ using Geodatenbezug;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureFunctionsWorkerDefaults(builder => { }, options =>
+    {
+        options.EnableUserCodeException = true;
+    })
     .ConfigureServices(services =>
     {
         services.AddApplicationInsightsTelemetryWorkerService();
@@ -20,6 +24,16 @@ var host = new HostBuilder()
         });
         services.AddTransient<Processing>();
         services.AddTransient<IGeodiensteApi, GeodiensteApi>();
+        services = services.Configure<LoggerFilterOptions>(options =>
+        {
+            var logFilterToRemove = options.Rules.FirstOrDefault(rule => rule.ProviderName
+                == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
+
+            if (logFilterToRemove is not null)
+            {
+                options.Rules.Remove(logFilterToRemove);
+            }
+        });
     })
     .Build();
 
