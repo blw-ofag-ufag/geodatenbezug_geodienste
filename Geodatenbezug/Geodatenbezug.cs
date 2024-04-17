@@ -89,7 +89,7 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processing processing)
     /// </summary>
     [Function(nameof(TriggerProcessing))]
     public async Task TriggerProcessing(
-        [TimerTrigger("0 */1 * * * *")] TimerInfo timeTrigger,
+        [TimerTrigger("0 0 3 * * *", RunOnStartup = true)] TimerInfo timeTrigger,
         [DurableClient] DurableTaskClient client)
     {
         try
