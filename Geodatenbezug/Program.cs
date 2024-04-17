@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults(builder => {}, options =>
+    .ConfigureFunctionsWorkerDefaults(builder => { }, options =>
     {
         options.EnableUserCodeException = true;
     })
@@ -24,9 +24,9 @@ var host = new HostBuilder()
         });
         services.AddTransient<Processing>();
         services.AddTransient<IGeodiensteApi, GeodiensteApi>();
-        services.Configure<LoggerFilterOptions>(options =>
+        services = services.Configure<LoggerFilterOptions>(options =>
         {
-            LoggerFilterRule toRemove = options.Rules.FirstOrDefault(rule => rule.ProviderName
+            var toRemove = options.Rules.FirstOrDefault(rule => rule.ProviderName
                 == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
 
             if (toRemove is not null)
