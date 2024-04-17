@@ -17,12 +17,12 @@ Für die Requests ans Geodienste API müssen folgende Umgebungsvariablen eingeri
 
 - AuthUser: _User im KeePass_
 - AuthPw: _Passwort im KeePass_
-- tokens*lwb_perimeter_ln_sf: \_Aus dem Azure Portal kopieren*
-- tokens*lwb_rebbaukataster: \_Aus dem Azure Portal kopieren*
-- tokens*lwb_perimeter_terrassenreben: \_Aus dem Azure Portal kopieren*
-- tokens*lwb_biodiversitaetsfoerderflaechen: \_Aus dem Azure Portal kopieren*
-- tokens*lwb_bewirtschaftungseinheit: \_Aus dem Azure Portal kopieren*
-- tokens*lwb_nutzungsflaechen: \_Aus dem Azure Portal kopieren*
+- tokens_lwb_perimeter_ln_sf: *Aus dem Azure Portal kopieren*
+- tokens_lwb_rebbaukataster: *Aus dem Azure Portal kopieren*
+- tokens_lwb_perimeter_terrassenreben: *Aus dem Azure Portal kopieren*
+- tokens_lwb_biodiversitaetsfoerderflaechen: *Aus dem Azure Portal kopieren*
+- tokens_lwb_bewirtschaftungseinheit: *Aus dem Azure Portal kopieren*
+- tokens_lwb_nutzungsflaechen: *Aus dem Azure Portal kopieren*
 
 ### Azure Function ausführen
 
