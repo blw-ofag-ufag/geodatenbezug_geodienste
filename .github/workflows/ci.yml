@@ -5,7 +5,7 @@ on:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     name: Code analysis and tests
 
     steps:
@@ -20,4 +20,4 @@ jobs:
         run: dotnet build Geodatenbezug.sln -c Release /warnaserror
 
       - name: Run tests
-        run: dotnet test Geodatenbezug.sln -c Release --no-build --verbosity normal
+        run: dotnet test Geodatenbezug.sln -c Release --no-build --verbosity normal --settings ./Geodatenbezug.Test/test.runsettings

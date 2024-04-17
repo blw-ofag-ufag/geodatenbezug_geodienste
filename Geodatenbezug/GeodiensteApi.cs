@@ -1,6 +1,9 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
+using Polly;
 
 namespace Geodatenbezug;
 
@@ -12,6 +15,11 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
 #pragma warning restore SA1009 // Closing parenthesis should be spaced correctly
 {
     private const string GeodiensteBaseUrl = "https://geodienste.ch";
+
+    /// <summary>
+    /// Timeouts the execution for 1 minute before retrying.
+    /// </summary>
+    public virtual TimeSpan GetWaitDuration() => TimeSpan.FromMinutes(1);
 
     /// <inheritdoc />
     public async Task<List<Topic>> RequestTopicInfoAsync()
@@ -35,5 +43,86 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
             return [];
 #pragma warning restore SA1010 // Opening square brackets should be spaced correctly
         }
+    }
+
+    /// <inheritdoc />
+    public async Task<HttpResponseMessage> StartExportAsync(Topic topic, string token)
+    {
+        var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/export.json";
+        logger.LogInformation($"Starte den Datenexport für {topic.TopicTitle} ({topic.Canton}) mit {url}...");
+        using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));
+
+        var retryPolicy = Policy
+            .HandleResult<HttpResponseMessage>((response) =>
+            {
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    var jsonString = response.Content.ReadAsStringAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                    var errorResponse = JsonSerializer.Deserialize<GeodiensteExportError>(jsonString);
+                    return errorResponse.Error.Equals(GeodiensteExportError.Pending, StringComparison.Ordinal);
+                }
+
+                return false;
+            })
+            .WaitAndRetryAsync(10, retryAttempt => GetWaitDuration(), (result, timeSpan, retryCount, context) =>
+                {
+                    var response = result.Result;
+                    var jsonString = response.Content.ReadAsStringAsync().Result;
+                    var errorResponse = JsonSerializer.Deserialize<GeodiensteExportError>(jsonString);
+                    if (retryCount < 10)
+                    {
+                        logger.LogInformation("Es läuft gerade ein anderer Export. Versuche es in 1 Minute erneut.");
+                    }
+                    else
+                    {
+                        logger.LogError("Es läuft bereits ein anderer Export. Zeitlimite überschritten.");
+                    }
+                });
+
+        return await retryPolicy.ExecuteAsync(async () =>
+        {
+            return await httpClient.GetAsync(url).ConfigureAwait(false);
+        }).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<HttpResponseMessage> CheckExportStatusAsync(Topic topic, string token)
+    {
+        var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/status.json";
+        logger.LogInformation($"Prüfe den Status des Datenexports für {topic.TopicTitle} ({topic.Canton}) mit {url}...");
+        using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));
+
+        var retryPolicy = Policy
+            .HandleResult<HttpResponseMessage>((response) =>
+            {
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var jsonString = response.Content.ReadAsStringAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                    var statusResponse = JsonSerializer.Deserialize<GeodiensteStatusSuccess>(jsonString);
+                    return statusResponse.Status == GeodiensteStatus.Queued || statusResponse.Status == GeodiensteStatus.Working;
+                }
+
+                return false;
+            })
+            .WaitAndRetryAsync(10, retryAttempt => GetWaitDuration(), (result, timeSpan, retryCount, context) =>
+            {
+                var response = result.Result;
+                var jsonString = response.Content.ReadAsStringAsync().Result;
+                var statusResponse = JsonSerializer.Deserialize<GeodiensteStatusSuccess>(jsonString);
+                var statusString = statusResponse.Status == GeodiensteStatus.Queued ? "in der Warteschlange" : "in Bearbeitung";
+                if (retryCount < 10)
+                {
+                    logger.LogInformation($"Export ist {statusString}. Versuche es in 1 Minute erneut.");
+                }
+                else
+                {
+                    logger.LogError($"Zeitlimite überschritten. Status ist {statusString}");
+                }
+            });
+
+        return await retryPolicy.ExecuteAsync(async () =>
+        {
+            return await httpClient.GetAsync(url).ConfigureAwait(false);
+        }).ConfigureAwait(false);
     }
 }

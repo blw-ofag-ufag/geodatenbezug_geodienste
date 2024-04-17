@@ -8,6 +8,7 @@
     <RepositoryType>git</RepositoryType>
     <AnalysisLevel>8.0-all</AnalysisLevel>
     <VersionPrefix>1.0</VersionPrefix>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
