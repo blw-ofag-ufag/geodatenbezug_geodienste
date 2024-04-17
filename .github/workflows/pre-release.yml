@@ -58,6 +58,7 @@ jobs:
           package: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output"
 
       - name: Create GitHub pre-release
+        shell: bash
         run: |
           gh api \
             --method POST \
