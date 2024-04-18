@@ -46,10 +46,11 @@ public class GdalLayer
     /// </summary>
     public void CopyFeatures()
     {
+        inputLayer.ResetReading();
         for (var i = 0; i < inputLayer.GetFeatureCount(1); i++)
         {
-            var processingLayerDefinition = processingLayer.GetLayerDefn();
             var inputFeature = inputLayer.GetNextFeature();
+            var processingLayerDefinition = processingLayer.GetLayerDefn();
             var newFeature = new Feature(processingLayerDefinition);
             newFeature.SetGeometry(inputFeature.GetGeometryRef());
 
@@ -104,6 +105,7 @@ public class GdalLayer
     /// </summary>
     public void FilterLnfCodes()
     {
+        processingLayer.ResetReading();
         for (var i = 0; i < processingLayer.GetFeatureCount(1); i++)
         {
             var feature = processingLayer.GetNextFeature();
@@ -120,11 +122,11 @@ public class GdalLayer
     /// </summary>
     public void ConvertMultiPartToSinglePartGeometry()
     {
+        processingLayer.ResetReading();
         for (var i = 0; i < processingLayer.GetFeatureCount(1); i++)
         {
             var feature = processingLayer.GetNextFeature();
             var geometry = feature.GetGeometryRef();
-            var geometryCount = geometry.GetGeometryCount();
 
             if (geometry.GetGeometryCount() > 1)
             {
