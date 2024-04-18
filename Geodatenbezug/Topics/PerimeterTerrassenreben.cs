@@ -1,4 +1,4 @@
-﻿using OSGeo.OGR;
+using OSGeo.OGR;
 
 namespace Geodatenbezug.Topics;
 
@@ -18,6 +18,7 @@ public class PerimeterTerrassenreben(string inputFilePath) : GdalTopic(inputFile
         var fieldTypeConversions = new Dictionary<string, FieldType>
         {
             { "t_id", FieldType.OFTInteger },
+            { "bezugsjahr", FieldType.OFTDateTime },
             { "aenderungsdatum", FieldType.OFTDateTime },
         };
         var perimeterTerrassenrebenLayer = CreateGdalLayer("perimeter_terrassenreben", fieldTypeConversions);
