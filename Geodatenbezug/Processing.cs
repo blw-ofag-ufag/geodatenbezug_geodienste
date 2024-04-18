@@ -2,6 +2,7 @@
 using System.Net;
 using System.Text.Json;
 using Geodatenbezug.Models;
+using Geodatenbezug.Topics;
 using Microsoft.Extensions.Logging;
 
 namespace Geodatenbezug;
@@ -107,6 +108,42 @@ public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger
                 };
             }
 
+            if (statusMessage.DownloadUrl == null)
+            {
+                logger.LogError($"Kein Download-Link für Thema {topic.TopicTitle} ({topic.Canton}) vorhanden");
+
+                return new ProcessingResult
+                {
+                    Code = HttpStatusCode.NotFound,
+                    Reason = "Download link not found",
+                    TopicTitle = topic.TopicTitle,
+                    Canton = topic.Canton,
+                };
+            }
+
+            var downloadLink = string.Empty;
+            switch (topic.BaseTopic)
+            {
+                case BaseTopic.lwb_perimeter_ln_sf:
+                    downloadLink = new PerimeterLnSf(statusMessage.DownloadUrl).Process();
+                    break;
+                case BaseTopic.lwb_rebbaukataster:
+                    downloadLink = new Rebbaukataster(statusMessage.DownloadUrl).Process();
+                    break;
+                case BaseTopic.lwb_perimeter_terrassenreben:
+                    downloadLink = new PerimeterTerrassenreben(statusMessage.DownloadUrl).Process();
+                    break;
+                case BaseTopic.lwb_biodiversitaetsfoerderflaechen:
+                    downloadLink = new Biodiversitaetsfoerderflaechen(statusMessage.DownloadUrl).Process();
+                    break;
+                case BaseTopic.lwb_bewirtschaftungseinheit:
+                    downloadLink = new Bewirtschaftungseinheit(statusMessage.DownloadUrl).Process();
+                    break;
+                case BaseTopic.lwb_nutzungsflaechen:
+                    downloadLink = new Nutzungsflaechen(statusMessage.DownloadUrl).Process();
+                    break;
+            }
+
             return new ProcessingResult
             {
                 Code = HttpStatusCode.OK,
@@ -114,7 +151,7 @@ public class Processing(IGeodiensteApi geodiensteApi, ILogger<Processing> logger
                 Info = "Processing completed",
                 TopicTitle = topic.TopicTitle,
                 Canton = topic.Canton,
-                DownloadUrl = null,
+                DownloadUrl = downloadLink,
             };
         }
         catch (KeyNotFoundException)
