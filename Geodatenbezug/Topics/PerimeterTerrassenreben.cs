@@ -1,4 +1,4 @@
-using OSGeo.OGR;
+﻿using OSGeo.OGR;
 
 namespace Geodatenbezug.Topics;
 
