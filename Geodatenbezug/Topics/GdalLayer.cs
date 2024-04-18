@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using OSGeo.OGR;
 
 namespace Geodatenbezug.Topics;
@@ -71,7 +71,13 @@ public class GdalLayer
                 }
                 else if (fieldType == FieldType.OFTDateTime)
                 {
-                    var dateTimeValues = inputFeature.GetFieldAsString(j).Split("-");
+                    var value = inputFeature.GetFieldAsString(j);
+                    if (string.IsNullOrEmpty(value))
+                    {
+                        continue;
+                    }
+
+                    var dateTimeValues = value.Split("-");
                     var year = int.Parse(dateTimeValues[0], CultureInfo.InvariantCulture);
                     var month = dateTimeValues.Length > 1 ? int.Parse(dateTimeValues[1], CultureInfo.InvariantCulture) : 1;
                     var day = dateTimeValues.Length > 2 ? int.Parse(dateTimeValues[2], CultureInfo.InvariantCulture) : 1;
