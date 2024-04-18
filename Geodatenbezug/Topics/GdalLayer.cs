@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using OSGeo.OGR;
 
 namespace Geodatenbezug.Topics;
@@ -48,7 +48,7 @@ public class GdalLayer
     {
         for (var i = 0; i < inputLayer.GetFeatureCount(1); i++)
         {
-            var processingLayerDefinition = inputLayer.GetLayerDefn();
+            var processingLayerDefinition = processingLayer.GetLayerDefn();
             var inputFeature = inputLayer.GetNextFeature();
             var newFeature = new Feature(processingLayerDefinition);
             newFeature.SetGeometry(inputFeature.GetGeometryRef());
