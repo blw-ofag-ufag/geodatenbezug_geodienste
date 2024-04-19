@@ -56,7 +56,7 @@ public abstract class GdalTopic(string inputFilePath)
     /// </summary>
     public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldType>? fieldTypeConversions)
     {
-        var inputLayer = GetInputLayer(layerName);
+        var inputLayer = inputDataSource.GetLayerByName(layerName);
 
         // Workaround https://github.com/blw-ofag-ufag/geodatenbezug_geodienste/issues/45
         var geometryType = inputLayer.GetNextFeature().GetGeometryRef().GetGeometryType();
