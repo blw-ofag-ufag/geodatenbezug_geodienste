@@ -1,8 +1,14 @@
-﻿using Geodatenbezug.Topics;
+using Geodatenbezug.Topics;
 
 namespace Geodatenbezug;
 
 [TestClass]
+[DeploymentItem("testdata/lwb_bewirtschaftungseinheit_v2_0_lv95_NE_202404191123.gpkg", "testdata")]
+[DeploymentItem("testdata/lwb_biodiversitaetsfoerderflaechen_v2_0_lv95_NE_202404191123.gpkg", "testdata")]
+[DeploymentItem("testdata/lwb_nutzungsflaechen_v2_0_lv95_NE_202404191123.gpkg", "testdata")]
+[DeploymentItem("testdata/lwb_perimeter_ln_sf_v2_0_lv95_NE_202404191123.gpkg", "testdata")]
+[DeploymentItem("testdata/lwb_perimeter_terrassenreben_v2_0_lv95_NE_202404191123.gpkg", "testdata")]
+[DeploymentItem("testdata/lwb_rebbaukataster_v2_0_lv95_NE_202404191123.gpkg", "testdata")]
 public class GdalTopicTest
 {
 /*    [TestMethod]
