@@ -1,4 +1,4 @@
-﻿using OSGeo.OGR;
+using OSGeo.OGR;
 
 namespace Geodatenbezug.Topics;
 
@@ -56,9 +56,13 @@ public abstract class GdalTopic(string inputFilePath)
     /// </summary>
     public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldType>? fieldTypeConversions)
     {
-        var inputLayer = inputDataSource.GetLayerByName(layerName);
+        var inputLayer = GetInputLayer(layerName);
+
+        // Workaround https://github.com/blw-ofag-ufag/geodatenbezug_geodienste/issues/45
+        var geometryType = inputLayer.GetNextFeature().GetGeometryRef().GetGeometryType();
+
 #pragma warning disable SA1010 // Opening square brackets should be spaced correctly
-        var processingLayer = processingDataSource.CreateLayer(layerName, inputLayer.GetSpatialRef(), inputLayer.GetGeomType(), []);
+        var processingLayer = processingDataSource.CreateLayer(layerName, inputLayer.GetSpatialRef(), geometryType, []);
         fieldTypeConversions ??= [];
 #pragma warning restore SA1010 // Opening square brackets should be spaced correctly
         return new GdalLayer(inputLayer, processingLayer, fieldTypeConversions);
