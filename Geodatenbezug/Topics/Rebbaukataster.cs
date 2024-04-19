@@ -5,16 +5,11 @@ namespace Geodatenbezug.Topics;
 /// <summary>
 /// The Rebbaukataster topic.
 /// </summary>
-public class Rebbaukataster : GdalTopic
+/// <remarks>
+/// Initializes a new instance of the <see cref="Rebbaukataster"/> class.
+/// </remarks>
+public class Rebbaukataster(string inputFilePath) : GdalTopic(inputFilePath)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Rebbaukataster"/> class.
-    /// </summary>
-    public Rebbaukataster(string inputFilePath)
-        : base(inputFilePath)
-    {
-    }
-
     /// <inheritdoc/>
     protected override void ProcessLayers()
     {

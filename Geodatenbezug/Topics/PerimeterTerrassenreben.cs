@@ -8,9 +8,7 @@ namespace Geodatenbezug.Topics;
 /// <remarks>
 /// Initializes a new instance of the <see cref="PerimeterTerrassenreben"/> class.
 /// </remarks>
-#pragma warning disable SA1009 // Closing parenthesis should be spaced correctly
 public class PerimeterTerrassenreben(string inputFilePath) : GdalTopic(inputFilePath)
-#pragma warning restore SA1009 // Closing parenthesis should be spaced correctly
 {
     /// <inheritdoc/>
     protected override void ProcessLayers()

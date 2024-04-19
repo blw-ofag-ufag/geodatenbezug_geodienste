@@ -8,9 +8,7 @@ namespace Geodatenbezug.Topics;
 /// <remarks>
 /// Initializes a new instance of the <see cref="PerimeterLnSf"/> class.
 /// </remarks>
-#pragma warning disable SA1009 // Closing parenthesis should be spaced correctly
 public class PerimeterLnSf(string inputFilePath) : GdalTopic(inputFilePath)
-#pragma warning restore SA1009 // Closing parenthesis should be spaced correctly
 {
     /// <inheritdoc/>
     protected override void ProcessLayers()
@@ -21,6 +19,8 @@ public class PerimeterLnSf(string inputFilePath) : GdalTopic(inputFilePath)
             { "bezugsjahr", FieldType.OFTDateTime },
         };
         var perimeterLnSfLayer = CreateGdalLayer("perimeter_ln_sf", fieldTypeConversions);
+
+        // TODO: Fields do not exist in the input data
         perimeterLnSfLayer.RemoveField("_part_number");
         perimeterLnSfLayer.RemoveField("_geometry_name");
         perimeterLnSfLayer.CopyFeatures();
