@@ -10,6 +10,11 @@ namespace Geodatenbezug.Processors;
 /// </summary>
 public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logger, Topic topic) : ITopicProcessor
 {
+    /// <summary>
+    /// The topic that is being processed.
+    /// </summary>
+    protected Topic Topic => topic;
+
     private readonly ProcessingResult processingResult = new ()
     {
         Code = HttpStatusCode.Processing,

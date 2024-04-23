@@ -15,7 +15,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, ILogger log
             {
                 Task.Run(async () =>
                 {
-                    var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
+                    var downloadUrl = await ExportTopicAsync(Topic).ConfigureAwait(false);
 
                     // TODO: Download data from downloadUrl
                 }),
@@ -24,11 +24,11 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, ILogger log
                     var bewirtschaftungseinheitTopic = new Topic()
                     {
                         TopicTitle = BaseTopic.lwb_bewirtschaftungseinheit.GetDescription(),
-                        Canton = topic.Canton,
+                        Canton = Topic.Canton,
                         TopicName = BaseTopic.lwb_bewirtschaftungseinheit.ToString() + "_v2_0",
                         BaseTopic = BaseTopic.lwb_bewirtschaftungseinheit,
                     };
-                    var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
+                    var downloadUrl = await ExportTopicAsync(bewirtschaftungseinheitTopic).ConfigureAwait(false);
 
                     // TODO: Download data from downloadUrl
                 }),
