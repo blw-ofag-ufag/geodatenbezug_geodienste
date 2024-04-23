@@ -2,7 +2,9 @@
 using System.Net;
 using System.Text.Json;
 using Geodatenbezug.Models;
+using Geodatenbezug.Topics;
 using Microsoft.Extensions.Logging;
+using OSGeo.OGR;
 
 namespace Geodatenbezug.Processors;
 
@@ -29,6 +31,28 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
         set { inputData = value; }
     }
 
+    private DataSource? inputDataSource;
+
+    /// <summary>
+    /// The <see cref="DataSource"/> for the input data.
+    /// </summary>
+    protected DataSource? InputDataSource
+    {
+        get { return inputDataSource; }
+        set { inputDataSource = value; }
+    }
+
+    private DataSource? processingDataSource;
+
+    /// <summary>
+    /// The <see cref="DataSource"/> for the processed data.
+    /// </summary>
+    protected DataSource? ProcessingDataSource
+    {
+        get { return processingDataSource; }
+        set { processingDataSource = value; }
+    }
+
     /// <summary>
     /// The geodienste.ch API.
     /// </summary>
@@ -53,7 +77,8 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
         {
             await PrepareData().ConfigureAwait(false);
 
-            // TODO: Process data.
+            await RunGdalProcessing().ConfigureAwait(false);
+
             var zipFileName = Path.GetFileName(DataDirectory) + ".zip";
             var zipFileDirectory = Path.GetDirectoryName(DataDirectory) ?? throw new InvalidOperationException("Invalid data directory");
             var zipFullFilePath = Path.Combine(zipFileDirectory, zipFileName);
@@ -149,6 +174,58 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
 
         return statusMessage.DownloadUrl;
     }
+
+    /// <summary>
+    /// Processes the data using GDAL.
+    /// </summary>
+    protected async Task RunGdalProcessing()
+    {
+        Ogr.RegisterAll();
+        Ogr.UseExceptions();
+
+        var inputFilePath = Path.Combine(dataDirectory, topic.BaseTopic.ToString() + "_v2_0_lv95.gpkg");
+        InputDataSource = Ogr.Open(inputFilePath, 1);
+        if (InputDataSource == null)
+        {
+            throw new InvalidOperationException("Could not open input datasource.");
+        }
+
+        var processedFilePath = inputFilePath.Replace(".gpkg", ".gdb", StringComparison.InvariantCulture);
+        if (Directory.Exists(processedFilePath))
+        {
+            Directory.Delete(processedFilePath, true);
+        }
+
+        var openFileGdbDriver = Ogr.GetDriverByName("OpenFileGDB");
+        ProcessingDataSource = openFileGdbDriver.CreateDataSource(processedFilePath, null);
+
+        await ProcessTopic().ConfigureAwait(false);
+
+        InputDataSource.Dispose();
+        ProcessingDataSource.Dispose();
+    }
+
+    /// <summary>
+    /// Creates a new GDAL layer for processing.
+    /// </summary>
+    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldType>? fieldTypeConversions)
+    {
+        var inputLayer = InputDataSource.GetLayerByName(layerName);
+
+        // Workaround https://github.com/blw-ofag-ufag/geodatenbezug_geodienste/issues/45
+        var geometryType = inputLayer.GetNextFeature().GetGeometryRef().GetGeometryType();
+
+#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
+        var processingLayer = ProcessingDataSource.CreateLayer(layerName, inputLayer.GetSpatialRef(), geometryType, []);
+        fieldTypeConversions ??= [];
+#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
+        return new GdalLayer(inputLayer, processingLayer, fieldTypeConversions);
+    }
+
+    /// <summary>
+    /// Performs the actual processing of the topic.
+    /// </summary>
+    protected abstract Task ProcessTopic();
 
     /// <inheritdoc />
     public string GetToken(BaseTopic baseTopic, Canton canton)

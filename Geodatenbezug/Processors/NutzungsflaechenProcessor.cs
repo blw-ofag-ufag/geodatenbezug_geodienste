@@ -35,4 +35,10 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, ILogger log
             };
         await Task.WhenAll(tasks).ConfigureAwait(false);
     }
+
+    /// <inheritdoc/>
+    protected override Task ProcessTopic()
+    {
+        throw new NotImplementedException();
+    }
 }
