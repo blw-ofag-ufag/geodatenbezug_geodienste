@@ -10,6 +10,29 @@ namespace Geodatenbezug.Processors;
 /// </summary>
 public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logger, Topic topic) : ITopicProcessor
 {
+    private readonly string dataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Geodatenbezug", topic.BaseTopic.ToString(), topic.Canton.ToString());
+
+    /// <summary>
+    /// The directory where the data is stored for processing.
+    /// </summary>
+    protected string DataDirectory => dataDirectory;
+
+    private string inputData = string.Empty;
+
+    /// <summary>
+    /// The input data for processing.
+    /// </summary>
+    protected string InputData
+    {
+        get { return inputData; }
+        set { inputData = value; }
+    }
+
+    /// <summary>
+    /// The geodienste.ch API.
+    /// </summary>
+    protected IGeodiensteApi GeodiensteApi => geodiensteApi;
+
     /// <summary>
     /// The topic that is being processed.
     /// </summary>
@@ -52,8 +75,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     protected virtual async Task PrepareData()
     {
         var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
-
-        // TODO: Download data from downloadUrl
+        InputData = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -64,7 +86,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
         logger.LogInformation($"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})...");
 
         var token = GetToken(topic.BaseTopic, topic.Canton);
-        var exportResponse = await geodiensteApi.StartExportAsync(topic, token).ConfigureAwait(false);
+        var exportResponse = await GeodiensteApi.StartExportAsync(topic, token).ConfigureAwait(false);
         if (!exportResponse.IsSuccessStatusCode)
         {
             var exportResponseContent = await exportResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -81,7 +103,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
             }
         }
 
-        var statusResponse = await geodiensteApi.CheckExportStatusAsync(topic, token).ConfigureAwait(false);
+        var statusResponse = await GeodiensteApi.CheckExportStatusAsync(topic, token).ConfigureAwait(false);
         var statusResponseContent = await statusResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
         if (!statusResponse.IsSuccessStatusCode)
         {
