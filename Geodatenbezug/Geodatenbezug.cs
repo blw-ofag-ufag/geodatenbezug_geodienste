@@ -14,10 +14,10 @@ namespace Geodatenbezug;
 /// <remarks>
 /// Initializes a new instance of the <see cref="Geodatenbezug"/> class.
 /// </remarks>
-public class Geodatenbezug(ILoggerFactory loggerFactory, Processing processing)
+public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
 {
     private readonly ILogger logger = loggerFactory.CreateLogger<Geodatenbezug>();
-    private readonly Processing processing = processing;
+    private readonly Processor processing = processing;
 
     /// <summary>
     /// Durable function to orchestrate the processing of geodata.

@@ -18,6 +18,11 @@ public record GeodiensteExportError
     public static readonly string Pending = "Cannot start data export because there is another data export pending";
 
     /// <summary>
+    /// Message if only one data export per topic is allowed every 24 h.
+    /// </summary>
+    public static readonly string OnlyOneExport = "Only one data export per topic allowed every 24 h";
+
+    /// <summary>
     /// Message if unexpected error occurred.
     /// </summary>
     public static readonly string Unexpected = "An unexpected error occurred. Please try again by starting a new data export";
