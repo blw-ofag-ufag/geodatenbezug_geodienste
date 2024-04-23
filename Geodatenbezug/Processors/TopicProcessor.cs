@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.IO.Compression;
+using System.Net;
 using System.Text.Json;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,7 @@ namespace Geodatenbezug.Processors;
 /// </summary>
 public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logger, Topic topic) : ITopicProcessor
 {
-    private readonly string dataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Geodatenbezug", topic.BaseTopic.ToString(), topic.Canton.ToString());
+    private readonly string dataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Geodatenbezug", topic.Canton.ToString(), topic.BaseTopic.ToString());
 
     /// <summary>
     /// The directory where the data is stored for processing.
@@ -52,7 +53,16 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
         {
             await PrepareData().ConfigureAwait(false);
 
-            // TODO: Process data and upload data to storage.
+            // TODO: Process data.
+            var zipFileName = Path.GetFileName(DataDirectory) + ".zip";
+            var zipFileDirectory = Path.GetDirectoryName(DataDirectory) ?? throw new InvalidOperationException("Invalid data directory");
+            var zipFullFilePath = Path.Combine(zipFileDirectory, zipFileName);
+            ZipFile.CreateFromDirectory(DataDirectory, zipFullFilePath);
+
+            processingResult.DownloadUrl = await new AzureStorage().UploadFileAsync(Path.Combine(Topic.Canton.ToString(), zipFileName), zipFullFilePath).ConfigureAwait(false);
+            processingResult.Code = HttpStatusCode.OK;
+            processingResult.Reason = "Success";
+            processingResult.Info = "Data processed successfully";
         }
         catch (Exception ex)
         {
