@@ -30,7 +30,7 @@ public class GeodiensteApiTest
     }
 
     [TestMethod]
-    public async Task RequestTopicInfoAsyncTest()
+    public async Task RequestTopicInfoAsync()
     {
         var data = new GeodiensteInfoData
         {
@@ -67,7 +67,7 @@ public class GeodiensteApiTest
     }
 
     [TestMethod]
-    public async Task RequestTopicInfoAsyncFailsTest()
+    public async Task RequestTopicInfoAsyncFails()
     {
         httpTestMessageHandler.SetTestMessageResponses(
         [
@@ -82,7 +82,7 @@ public class GeodiensteApiTest
     }
 
     [TestMethod]
-    public async Task StartExportAsyncTest()
+    public async Task StartExportAsync()
     {
         var topic = new Topic
         {
@@ -112,7 +112,7 @@ public class GeodiensteApiTest
     }
 
     [TestMethod]
-    public async Task StartExportAsyncTimeoutTest()
+    public async Task StartExportAsyncTimeout()
     {
         var topic = new Topic
         {
@@ -152,7 +152,7 @@ public class GeodiensteApiTest
     }
 
     [TestMethod]
-    public async Task StartExportAsyncFailsTest()
+    public async Task StartExportAsyncFails()
     {
         var topic = new Topic
         {
@@ -180,7 +180,7 @@ public class GeodiensteApiTest
     }
 
     [TestMethod]
-    public async Task CheckExportStatusAsyncTest()
+    public async Task CheckExportStatusAsync()
     {
         var topic = new Topic
         {
@@ -228,7 +228,7 @@ public class GeodiensteApiTest
     }
 
     [TestMethod]
-    public async Task CheckExportStatusAsyncTimeoutTest()
+    public async Task CheckExportStatusAsyncTimeout()
     {
         var topic = new Topic
         {
@@ -270,7 +270,7 @@ public class GeodiensteApiTest
     }
 
     [TestMethod]
-    public async Task CheckExportStatusAsyncFailsTest()
+    public async Task CheckExportStatusAsyncFails()
     {
         var topic = new Topic
         {
