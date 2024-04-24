@@ -149,7 +149,12 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
             }
         }
 
-        return destinationPath;
+        if (string.IsNullOrEmpty(downloadedFilePath))
+        {
+            throw new FileNotFoundException("Keine GeoPackage-Datei im Archiv gefunden.");
+        }
+
+        return downloadedFilePath;
     }
 
     /// <inheritdoc />

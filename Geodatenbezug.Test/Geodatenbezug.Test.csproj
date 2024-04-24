@@ -27,4 +27,13 @@
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
 
+    <ItemGroup>
+    <None Include="testdata\lwb_perimeter_terrassenreben_lv95.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="testdata\lwb_perimeter_terrassenreben_lv95_no_gpkg.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
