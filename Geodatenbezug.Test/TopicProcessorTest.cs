@@ -3,6 +3,8 @@ using Geodatenbezug.Models;
 using Geodatenbezug.Processors;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Newtonsoft.Json.Linq;
+using OSGeo.GDAL;
 
 namespace Geodatenbezug;
 
@@ -35,24 +37,8 @@ public class TopicProcessorTest
     }
 
     [TestMethod]
-    public void GetToken()
-    {
-        var topicProcessor = TopicProcessorFactory.Create(geodiensteApiMock.Object, loggerMock.Object, topic);
-        var result = topicProcessor.GetToken(BaseTopic.lwb_rebbaukataster, Canton.BE);
-        Assert.AreEqual("token2", result);
-    }
-
-    [TestMethod]
-    public void GetTokenFails()
-    {
-        var topicProcessor = TopicProcessorFactory.Create(geodiensteApiMock.Object, loggerMock.Object, topic);
-        Assert.ThrowsException<KeyNotFoundException>(() => topicProcessor.GetToken(BaseTopic.lwb_rebbaukataster, Canton.AI), "Token not found for topic lwb_rebbaukataster and canton AI");
-    }
-
-    [TestMethod]
     public async Task ProcessTopic()
     {
-        var token = "token1";
         var processingResult = new ProcessingResult
         {
             Code = HttpStatusCode.Processing,
@@ -60,24 +46,23 @@ public class TopicProcessorTest
             Canton = topic.Canton,
         };
         geodiensteApiMock
-            .Setup(api => api.StartExportAsync(It.IsAny<Topic>(), It.IsAny<string>()))
+            .Setup(api => api.StartExportAsync(It.IsAny<Topic>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
         geodiensteApiMock
-            .Setup(api => api.CheckExportStatusAsync(It.IsAny<Topic>(), It.IsAny<string>()))
+            .Setup(api => api.CheckExportStatusAsync(It.IsAny<Topic>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"status\":\"success\", \"info\":\"Data ready to be downloaded. Provide your credentials to download the data.\", \"download_url\":\"test.com/data.zip\", \"exported_at\":\"2022-03-24T09:31:05.508\"}"), });
         loggerMock.Setup(LogLevel.Information, $"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})...");
         loggerMock.Setup(LogLevel.Information, $"Bereite Daten für die Prozessierung von {topic.TopicTitle} ({topic.Canton}) vor...");
 
         var result = await TopicProcessorFactory.Create(geodiensteApiMock.Object, loggerMock.Object, topic).ProcessAsync();
         Assert.AreEqual(processingResult, result);
-        geodiensteApiMock.Verify(api => api.StartExportAsync(topic, token), Times.Once);
-        geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(topic, token), Times.Once);
+        geodiensteApiMock.Verify(api => api.StartExportAsync(topic), Times.Once);
+        geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(topic), Times.Once);
     }
 
     [TestMethod]
     public async Task ProcessTopicStartExportFails()
     {
-        var token = "token1";
         var processingResult = new ProcessingResult
         {
             Code = HttpStatusCode.NotFound,
@@ -87,7 +72,7 @@ public class TopicProcessorTest
             Canton = topic.Canton,
         };
         geodiensteApiMock
-            .Setup(api => api.StartExportAsync(It.IsAny<Topic>(), It.IsAny<string>()))
+            .Setup(api => api.StartExportAsync(It.IsAny<Topic>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound) { Content = new StringContent("{\"error\":\"Data export information not found. Invalid token?\"}"), });
 
         loggerMock.Setup(LogLevel.Information, $"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})...");
@@ -96,13 +81,12 @@ public class TopicProcessorTest
 
         var result = await TopicProcessorFactory.Create(geodiensteApiMock.Object, loggerMock.Object, topic).ProcessAsync();
         Assert.AreEqual(processingResult, result);
-        geodiensteApiMock.Verify(api => api.StartExportAsync(topic, token), Times.Once);
+        geodiensteApiMock.Verify(api => api.StartExportAsync(topic), Times.Once);
     }
 
     [TestMethod]
     public async Task ProcessTopicCheckExportStatusFailed()
     {
-        var token = "token1";
         var processingResult = new ProcessingResult
         {
             Code = HttpStatusCode.OK,
@@ -112,10 +96,10 @@ public class TopicProcessorTest
             Canton = topic.Canton,
         };
         geodiensteApiMock
-            .Setup(api => api.StartExportAsync(It.IsAny<Topic>(), It.IsAny<string>()))
+            .Setup(api => api.StartExportAsync(It.IsAny<Topic>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
         geodiensteApiMock
-            .Setup(api => api.CheckExportStatusAsync(It.IsAny<Topic>(), It.IsAny<string>()))
+            .Setup(api => api.CheckExportStatusAsync(It.IsAny<Topic>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"status\":\"failed\", \"info\":\"An unexpected error occurred. Please try again by starting a new data export.\"}"), });
 
         loggerMock.Setup(LogLevel.Information, $"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})...");
@@ -124,14 +108,13 @@ public class TopicProcessorTest
 
         var result = await TopicProcessorFactory.Create(geodiensteApiMock.Object, loggerMock.Object, topic).ProcessAsync();
         Assert.AreEqual(processingResult, result);
-        geodiensteApiMock.Verify(api => api.StartExportAsync(topic, token), Times.Once);
-        geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(topic, token), Times.Once);
+        geodiensteApiMock.Verify(api => api.StartExportAsync(topic), Times.Once);
+        geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(topic), Times.Once);
     }
 
     [TestMethod]
     public async Task ProcessTopicCheckExportStatusError()
     {
-        var token = "token1";
         var processingResult = new ProcessingResult
         {
             Code = HttpStatusCode.NotFound,
@@ -141,10 +124,10 @@ public class TopicProcessorTest
             Canton = topic.Canton,
         };
         geodiensteApiMock
-            .Setup(api => api.StartExportAsync(It.IsAny<Topic>(), It.IsAny<string>()))
+            .Setup(api => api.StartExportAsync(It.IsAny<Topic>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
         geodiensteApiMock
-            .Setup(api => api.CheckExportStatusAsync(It.IsAny<Topic>(), It.IsAny<string>()))
+            .Setup(api => api.CheckExportStatusAsync(It.IsAny<Topic>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound) { Content = new StringContent("{\"error\":\"Data export information not found. Invalid token?\"}"), });
 
         loggerMock.Setup(LogLevel.Information, $"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})...");
@@ -153,7 +136,7 @@ public class TopicProcessorTest
 
         var result = await TopicProcessorFactory.Create(geodiensteApiMock.Object, loggerMock.Object, topic).ProcessAsync();
         Assert.AreEqual(processingResult, result);
-        geodiensteApiMock.Verify(api => api.StartExportAsync(topic, token), Times.Once);
-        geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(topic, token), Times.Once);
+        geodiensteApiMock.Verify(api => api.StartExportAsync(topic), Times.Once);
+        geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(topic), Times.Once);
     }
 }

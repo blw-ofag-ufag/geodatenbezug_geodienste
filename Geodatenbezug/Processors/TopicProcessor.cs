@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text.Json;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -64,8 +64,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     /// </summary>
     protected async Task<string> ExportTopicAsync(Topic topic)
     {
-        var token = GetToken(topic.BaseTopic, topic.Canton);
-        var exportResponse = await geodiensteApi.StartExportAsync(topic, token).ConfigureAwait(false);
+        var exportResponse = await geodiensteApi.StartExportAsync(topic).ConfigureAwait(false);
         if (!exportResponse.IsSuccessStatusCode)
         {
             var exportResponseContent = await exportResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -82,7 +81,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
             }
         }
 
-        var statusResponse = await geodiensteApi.CheckExportStatusAsync(topic, token).ConfigureAwait(false);
+        var statusResponse = await geodiensteApi.CheckExportStatusAsync(topic).ConfigureAwait(false);
         var statusResponseContent = await statusResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
         if (!statusResponse.IsSuccessStatusCode)
         {
@@ -117,20 +116,5 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
         }
 
         return statusMessage.DownloadUrl;
-    }
-
-    /// <inheritdoc />
-    public string GetToken(BaseTopic baseTopic, Canton canton)
-    {
-        var topicTokens = Environment.GetEnvironmentVariable("tokens_" + baseTopic.ToString());
-        var selectedToken = topicTokens.Split(";").Where(token => token.StartsWith(canton.ToString(), StringComparison.InvariantCulture)).FirstOrDefault();
-        if (selectedToken != null)
-        {
-            return selectedToken.Split("=")[1];
-        }
-        else
-        {
-            throw new KeyNotFoundException($"Token not found for topic {baseTopic} and canton {canton}");
-        }
     }
 }
