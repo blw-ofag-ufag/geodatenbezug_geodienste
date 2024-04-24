@@ -1,4 +1,4 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using System.Net;
 using System.Text.Json;
 using Geodatenbezug.Models;
@@ -9,7 +9,7 @@ namespace Geodatenbezug.Processors;
 /// <summary>
 /// Represents a processor for a specific topic.
 /// </summary>
-public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logger, Topic topic) : ITopicProcessor
+public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage, ILogger logger, Topic topic) : ITopicProcessor
 {
     private readonly string dataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Geodatenbezug", topic.Canton.ToString(), topic.BaseTopic.ToString());
 
