@@ -50,6 +50,8 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     {
         try
         {
+            logger.LogInformation($"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})...");
+
             await PrepareData().ConfigureAwait(false);
 
             // TODO: Process data and upload data to storage.
@@ -74,6 +76,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     /// </summary>
     protected virtual async Task PrepareData()
     {
+        logger.LogInformation($"Bereite Daten für die Prozessierung von {topic.TopicTitle} ({topic.Canton}) vor...");
         var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
         InputData = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
     }
@@ -83,8 +86,6 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     /// </summary>
     protected async Task<string> ExportTopicAsync(Topic topic)
     {
-        logger.LogInformation($"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})...");
-
         var token = GetToken(topic.BaseTopic, topic.Canton);
         var exportResponse = await GeodiensteApi.StartExportAsync(topic, token).ConfigureAwait(false);
         if (!exportResponse.IsSuccessStatusCode)
