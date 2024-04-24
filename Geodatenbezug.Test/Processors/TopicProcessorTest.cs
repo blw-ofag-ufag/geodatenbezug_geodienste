@@ -19,6 +19,7 @@ public class TopicProcessorTest
 
     private Mock<ILogger<Processor>> loggerMock;
     private Mock<IGeodiensteApi> geodiensteApiMock;
+    private Mock<IAzureStorage> azureStorageMock;
     private RebbaukatasterProcessor processor;
 
     [TestInitialize]
@@ -26,7 +27,8 @@ public class TopicProcessorTest
     {
         loggerMock = new Mock<ILogger<Processor>>(MockBehavior.Strict);
         geodiensteApiMock = new Mock<IGeodiensteApi>(MockBehavior.Strict);
-        processor = new RebbaukatasterProcessor(geodiensteApiMock.Object, loggerMock.Object, topic);
+        azureStorageMock = new Mock<IAzureStorage>(MockBehavior.Strict);
+        processor = new RebbaukatasterProcessor(geodiensteApiMock.Object, azureStorageMock.Object, loggerMock.Object, topic);
     }
 
     [TestCleanup]
