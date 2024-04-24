@@ -39,6 +39,7 @@ public class BewirtschaftungseinheitProcessorTest
     [TestMethod]
     public async Task RunGdalProcessingAsync()
     {
+        processor.InputDataPath = "testdata\\lwb_bewirtschaftungseinheit_v2_0_lv95_NE_202404191123.gpkg";
         await processor.RunGdalProcessingAsync();
     }
 }

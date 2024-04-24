@@ -26,7 +26,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// <summary>
     /// The input data for processing.
     /// </summary>
-    protected string InputDataPath
+    protected internal string InputDataPath
     {
         get { return inputDataPath; }
         set { inputDataPath = value; }

@@ -79,6 +79,7 @@ public class NutzungsflaechenProcessorTest
     [TestMethod]
     public async Task RunGdalProcessingAsync()
     {
+        processor.InputDataPath = "testdata\\lwb_nutzungsflaechen_v2_0_lv95_NE_202404191123.gpkg";
         await processor.RunGdalProcessingAsync();
     }
 }
