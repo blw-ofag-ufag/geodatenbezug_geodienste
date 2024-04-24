@@ -1,3 +1,4 @@
+﻿using System.Globalization;
 using System.IO.Compression;
 using System.Net;
 using System.Text.Json;
@@ -66,7 +67,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             await PrepareDataAsync().ConfigureAwait(false);
 
             // TODO: Process data.
-            var zipFileName = Path.GetFileName(DataDirectory) + ".zip";
+            var zipFileName = $"{Path.GetFileName(dataDirectory)}_{Topic.Canton}_{DateTime.Now.ToString("yyyyMMddHHmm", new CultureInfo("de-CH"))}.zip";
             var zipFileDirectory = Path.GetDirectoryName(DataDirectory) ?? throw new InvalidOperationException("Invalid data directory");
             var zipFullFilePath = Path.Combine(zipFileDirectory, zipFileName);
             ZipFile.CreateFromDirectory(DataDirectory, zipFullFilePath);
