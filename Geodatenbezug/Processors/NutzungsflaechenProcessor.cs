@@ -15,26 +15,25 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
     {
         Logger.LogInformation($"Bereite Daten für die Prozessierung von {Topic.TopicTitle} ({Topic.Canton}) vor...");
 
-        var tasks = new List<Task>
-            {
-                Task.Run(async () =>
-                {
-                    var downloadUrl = await ExportTopicAsync(Topic).ConfigureAwait(false);
-                    InputDataPath = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
-                }),
-                Task.Run(async () =>
-                {
-                    var bewirtschaftungseinheitTopic = new Topic()
-                    {
-                        TopicTitle = BaseTopic.lwb_bewirtschaftungseinheit.GetDescription(),
-                        Canton = Topic.Canton,
-                        TopicName = BaseTopic.lwb_bewirtschaftungseinheit.ToString() + "_v2_0",
-                        BaseTopic = BaseTopic.lwb_bewirtschaftungseinheit,
-                    };
-                    var downloadUrl = await ExportTopicAsync(bewirtschaftungseinheitTopic).ConfigureAwait(false);
-                    bewirtschaftungseinheitDataPath = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
-                }),
-            };
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        var exportInputTopic = PrepareTopic(Topic);
+
+        var bewirtschaftungseinheitTopic = new Topic()
+        {
+            TopicTitle = BaseTopic.lwb_bewirtschaftungseinheit.GetDescription(),
+            Canton = Topic.Canton,
+            BaseTopic = BaseTopic.lwb_bewirtschaftungseinheit,
+        };
+        var exportBewirtschaftungseinheitTopic = PrepareTopic(bewirtschaftungseinheitTopic);
+
+        var downloadUrls = await Task.WhenAll(exportInputTopic, exportBewirtschaftungseinheitTopic).ConfigureAwait(false);
+
+        InputDataPath = downloadUrls[0];
+        bewirtschaftungseinheitDataPath = downloadUrls[1];
+    }
+
+    private async Task<string> PrepareTopic(Topic topic)
+    {
+        var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
+        return await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
     }
 }
