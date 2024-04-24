@@ -15,6 +15,11 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     /// </summary>
     protected Topic Topic => topic;
 
+    /// <summary>
+    /// The logger for the processor.
+    /// </summary>
+    protected ILogger Logger => logger;
+
     private readonly ProcessingResult processingResult = new ()
     {
         Code = HttpStatusCode.Processing,
