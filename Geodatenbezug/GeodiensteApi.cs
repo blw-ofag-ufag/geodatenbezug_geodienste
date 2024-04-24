@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 using Polly;
@@ -132,10 +133,16 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     public virtual string GetToken(BaseTopic baseTopic, Canton canton)
     {
         var topicTokens = Environment.GetEnvironmentVariable("tokens_" + baseTopic.ToString());
-        var selectedToken = topicTokens.Split(";").Where(token => token.StartsWith(canton.ToString(), StringComparison.InvariantCulture)).FirstOrDefault();
-        if (selectedToken != null)
+        if (string.IsNullOrEmpty(topicTokens))
         {
-            return selectedToken.Split("=")[1];
+            throw new InvalidOperationException($"No tokens available for topic {baseTopic}");
+        }
+
+        var pattern = canton.ToString() + @"=(?<Token>[^;]+)";
+        var match = Regex.Match(topicTokens, pattern);
+        if (match.Success)
+        {
+            return match.Groups["Token"].Value;
         }
         else
         {
