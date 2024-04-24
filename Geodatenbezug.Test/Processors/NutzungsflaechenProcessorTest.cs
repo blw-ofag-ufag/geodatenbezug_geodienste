@@ -68,7 +68,7 @@ public class NutzungsflaechenProcessorTest
         loggerMock.Setup(LogLevel.Information, $"Exportiere {topic.TopicTitle} ({topic.Canton})...");
         loggerMock.Setup(LogLevel.Information, $"Exportiere {bewirtschaftungseinheitTopic.TopicTitle} ({bewirtschaftungseinheitTopic.Canton})...");
 
-        await processor.PrepareData();
+        await processor.PrepareDataAsync();
         geodiensteApiMock.Verify(api => api.StartExportAsync(topic), Times.Once);
         geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(topic), Times.Once);
         geodiensteApiMock.Verify(api => api.StartExportAsync(bewirtschaftungseinheitTopic), Times.Once);

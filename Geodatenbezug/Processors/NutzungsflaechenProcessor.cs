@@ -11,7 +11,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, ILogger log
     private string bewirtschaftungseinheitDataPath = string.Empty;
 
     /// <inheritdoc />
-    protected internal override async Task PrepareData()
+    protected internal override async Task PrepareDataAsync()
     {
         Logger.LogInformation($"Bereite Daten für die Prozessierung von {Topic.TopicTitle} ({Topic.Canton}) vor...");
 
