@@ -8,7 +8,7 @@ namespace Geodatenbezug.Processors;
 [TestClass]
 public class TopicProcessorTest
 {
-    private readonly Topic topic = new()
+    private readonly Topic topic = new ()
     {
         TopicTitle = BaseTopic.lwb_rebbaukataster.GetDescription(),
         Canton = Canton.AG,

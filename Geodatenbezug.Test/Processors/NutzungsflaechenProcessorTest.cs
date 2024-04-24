@@ -9,7 +9,7 @@ namespace Geodatenbezug;
 [TestClass]
 public class NutzungsflaechenProcessorTest
 {
-    private readonly Topic topic = new()
+    private readonly Topic topic = new ()
     {
         TopicTitle = BaseTopic.lwb_nutzungsflaechen.GetDescription(),
         Canton = Canton.AG,
