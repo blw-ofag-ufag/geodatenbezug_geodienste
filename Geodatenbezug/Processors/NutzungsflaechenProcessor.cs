@@ -8,7 +8,7 @@ namespace Geodatenbezug.Processors;
 /// </summary>
 public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, ILogger logger, Topic topic) : TopicProcessor(geodiensteApi, logger, topic)
 {
-    private string bewirtschaftungseinheitData = string.Empty;
+    private string bewirtschaftungseinheitDataPath = string.Empty;
 
     /// <inheritdoc />
     protected internal override async Task PrepareData()
@@ -20,7 +20,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, ILogger log
                 Task.Run(async () =>
                 {
                     var downloadUrl = await ExportTopicAsync(Topic).ConfigureAwait(false);
-                    InputData = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
+                    InputDataPath = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
                 }),
                 Task.Run(async () =>
                 {
@@ -32,7 +32,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, ILogger log
                         BaseTopic = BaseTopic.lwb_bewirtschaftungseinheit,
                     };
                     var downloadUrl = await ExportTopicAsync(bewirtschaftungseinheitTopic).ConfigureAwait(false);
-                    bewirtschaftungseinheitData = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
+                    bewirtschaftungseinheitDataPath = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
                 }),
             };
         await Task.WhenAll(tasks).ConfigureAwait(false);

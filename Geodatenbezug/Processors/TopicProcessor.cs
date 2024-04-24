@@ -17,15 +17,15 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     /// </summary>
     protected string DataDirectory => dataDirectory;
 
-    private string inputData = string.Empty;
+    private string inputDataPath = string.Empty;
 
     /// <summary>
     /// The input data for processing.
     /// </summary>
-    protected string InputData
+    protected string InputDataPath
     {
-        get { return inputData; }
-        set { inputData = value; }
+        get { return inputDataPath; }
+        set { inputDataPath = value; }
     }
 
     /// <summary>
@@ -88,7 +88,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     {
         logger.LogInformation($"Bereite Daten für die Prozessierung von {topic.TopicTitle} ({topic.Canton}) vor...");
         var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
-        InputData = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
+        InputDataPath = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
     }
 
     /// <summary>
