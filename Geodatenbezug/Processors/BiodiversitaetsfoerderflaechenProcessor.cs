@@ -7,7 +7,7 @@ namespace Geodatenbezug.Processors;
 /// <summary>
 /// The processor for the topic "Biodiversitätsförderflächen".
 /// </summary>
-public class BiodiversitaetsfoerderflaechenProcessor(IGeodiensteApi geodiensteApi, ILogger logger, Topic topic) : TopicProcessor(geodiensteApi, logger, topic)
+public class BiodiversitaetsfoerderflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage, ILogger logger, Topic topic) : TopicProcessor(geodiensteApi, azureStorage, logger, topic)
 {
     /// <inheritdoc/>
     protected override Task ProcessTopic()

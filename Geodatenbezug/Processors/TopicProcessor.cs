@@ -1,4 +1,4 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using System.Net;
 using System.Text.Json;
 using Geodatenbezug.Models;
@@ -11,9 +11,9 @@ namespace Geodatenbezug.Processors;
 /// <summary>
 /// Represents a processor for a specific topic.
 /// </summary>
-public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logger, Topic topic) : ITopicProcessor
+public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage, ILogger logger, Topic topic) : ITopicProcessor
 {
-    private readonly string dataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Geodatenbezug", topic.Canton.ToString(), topic.BaseTopic.ToString());
+    private readonly string dataDirectory = Path.Combine(Path.GetTempPath(), "Geodatenbezug", topic.Canton.ToString(), topic.BaseTopic.ToString());
 
     /// <summary>
     /// The directory where the data is stored for processing.
@@ -75,6 +75,8 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     {
         try
         {
+            logger.LogInformation($"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})...");
+
             await PrepareData().ConfigureAwait(false);
 
             await RunGdalProcessing().ConfigureAwait(false);
@@ -84,7 +86,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
             var zipFullFilePath = Path.Combine(zipFileDirectory, zipFileName);
             ZipFile.CreateFromDirectory(DataDirectory, zipFullFilePath);
 
-            processingResult.DownloadUrl = await new AzureStorage().UploadFileAsync(Path.Combine(Topic.Canton.ToString(), zipFileName), zipFullFilePath).ConfigureAwait(false);
+            processingResult.DownloadUrl = await azureStorage.UploadFileAsync(Path.Combine(Topic.Canton.ToString(), zipFileName), zipFullFilePath).ConfigureAwait(false);
             processingResult.Code = HttpStatusCode.OK;
             processingResult.Reason = "Success";
             processingResult.Info = "Data processed successfully";
@@ -109,6 +111,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     /// </summary>
     protected virtual async Task PrepareData()
     {
+        logger.LogInformation($"Bereite Daten für die Prozessierung von {topic.TopicTitle} ({topic.Canton}) vor...");
         var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
         InputData = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
     }
@@ -118,8 +121,6 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     /// </summary>
     protected async Task<string> ExportTopicAsync(Topic topic)
     {
-        logger.LogInformation($"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})...");
-
         var token = GetToken(topic.BaseTopic, topic.Canton);
         var exportResponse = await GeodiensteApi.StartExportAsync(topic, token).ConfigureAwait(false);
         if (!exportResponse.IsSuccessStatusCode)

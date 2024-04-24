@@ -24,6 +24,7 @@ var host = new HostBuilder()
         });
         services.AddTransient<Processor>();
         services.AddTransient<IGeodiensteApi, GeodiensteApi>();
+        services.AddTransient<IAzureStorage, AzureStorage>();
         services = services.Configure<LoggerFilterOptions>(options =>
         {
             var logFilterToRemove = options.Rules.FirstOrDefault(rule => rule.ProviderName
