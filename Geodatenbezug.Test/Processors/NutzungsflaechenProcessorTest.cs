@@ -12,7 +12,6 @@ public class NutzungsflaechenProcessorTest
     {
         TopicTitle = BaseTopic.lwb_nutzungsflaechen.GetDescription(),
         Canton = Canton.AG,
-        TopicName = BaseTopic.lwb_nutzungsflaechen.ToString() + "_v2_0",
         BaseTopic = BaseTopic.lwb_nutzungsflaechen,
         UpdatedAt = DateTime.Now,
     };
@@ -44,7 +43,6 @@ public class NutzungsflaechenProcessorTest
         {
             TopicTitle = BaseTopic.lwb_bewirtschaftungseinheit.GetDescription(),
             Canton = topic.Canton,
-            TopicName = BaseTopic.lwb_bewirtschaftungseinheit.ToString() + "_v2_0",
             BaseTopic = BaseTopic.lwb_bewirtschaftungseinheit,
         };
 
