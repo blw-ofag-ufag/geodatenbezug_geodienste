@@ -28,14 +28,15 @@ public class GdalLayer
         for (var i = 0; i < inputLayerDefinition.GetFieldCount(); i++)
         {
             var originalFieldDefinition = inputLayerDefinition.GetFieldDefn(i);
+            var fieldName = originalFieldDefinition.GetName();
             FieldDefn newFieldDefinition;
-            if (fieldTypeConversions != null && fieldTypeConversions.ContainsKey(originalFieldDefinition.GetName()))
+            if (fieldTypeConversions != null && fieldTypeConversions.ContainsKey(fieldName))
             {
-                newFieldDefinition = new FieldDefn(originalFieldDefinition.GetName(), fieldTypeConversions[originalFieldDefinition.GetName()]);
+                newFieldDefinition = new FieldDefn(fieldName, fieldTypeConversions[fieldName]);
             }
             else
             {
-                newFieldDefinition = new FieldDefn(originalFieldDefinition.GetName(), originalFieldDefinition.GetFieldType());
+                newFieldDefinition = new FieldDefn(fieldName, originalFieldDefinition.GetFieldType());
                 newFieldDefinition.SetWidth(originalFieldDefinition.GetWidth());
                 newFieldDefinition.SetPrecision(originalFieldDefinition.GetPrecision());
             }
