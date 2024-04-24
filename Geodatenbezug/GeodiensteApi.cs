@@ -166,15 +166,6 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
             throw new InvalidOperationException($"No tokens available for topic {baseTopic}");
         }
 
-        var pattern = canton.ToString() + @"=(?<Token>[^;]+)";
-        var match = Regex.Match(topicTokens, pattern);
-        if (match.Success)
-        {
-            return match.Groups["Token"].Value;
-        }
-        else
-        {
-            throw new KeyNotFoundException($"Token not found for topic {baseTopic} and canton {canton}");
-        }
+        return Helper.ExtractSettingByKey(topicTokens, canton.ToString());
     }
 }

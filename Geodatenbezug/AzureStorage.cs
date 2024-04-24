@@ -14,30 +14,17 @@ public class AzureStorage(ILogger<AzureStorage> logger) : IAzureStorage
 {
     private const string StorageContainerName = "processed-topics";
 
-    private string GetConnectionString()
+    /// <inheritdoc />
+    public async Task<string> UploadFileAsync(string storageFilePath, string localFilePath)
     {
+        logger.LogInformation($"Lade Datei {localFilePath} in den Azure Storage hoch...");
         var connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
         if (string.IsNullOrEmpty(connectionString))
         {
             throw new InvalidOperationException("AzureWebJobsStorage is not set");
         }
 
-        return connectionString;
-    }
-
-    private StorageSharedKeyCredential GetStorageSharedKeyCredential()
-    {
-        var connectionString = GetConnectionString().Split(";");
-        var accountName = connectionString.Where(item => item.StartsWith("AccountName", StringComparison.InvariantCulture)).FirstOrDefault().Replace("AccountName=", string.Empty, StringComparison.CurrentCulture);
-        var accountKey = connectionString.Where(item => item.StartsWith("AccountKey", StringComparison.InvariantCulture)).FirstOrDefault().Replace("AccountKey=", string.Empty, StringComparison.CurrentCulture);
-        return new StorageSharedKeyCredential(accountName, accountKey);
-    }
-
-    /// <inheritdoc />
-    public async Task<string> UploadFileAsync(string storageFilePath, string localFilePath)
-    {
-        logger.LogInformation($"Lade Datei {localFilePath} in den Azure Storage hoch...");
-        var containerClient = new BlobServiceClient(GetConnectionString()).GetBlobContainerClient(StorageContainerName);
+        var containerClient = new BlobServiceClient(connectionString).GetBlobContainerClient(StorageContainerName);
         var blobClient = containerClient.GetBlobClient(storageFilePath);
 
         using var localFileStream = File.OpenRead(localFilePath);
@@ -48,14 +35,16 @@ public class AzureStorage(ILogger<AzureStorage> logger) : IAzureStorage
         {
             BlobContainerName = StorageContainerName,
             BlobName = storageFilePath,
-            Resource = "b", // b for blob
+            Resource = "b",
             StartsOn = DateTime.UtcNow,
-            ExpiresOn = DateTime.UtcNow.AddHours(24), // TODO: How long should the link be valid?
+            ExpiresOn = DateTime.UtcNow.AddMonths(1),
             Protocol = SasProtocol.Https,
         };
         sasBuilder.SetPermissions(BlobSasPermissions.Read);
 
-        string sasToken = sasBuilder.ToSasQueryParameters(GetStorageSharedKeyCredential()).ToString();
+        var accountName = Helper.ExtractSettingByKey(connectionString, "AccountName");
+        var accountKey = Helper.ExtractSettingByKey(connectionString, "AccountKey");
+        string sasToken = sasBuilder.ToSasQueryParameters(new StorageSharedKeyCredential(accountName, accountKey)).ToString();
         return blobClient.Uri + "?" + sasToken;
     }
 }
