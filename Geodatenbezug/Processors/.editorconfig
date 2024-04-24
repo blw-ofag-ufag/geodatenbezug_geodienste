@@ -1,0 +1,3 @@
+# Configure code analysis according to current standards by default.
+[*.cs]
+dotnet_diagnostic.SA1009.severity = none

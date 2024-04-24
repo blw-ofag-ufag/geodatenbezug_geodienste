@@ -22,7 +22,7 @@ var host = new HostBuilder()
             var encodedCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{geodiensteUser}:{geodienstePw}"));
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encodedCredentials);
         });
-        services.AddTransient<Processing>();
+        services.AddTransient<Processor>();
         services.AddTransient<IGeodiensteApi, GeodiensteApi>();
         services = services.Configure<LoggerFilterOptions>(options =>
         {

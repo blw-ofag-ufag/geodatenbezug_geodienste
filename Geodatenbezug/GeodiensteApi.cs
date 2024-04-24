@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 using Polly;
@@ -46,8 +47,9 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     }
 
     /// <inheritdoc />
-    public async Task<HttpResponseMessage> StartExportAsync(Topic topic, string token)
+    public async Task<HttpResponseMessage> StartExportAsync(Topic topic)
     {
+        var token = GetToken(topic.BaseTopic, topic.Canton);
         var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/export.json";
         logger.LogInformation($"Starte den Datenexport für {topic.TopicTitle} ({topic.Canton}) mit {url}...");
         using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));
@@ -86,8 +88,9 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     }
 
     /// <inheritdoc />
-    public async Task<HttpResponseMessage> CheckExportStatusAsync(Topic topic, string token)
+    public async Task<HttpResponseMessage> CheckExportStatusAsync(Topic topic)
     {
+        var token = GetToken(topic.BaseTopic, topic.Canton);
         var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/status.json";
         logger.LogInformation($"Prüfe den Status des Datenexports für {topic.TopicTitle} ({topic.Canton}) mit {url}...");
         using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));
@@ -124,5 +127,26 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
         {
             return await httpClient.GetAsync(url).ConfigureAwait(false);
         }).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public virtual string GetToken(BaseTopic baseTopic, Canton canton)
+    {
+        var topicTokens = Environment.GetEnvironmentVariable("tokens_" + baseTopic.ToString());
+        if (string.IsNullOrEmpty(topicTokens))
+        {
+            throw new InvalidOperationException($"No tokens available for topic {baseTopic}");
+        }
+
+        var pattern = canton.ToString() + @"=(?<Token>[^;]+)";
+        var match = Regex.Match(topicTokens, pattern);
+        if (match.Success)
+        {
+            return match.Groups["Token"].Value;
+        }
+        else
+        {
+            throw new KeyNotFoundException($"Token not found for topic {baseTopic} and canton {canton}");
+        }
     }
 }

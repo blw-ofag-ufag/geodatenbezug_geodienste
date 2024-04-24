@@ -1,4 +1,6 @@
-﻿namespace Geodatenbezug.Models;
+﻿using System.ComponentModel;
+
+namespace Geodatenbezug.Models;
 
 /// <summary>
 /// Represents the base topic names of the geodata.
@@ -8,11 +10,17 @@
 public enum BaseTopic
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    [Description("Perimeter Ln Sf")]
     lwb_perimeter_ln_sf,
+    [Description("Rebbaukataster")]
     lwb_rebbaukataster,
+    [Description("Perimeter Terrassenreben")]
     lwb_perimeter_terrassenreben,
+    [Description("Biodiversitaetsfoerderflaechen")]
     lwb_biodiversitaetsfoerderflaechen,
+    [Description("Bewirtschaftungseinheit")]
     lwb_bewirtschaftungseinheit,
+    [Description("Nutzungsflaechen")]
     lwb_nutzungsflaechen,
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

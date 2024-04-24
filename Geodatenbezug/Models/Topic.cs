@@ -22,12 +22,6 @@ public record Topic
     required public Canton Canton { get; set; }
 
     /// <summary>
-    /// Topic name, usually base topic name plus version.
-    /// </summary>
-    [JsonPropertyName("topic")]
-    required public string TopicName { get; set; }
-
-    /// <summary>
     /// Topic title.
     /// </summary>
     [JsonPropertyName("topic_title")]
