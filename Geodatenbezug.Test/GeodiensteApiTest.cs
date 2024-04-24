@@ -313,7 +313,7 @@ public class GeodiensteApiTest
     }
 
     [TestMethod]
-    public void GetTokenFailsNoTokens()
+    public void GetTokenFailsWithMissingTokenForTopic()
     {
         var api = new GeodiensteApi(loggerMock.Object, httpClientFactoryMock.Object);
         Assert.ThrowsException<InvalidOperationException>(() => api.GetToken(BaseTopic.lwb_bewirtschaftungseinheit, Canton.AI), "No tokens available for topic lwb_bewirtschaftungseinheit");
