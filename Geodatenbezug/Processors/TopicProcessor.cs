@@ -34,6 +34,11 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     protected IGeodiensteApi GeodiensteApi => geodiensteApi;
 
     /// <summary>
+    /// The logger for the processor.
+    /// </summary>
+    protected ILogger Logger => logger;
+
+    /// <summary>
     /// The topic that is being processed.
     /// </summary>
     protected Topic Topic => topic;
@@ -44,6 +49,11 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
         Canton = topic.Canton,
         TopicTitle = topic.TopicTitle,
     };
+
+    /// <summary>
+    /// The processing result of the topic.
+    /// </summary>
+    protected internal ProcessingResult ProcessingResult => processingResult;
 
     /// <inheritdoc />
     public async Task<ProcessingResult> ProcessAsync()
@@ -74,7 +84,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     /// <summary>
     /// Prepares the data for processing.
     /// </summary>
-    protected virtual async Task PrepareData()
+    protected internal virtual async Task PrepareData()
     {
         logger.LogInformation($"Bereite Daten für die Prozessierung von {topic.TopicTitle} ({topic.Canton}) vor...");
         var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
@@ -84,7 +94,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     /// <summary>
     /// Exports the provided topic from geodienste.ch.
     /// </summary>
-    protected async Task<string> ExportTopicAsync(Topic topic)
+    protected internal async Task<string> ExportTopicAsync(Topic topic)
     {
         var token = GetToken(topic.BaseTopic, topic.Canton);
         var exportResponse = await GeodiensteApi.StartExportAsync(topic, token).ConfigureAwait(false);
@@ -139,20 +149,5 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
         }
 
         return statusMessage.DownloadUrl;
-    }
-
-    /// <inheritdoc />
-    public string GetToken(BaseTopic baseTopic, Canton canton)
-    {
-        var topicTokens = Environment.GetEnvironmentVariable("tokens_" + baseTopic.ToString());
-        var selectedToken = topicTokens.Split(";").Where(token => token.StartsWith(canton.ToString(), StringComparison.InvariantCulture)).FirstOrDefault();
-        if (selectedToken != null)
-        {
-            return selectedToken.Split("=")[1];
-        }
-        else
-        {
-            throw new KeyNotFoundException($"Token not found for topic {baseTopic} and canton {canton}");
-        }
     }
 }

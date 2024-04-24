@@ -47,8 +47,9 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     }
 
     /// <inheritdoc />
-    public async Task<HttpResponseMessage> StartExportAsync(Topic topic, string token)
+    public async Task<HttpResponseMessage> StartExportAsync(Topic topic)
     {
+        var token = GetToken(topic.BaseTopic, topic.Canton);
         var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/export.json";
         logger.LogInformation($"Starte den Datenexport für {topic.TopicTitle} ({topic.Canton}) mit {url}...");
         using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));
@@ -87,8 +88,9 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     }
 
     /// <inheritdoc />
-    public async Task<HttpResponseMessage> CheckExportStatusAsync(Topic topic, string token)
+    public async Task<HttpResponseMessage> CheckExportStatusAsync(Topic topic)
     {
+        var token = GetToken(topic.BaseTopic, topic.Canton);
         var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/status.json";
         logger.LogInformation($"Prüfe den Status des Datenexports für {topic.TopicTitle} ({topic.Canton}) mit {url}...");
         using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));
@@ -147,5 +149,20 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
         }
 
         return destinationPath;
+    }
+
+    /// <inheritdoc />
+    public virtual string GetToken(BaseTopic baseTopic, Canton canton)
+    {
+        var topicTokens = Environment.GetEnvironmentVariable("tokens_" + baseTopic.ToString());
+        var selectedToken = topicTokens.Split(";").Where(token => token.StartsWith(canton.ToString(), StringComparison.InvariantCulture)).FirstOrDefault();
+        if (selectedToken != null)
+        {
+            return selectedToken.Split("=")[1];
+        }
+        else
+        {
+            throw new KeyNotFoundException($"Token not found for topic {baseTopic} and canton {canton}");
+        }
     }
 }
