@@ -17,12 +17,12 @@ Für die Requests ans Geodienste API müssen folgende Umgebungsvariablen eingeri
 
 - AuthUser: _User im KeePass_
 - AuthPw: _Passwort im KeePass_
-- tokens_lwb_perimeter_ln_sf: *Aus dem Azure Portal kopieren*
-- tokens_lwb_rebbaukataster: *Aus dem Azure Portal kopieren*
-- tokens_lwb_perimeter_terrassenreben: *Aus dem Azure Portal kopieren*
-- tokens_lwb_biodiversitaetsfoerderflaechen: *Aus dem Azure Portal kopieren*
-- tokens_lwb_bewirtschaftungseinheit: *Aus dem Azure Portal kopieren*
-- tokens_lwb_nutzungsflaechen: *Aus dem Azure Portal kopieren*
+- tokens_lwb_perimeter_ln_sf: _Aus dem Azure Portal kopieren_
+- tokens_lwb_rebbaukataster: _Aus dem Azure Portal kopieren_
+- tokens_lwb_perimeter_terrassenreben: _Aus dem Azure Portal kopieren_
+- tokens_lwb_biodiversitaetsfoerderflaechen: _Aus dem Azure Portal kopieren_
+- tokens_lwb_bewirtschaftungseinheit: _Aus dem Azure Portal kopieren_
+- tokens_lwb_nutzungsflaechen: _Aus dem Azure Portal kopieren_
 
 ### Azure Function ausführen
 
@@ -32,3 +32,9 @@ Falls die Ausführung mit dem Fehler _cannot be loaded because running scripts i
 
 - PowerShell als Admin starten und `Get-ExecutionPolicy` ausführen.
 - Wenn die _Policy_ auf _Restricted_ gesetzt ist, `Set-ExecutionPolicy RemoteSigned` ausführen.
+
+### Tests ausführen
+
+Für die Token-Tests:
+
+- Im Visual Studio unter _Test > Configure Run Settings > Select Solution Wide runsettings File_ das File Geodatenbezug.Test/test.runsettings auswählen. Die oben definierten Umgebunsvariablen müssen umbenannt werden, da sie stärker gewichtet werden als die Run Settings (Visual Studio neu starten).

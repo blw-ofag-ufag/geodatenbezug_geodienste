@@ -59,7 +59,7 @@ public class HttpTestMessageHandler : HttpMessageHandler
     /// </summary>
     public void VerifyNoOutstandingExpectation()
     {
-        if (attempts != testMessageResponses.Count)
+        if (testMessageResponses != null && attempts != testMessageResponses.Count)
         {
             throw new InvalidOperationException("There are " + (testMessageResponses.Count - attempts) + " unfulfilled expectations");
         }
