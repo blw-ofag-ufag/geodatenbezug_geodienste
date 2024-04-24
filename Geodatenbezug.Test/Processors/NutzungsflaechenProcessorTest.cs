@@ -36,7 +36,7 @@ public class NutzungsflaechenProcessorTest
     }
 
     [TestMethod]
-    public async Task ProcessTopicCheckExportStatusError()
+    public async Task PrepareDataAsync()
     {
         var bewirtschaftungseinheitTopic = new Topic()
         {
