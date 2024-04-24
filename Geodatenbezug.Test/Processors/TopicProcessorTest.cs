@@ -12,7 +12,6 @@ public class TopicProcessorTest
     {
         TopicTitle = BaseTopic.lwb_rebbaukataster.GetDescription(),
         Canton = Canton.AG,
-        TopicName = BaseTopic.lwb_rebbaukataster.ToString() + "_v2_0",
         BaseTopic = BaseTopic.lwb_rebbaukataster,
         UpdatedAt = DateTime.Now,
     };
@@ -100,7 +99,6 @@ public class TopicProcessorTest
         loggerMock.Setup(LogLevel.Information, $"Exportiere {topic.TopicTitle} ({topic.Canton})...");
         loggerMock.Setup(LogLevel.Error, $"Fehler beim Starten des Exports für Thema {topic.TopicTitle} ({topic.Canton}): {HttpStatusCode.NotFound} - Data export information not found. Invalid token?");
 
-        // TODO: Check processingResult
         await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await processor.ExportTopicAsync(topic), "Export failed");
         Assert.AreEqual(processingResult.Code, processor.ProcessingResult.Code);
         Assert.AreEqual(processingResult.Reason, processor.ProcessingResult.Reason);

@@ -5,7 +5,7 @@ namespace Geodatenbezug;
 /// <summary>
 /// Provides helper methods for <c>enum</c> handling.
 /// </summary>
-public static class EnumHelper
+public static class EnumExtensions
 {
     /// <summary>
     /// Retrieves the description of the given <c>enum</c> value. If the <c>enum</c> value does not have a <c>DescriptionAttribute</c>, the <c>enum</c> value itself is returned.
