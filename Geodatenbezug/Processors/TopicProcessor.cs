@@ -63,7 +63,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         {
             logger.LogInformation($"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})...");
 
-            await PrepareData().ConfigureAwait(false);
+            await PrepareDataAsync().ConfigureAwait(false);
 
             // TODO: Process data.
             var zipFileName = Path.GetFileName(DataDirectory) + ".zip";
@@ -94,7 +94,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// <summary>
     /// Prepares the data for processing.
     /// </summary>
-    protected internal virtual async Task PrepareData()
+    protected internal virtual async Task PrepareDataAsync()
     {
         logger.LogInformation($"Bereite Daten für die Prozessierung von {topic.TopicTitle} ({topic.Canton}) vor...");
         var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
@@ -106,6 +106,8 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// </summary>
     protected internal async Task<string> ExportTopicAsync(Topic topic)
     {
+        logger.LogInformation($"Exportiere {topic.TopicTitle} ({topic.Canton})...");
+
         var exportResponse = await GeodiensteApi.StartExportAsync(topic).ConfigureAwait(false);
         if (!exportResponse.IsSuccessStatusCode)
         {
