@@ -60,6 +60,9 @@ public class NutzungsflaechenProcessorTest
         geodiensteApiMock
             .Setup(api => api.CheckExportStatusAsync(It.IsAny<Topic>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"status\":\"success\", \"info\":\"Data ready to be downloaded. Provide your credentials to download the data.\", \"download_url\":\"test.com/data.zip\", \"exported_at\":\"2022-03-24T09:31:05.508\"}"), });
+        geodiensteApiMock
+            .Setup(api => api.DownloadExportAsync(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync("downloadedFilePath");
 
         loggerMock.Setup(LogLevel.Information, $"Bereite Daten für die Prozessierung von {topic.TopicTitle} ({topic.Canton}) vor...");
         loggerMock.Setup(LogLevel.Information, $"Exportiere {topic.TopicTitle} ({topic.Canton})...");
