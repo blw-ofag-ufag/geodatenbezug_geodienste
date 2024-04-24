@@ -25,7 +25,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     /// <summary>
     /// The processing result of the topic.
     /// </summary>
-    public ProcessingResult ProcessingResult => processingResult;
+    protected internal ProcessingResult ProcessingResult => processingResult;
 
     /// <inheritdoc />
     public async Task<ProcessingResult> ProcessAsync()
