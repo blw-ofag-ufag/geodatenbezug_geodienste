@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
 using Geodatenbezug.Models;
-using Geodatenbezug.Processors;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -101,14 +100,8 @@ public class GeodiensteApiTest
         httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(httpTestMessageHandler.ToHttpClient()).Verifiable();
         loggerMock.Setup(LogLevel.Information, "Starte den Datenexport für Perimeter LN- und Sömmerungsflächen (ZG) mit https://geodienste.ch/downloads/lwb_perimeter_ln_sf/1234567890/export.json...", Times.Once());
         loggerMock.Setup(LogLevel.Information, "Es läuft gerade ein anderer Export. Versuche es in 1 Minute erneut.", Times.Once());
-        var mockGeodiensteApi = new Mock<GeodiensteApi>(loggerMock.Object, httpClientFactoryMock.Object)
-        {
-            CallBase = true,
-        };
-        mockGeodiensteApi.Setup(api => api.GetWaitDuration()).Returns(TimeSpan.Zero);
-        mockGeodiensteApi.Setup(api => api.GetToken(It.IsAny<BaseTopic>(), It.IsAny<Canton>())).Returns("1234567890");
 
-        var result = await mockGeodiensteApi.Object.StartExportAsync(topic);
+        var result = await CreateGeodiensteApiMock().StartExportAsync(topic);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
@@ -141,14 +134,8 @@ public class GeodiensteApiTest
         loggerMock.Setup(LogLevel.Information, "Starte den Datenexport für Perimeter LN- und Sömmerungsflächen (ZG) mit https://geodienste.ch/downloads/lwb_perimeter_ln_sf/1234567890/export.json...", Times.Once());
         loggerMock.Setup(LogLevel.Information, "Es läuft gerade ein anderer Export. Versuche es in 1 Minute erneut.", Times.Exactly(9));
         loggerMock.Setup(LogLevel.Error, "Es läuft bereits ein anderer Export. Zeitlimite überschritten.", Times.Once());
-        var mockGeodiensteApi = new Mock<GeodiensteApi>(loggerMock.Object, httpClientFactoryMock.Object)
-        {
-            CallBase = true,
-        };
-        mockGeodiensteApi.Setup(api => api.GetWaitDuration()).Returns(TimeSpan.Zero);
-        mockGeodiensteApi.Setup(api => api.GetToken(It.IsAny<BaseTopic>(), It.IsAny<Canton>())).Returns("1234567890");
 
-        var result = await mockGeodiensteApi.Object.StartExportAsync(topic);
+        var result = await CreateGeodiensteApiMock().StartExportAsync(topic);
         Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
     }
 
@@ -169,14 +156,8 @@ public class GeodiensteApiTest
         ]);
         httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(httpTestMessageHandler.ToHttpClient()).Verifiable();
         loggerMock.Setup(LogLevel.Information, "Starte den Datenexport für Perimeter LN- und Sömmerungsflächen (ZG) mit https://geodienste.ch/downloads/lwb_perimeter_ln_sf/1234567890/export.json...", Times.Once());
-        var mockGeodiensteApi = new Mock<GeodiensteApi>(loggerMock.Object, httpClientFactoryMock.Object)
-        {
-            CallBase = true,
-        };
-        mockGeodiensteApi.Setup(api => api.GetWaitDuration()).Returns(TimeSpan.Zero);
-        mockGeodiensteApi.Setup(api => api.GetToken(It.IsAny<BaseTopic>(), It.IsAny<Canton>())).Returns("1234567890");
 
-        var result = await mockGeodiensteApi.Object.StartExportAsync(topic);
+        var result = await CreateGeodiensteApiMock().StartExportAsync(topic);
         Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode);
     }
 
@@ -216,14 +197,8 @@ public class GeodiensteApiTest
         loggerMock.Setup(LogLevel.Information, "Prüfe den Status des Datenexports für Perimeter LN- und Sömmerungsflächen (ZG) mit https://geodienste.ch/downloads/lwb_perimeter_ln_sf/1234567890/status.json...", Times.Once());
         loggerMock.Setup(LogLevel.Information, "Export ist in der Warteschlange. Versuche es in 1 Minute erneut.", Times.Once());
         loggerMock.Setup(LogLevel.Information, "Export ist in Bearbeitung. Versuche es in 1 Minute erneut.", Times.Once());
-        var mockGeodiensteApi = new Mock<GeodiensteApi>(loggerMock.Object, httpClientFactoryMock.Object)
-        {
-            CallBase = true,
-        };
-        mockGeodiensteApi.Setup(api => api.GetWaitDuration()).Returns(TimeSpan.Zero);
-        mockGeodiensteApi.Setup(api => api.GetToken(It.IsAny<BaseTopic>(), It.IsAny<Canton>())).Returns("1234567890");
 
-        var result = await mockGeodiensteApi.Object.CheckExportStatusAsync(topic);
+        var result = await CreateGeodiensteApiMock().CheckExportStatusAsync(topic);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         Assert.AreEqual(GeodiensteStatus.Success, JsonSerializer.Deserialize<GeodiensteStatusSuccess>(await result.Content.ReadAsStringAsync()).Status);
     }
@@ -258,14 +233,8 @@ public class GeodiensteApiTest
         loggerMock.Setup(LogLevel.Information, "Export ist in der Warteschlange. Versuche es in 1 Minute erneut.", Times.Exactly(7));
         loggerMock.Setup(LogLevel.Information, "Export ist in Bearbeitung. Versuche es in 1 Minute erneut.", Times.Exactly(2));
         loggerMock.Setup(LogLevel.Error, "Zeitlimite überschritten. Status ist in Bearbeitung", Times.Once());
-        var mockGeodiensteApi = new Mock<GeodiensteApi>(loggerMock.Object, httpClientFactoryMock.Object)
-        {
-            CallBase = true,
-        };
-        mockGeodiensteApi.Setup(api => api.GetWaitDuration()).Returns(TimeSpan.Zero);
-        mockGeodiensteApi.Setup(api => api.GetToken(It.IsAny<BaseTopic>(), It.IsAny<Canton>())).Returns("1234567890");
 
-        var result = await mockGeodiensteApi.Object.CheckExportStatusAsync(topic);
+        var result = await CreateGeodiensteApiMock().CheckExportStatusAsync(topic);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         Assert.AreEqual(GeodiensteStatus.Working, JsonSerializer.Deserialize<GeodiensteStatusSuccess>(await result.Content.ReadAsStringAsync()).Status);
     }
@@ -287,14 +256,8 @@ public class GeodiensteApiTest
         ]);
         httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(httpTestMessageHandler.ToHttpClient()).Verifiable();
         loggerMock.Setup(LogLevel.Information, "Prüfe den Status des Datenexports für Perimeter LN- und Sömmerungsflächen (ZG) mit https://geodienste.ch/downloads/lwb_perimeter_ln_sf/1234567890/status.json...", Times.Once());
-        var mockGeodiensteApi = new Mock<GeodiensteApi>(loggerMock.Object, httpClientFactoryMock.Object)
-        {
-            CallBase = true,
-        };
-        mockGeodiensteApi.Setup(api => api.GetWaitDuration()).Returns(TimeSpan.Zero);
-        mockGeodiensteApi.Setup(api => api.GetToken(It.IsAny<BaseTopic>(), It.IsAny<Canton>())).Returns("1234567890");
 
-        var result = await mockGeodiensteApi.Object.CheckExportStatusAsync(topic);
+        var result = await CreateGeodiensteApiMock().CheckExportStatusAsync(topic);
         Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode);
     }
 
@@ -317,5 +280,16 @@ public class GeodiensteApiTest
     {
         var api = new GeodiensteApi(loggerMock.Object, httpClientFactoryMock.Object);
         Assert.ThrowsException<InvalidOperationException>(() => api.GetToken(BaseTopic.lwb_bewirtschaftungseinheit, Canton.AI), "No tokens available for topic lwb_bewirtschaftungseinheit");
+    }
+
+    private IGeodiensteApi CreateGeodiensteApiMock()
+    {
+        var mockGeodiensteApi = new Mock<GeodiensteApi>(loggerMock.Object, httpClientFactoryMock.Object)
+        {
+            CallBase = true,
+        };
+        mockGeodiensteApi.Setup(api => api.GetWaitDuration()).Returns(TimeSpan.Zero);
+        mockGeodiensteApi.Setup(api => api.GetToken(It.IsAny<BaseTopic>(), It.IsAny<Canton>())).Returns("1234567890");
+        return mockGeodiensteApi.Object;
     }
 }
