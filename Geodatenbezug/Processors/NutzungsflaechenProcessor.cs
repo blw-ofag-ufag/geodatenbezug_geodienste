@@ -9,7 +9,7 @@ namespace Geodatenbezug.Processors;
 public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, ILogger logger, Topic topic) : TopicProcessor(geodiensteApi, logger, topic)
 {
     /// <inheritdoc />
-    protected override async Task PrepareData()
+    protected internal override async Task PrepareData()
     {
         var tasks = new List<Task>
             {

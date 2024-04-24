@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -21,6 +21,11 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
         Canton = topic.Canton,
         TopicTitle = topic.TopicTitle,
     };
+
+    /// <summary>
+    /// The processing result of the topic.
+    /// </summary>
+    public ProcessingResult ProcessingResult => processingResult;
 
     /// <inheritdoc />
     public async Task<ProcessingResult> ProcessAsync()
@@ -51,7 +56,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     /// <summary>
     /// Prepares the data for processing.
     /// </summary>
-    protected virtual async Task PrepareData()
+    protected internal virtual async Task PrepareData()
     {
         logger.LogInformation($"Bereite Daten für die Prozessierung von {topic.TopicTitle} ({topic.Canton}) vor...");
         var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
@@ -62,7 +67,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     /// <summary>
     /// Exports the provided topic from geodienste.ch.
     /// </summary>
-    protected async Task<string> ExportTopicAsync(Topic topic)
+    protected internal async Task<string> ExportTopicAsync(Topic topic)
     {
         var exportResponse = await geodiensteApi.StartExportAsync(topic).ConfigureAwait(false);
         if (!exportResponse.IsSuccessStatusCode)
