@@ -3,10 +3,13 @@ using System.Text.Json;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Moq.Protected;
 
 namespace Geodatenbezug;
 
 [TestClass]
+[DeploymentItem("testdata/lwb_perimeter_terrassenreben_lv95.zip", "testdata")]
+[DeploymentItem("testdata/lwb_perimeter_terrassenreben_lv95_no_gpkg.zip", "testdata")]
 public class GeodiensteApiTest
 {
     private Mock<ILogger<GeodiensteApi>> loggerMock;
@@ -92,7 +95,6 @@ public class GeodiensteApiTest
             Canton = Canton.ZG,
             UpdatedAt = DateTime.Now.AddHours(-23),
         };
-        var token = "1234567890";
         httpTestMessageHandler.SetTestMessageResponses(
         [
             new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
@@ -106,8 +108,9 @@ public class GeodiensteApiTest
             CallBase = true,
         };
         mockGeodiensteApi.Setup(api => api.GetWaitDuration()).Returns(TimeSpan.Zero);
+        mockGeodiensteApi.Setup(api => api.GetToken(It.IsAny<BaseTopic>(), It.IsAny<Canton>())).Returns("1234567890");
 
-        var result = await mockGeodiensteApi.Object.StartExportAsync(topic, token);
+        var result = await mockGeodiensteApi.Object.StartExportAsync(topic);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
@@ -122,7 +125,6 @@ public class GeodiensteApiTest
             Canton = Canton.ZG,
             UpdatedAt = DateTime.Now.AddHours(-23),
         };
-        var token = "1234567890";
         httpTestMessageHandler.SetTestMessageResponses(
         [
             new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
@@ -146,8 +148,9 @@ public class GeodiensteApiTest
             CallBase = true,
         };
         mockGeodiensteApi.Setup(api => api.GetWaitDuration()).Returns(TimeSpan.Zero);
+        mockGeodiensteApi.Setup(api => api.GetToken(It.IsAny<BaseTopic>(), It.IsAny<Canton>())).Returns("1234567890");
 
-        var result = await mockGeodiensteApi.Object.StartExportAsync(topic, token);
+        var result = await mockGeodiensteApi.Object.StartExportAsync(topic);
         Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
     }
 
@@ -162,7 +165,6 @@ public class GeodiensteApiTest
             Canton = Canton.ZG,
             UpdatedAt = DateTime.Now.AddHours(-23),
         };
-        var token = "1234567890";
         httpTestMessageHandler.SetTestMessageResponses(
         [
             new () { Code = HttpStatusCode.Unauthorized },
@@ -174,8 +176,9 @@ public class GeodiensteApiTest
             CallBase = true,
         };
         mockGeodiensteApi.Setup(api => api.GetWaitDuration()).Returns(TimeSpan.Zero);
+        mockGeodiensteApi.Setup(api => api.GetToken(It.IsAny<BaseTopic>(), It.IsAny<Canton>())).Returns("1234567890");
 
-        var result = await mockGeodiensteApi.Object.StartExportAsync(topic, token);
+        var result = await mockGeodiensteApi.Object.StartExportAsync(topic);
         Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode);
     }
 
@@ -190,7 +193,6 @@ public class GeodiensteApiTest
             Canton = Canton.ZG,
             UpdatedAt = DateTime.Now.AddHours(-23),
         };
-        var token = "1234567890";
         var responseJson1 = new GeodiensteStatusSuccess()
         {
             Status = GeodiensteStatus.Queued,
@@ -221,8 +223,9 @@ public class GeodiensteApiTest
             CallBase = true,
         };
         mockGeodiensteApi.Setup(api => api.GetWaitDuration()).Returns(TimeSpan.Zero);
+        mockGeodiensteApi.Setup(api => api.GetToken(It.IsAny<BaseTopic>(), It.IsAny<Canton>())).Returns("1234567890");
 
-        var result = await mockGeodiensteApi.Object.CheckExportStatusAsync(topic, token);
+        var result = await mockGeodiensteApi.Object.CheckExportStatusAsync(topic);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         Assert.AreEqual(GeodiensteStatus.Success, JsonSerializer.Deserialize<GeodiensteStatusSuccess>(await result.Content.ReadAsStringAsync()).Status);
     }
@@ -238,7 +241,6 @@ public class GeodiensteApiTest
             Canton = Canton.ZG,
             UpdatedAt = DateTime.Now.AddHours(-23),
         };
-        var token = "1234567890";
         httpTestMessageHandler.SetTestMessageResponses(
         [
             new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
@@ -263,8 +265,9 @@ public class GeodiensteApiTest
             CallBase = true,
         };
         mockGeodiensteApi.Setup(api => api.GetWaitDuration()).Returns(TimeSpan.Zero);
+        mockGeodiensteApi.Setup(api => api.GetToken(It.IsAny<BaseTopic>(), It.IsAny<Canton>())).Returns("1234567890");
 
-        var result = await mockGeodiensteApi.Object.CheckExportStatusAsync(topic, token);
+        var result = await mockGeodiensteApi.Object.CheckExportStatusAsync(topic);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         Assert.AreEqual(GeodiensteStatus.Working, JsonSerializer.Deserialize<GeodiensteStatusSuccess>(await result.Content.ReadAsStringAsync()).Status);
     }
@@ -280,7 +283,6 @@ public class GeodiensteApiTest
             Canton = Canton.ZG,
             UpdatedAt = DateTime.Now.AddHours(-23),
         };
-        var token = "1234567890";
         httpTestMessageHandler.SetTestMessageResponses(
         [
             new () { Code = HttpStatusCode.Unauthorized },
@@ -292,8 +294,80 @@ public class GeodiensteApiTest
             CallBase = true,
         };
         mockGeodiensteApi.Setup(api => api.GetWaitDuration()).Returns(TimeSpan.Zero);
+        mockGeodiensteApi.Setup(api => api.GetToken(It.IsAny<BaseTopic>(), It.IsAny<Canton>())).Returns("1234567890");
 
-        var result = await mockGeodiensteApi.Object.CheckExportStatusAsync(topic, token);
+        var result = await mockGeodiensteApi.Object.CheckExportStatusAsync(topic);
         Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task DownloadExportAsync()
+    {
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                Content = new StreamContent(File.OpenRead("testdata\\lwb_perimeter_terrassenreben_lv95.zip")),
+            });
+
+        httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient(mockHttpMessageHandler.Object));
+
+        var downloadUrl = "http://test.com/test.zip";
+        var destinationPath = ".\\testresult";
+        var destinationFile = Path.Combine(destinationPath, "lwb_perimeter_terrassenreben_v2_0_lv95.gpkg");
+
+        loggerMock.Setup(LogLevel.Information, $"Lade die Daten herunter {downloadUrl}...", Times.Once());
+
+        var result = await new GeodiensteApi(loggerMock.Object, httpClientFactoryMock.Object).DownloadExportAsync(downloadUrl, destinationPath);
+        Assert.AreEqual(destinationFile, result);
+        Assert.IsTrue(File.Exists(destinationFile));
+    }
+
+    [TestMethod]
+    public async Task DownloadExportAsyncNoPackage()
+    {
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                Content = new StreamContent(File.OpenRead("testdata\\lwb_perimeter_terrassenreben_lv95_no_gpkg.zip")),
+            });
+
+        httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient(mockHttpMessageHandler.Object));
+
+        var downloadUrl = "http://test.com/test.zip";
+        var destinationPath = ".\\testresult";
+        loggerMock.Setup(LogLevel.Information, $"Lade die Daten herunter {downloadUrl}...", Times.Once());
+
+        await Assert.ThrowsExceptionAsync<FileNotFoundException>(async () => await new GeodiensteApi(loggerMock.Object, httpClientFactoryMock.Object).DownloadExportAsync(downloadUrl, destinationPath), "Keine GeoPackage-Datei im Archiv gefunden.");
+    }
+
+    [TestMethod]
+    public void GetToken()
+    {
+        var result = new GeodiensteApi(loggerMock.Object, httpClientFactoryMock.Object).GetToken(BaseTopic.lwb_rebbaukataster, Canton.BE);
+        Assert.AreEqual("token2", result);
+    }
+
+    [TestMethod]
+    public void GetTokenFailsNoKey()
+    {
+        var api = new GeodiensteApi(loggerMock.Object, httpClientFactoryMock.Object);
+        Assert.ThrowsException<KeyNotFoundException>(() => api.GetToken(BaseTopic.lwb_rebbaukataster, Canton.AI), "Token not found for topic lwb_rebbaukataster and canton AI");
+    }
+
+    [TestMethod]
+    public void GetTokenFailsNoTokens()
+    {
+        var api = new GeodiensteApi(loggerMock.Object, httpClientFactoryMock.Object);
+        Assert.ThrowsException<InvalidOperationException>(() => api.GetToken(BaseTopic.lwb_bewirtschaftungseinheit, Canton.AI), "No tokens available for topic lwb_bewirtschaftungseinheit");
     }
 }

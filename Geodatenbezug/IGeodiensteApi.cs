@@ -15,12 +15,17 @@ public interface IGeodiensteApi
     /// <summary>
     /// Starts the export of a topic at geodienste.ch.
     /// </summary>
-    Task<HttpResponseMessage> StartExportAsync(Topic topic, string token);
+    Task<HttpResponseMessage> StartExportAsync(Topic topic);
 
     /// <summary>
     /// Checks the status of the export of a topic at geodienste.ch and returns the download URL if the export is complete.
     /// </summary>
-    Task<HttpResponseMessage> CheckExportStatusAsync(Topic topic, string token);
+    Task<HttpResponseMessage> CheckExportStatusAsync(Topic topic);
+
+    /// <summary>
+    /// Gets the token for the given topic and canton from the environment variables.
+    /// </summary>
+    public string GetToken(BaseTopic baseTopic, Canton canton);
 
     /// <summary>
     /// Downloads the export from geodienste.ch to the specified destination.

@@ -20,15 +20,15 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// </summary>
     protected string DataDirectory => dataDirectory;
 
-    private string inputData = string.Empty;
+    private string inputDataPath = string.Empty;
 
     /// <summary>
     /// The input data for processing.
     /// </summary>
-    protected string InputData
+    protected string InputDataPath
     {
-        get { return inputData; }
-        set { inputData = value; }
+        get { return inputDataPath; }
+        set { inputDataPath = value; }
     }
 
     private DataSource? inputDataSource;
@@ -59,6 +59,11 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     protected IGeodiensteApi GeodiensteApi => geodiensteApi;
 
     /// <summary>
+    /// The logger for the processor.
+    /// </summary>
+    protected ILogger Logger => logger;
+
+    /// <summary>
     /// The topic that is being processed.
     /// </summary>
     protected Topic Topic => topic;
@@ -70,6 +75,11 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         TopicTitle = topic.TopicTitle,
     };
 
+    /// <summary>
+    /// The processing result of the topic.
+    /// </summary>
+    protected internal ProcessingResult ProcessingResult => processingResult;
+
     /// <inheritdoc />
     public async Task<ProcessingResult> ProcessAsync()
     {
@@ -77,7 +87,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         {
             logger.LogInformation($"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})...");
 
-            await PrepareData().ConfigureAwait(false);
+            await PrepareDataAsync().ConfigureAwait(false);
 
             await RunGdalProcessing().ConfigureAwait(false);
 
@@ -109,20 +119,21 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// <summary>
     /// Prepares the data for processing.
     /// </summary>
-    protected virtual async Task PrepareData()
+    protected internal virtual async Task PrepareDataAsync()
     {
         logger.LogInformation($"Bereite Daten für die Prozessierung von {topic.TopicTitle} ({topic.Canton}) vor...");
         var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
-        InputData = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
+        InputDataPath = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
     }
 
     /// <summary>
     /// Exports the provided topic from geodienste.ch.
     /// </summary>
-    protected async Task<string> ExportTopicAsync(Topic topic)
+    protected internal async Task<string> ExportTopicAsync(Topic topic)
     {
-        var token = GetToken(topic.BaseTopic, topic.Canton);
-        var exportResponse = await GeodiensteApi.StartExportAsync(topic, token).ConfigureAwait(false);
+        logger.LogInformation($"Exportiere {topic.TopicTitle} ({topic.Canton})...");
+
+        var exportResponse = await GeodiensteApi.StartExportAsync(topic).ConfigureAwait(false);
         if (!exportResponse.IsSuccessStatusCode)
         {
             var exportResponseContent = await exportResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -139,7 +150,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             }
         }
 
-        var statusResponse = await GeodiensteApi.CheckExportStatusAsync(topic, token).ConfigureAwait(false);
+        var statusResponse = await GeodiensteApi.CheckExportStatusAsync(topic).ConfigureAwait(false);
         var statusResponseContent = await statusResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
         if (!statusResponse.IsSuccessStatusCode)
         {
@@ -227,19 +238,4 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// Performs the actual processing of the topic.
     /// </summary>
     protected abstract Task ProcessTopic();
-
-    /// <inheritdoc />
-    public string GetToken(BaseTopic baseTopic, Canton canton)
-    {
-        var topicTokens = Environment.GetEnvironmentVariable("tokens_" + baseTopic.ToString());
-        var selectedToken = topicTokens.Split(";").Where(token => token.StartsWith(canton.ToString(), StringComparison.InvariantCulture)).FirstOrDefault();
-        if (selectedToken != null)
-        {
-            return selectedToken.Split("=")[1];
-        }
-        else
-        {
-            throw new KeyNotFoundException($"Token not found for topic {baseTopic} and canton {canton}");
-        }
-    }
 }
