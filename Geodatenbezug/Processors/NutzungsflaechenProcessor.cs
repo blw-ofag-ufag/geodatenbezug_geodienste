@@ -13,27 +13,24 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, ILogger log
     {
         Logger.LogInformation($"Bereite Daten für die Prozessierung von {Topic.TopicTitle} ({Topic.Canton}) vor...");
 
-        var tasks = new List<Task>
-            {
-                Task.Run(async () =>
-                {
-                    var downloadUrl = await ExportTopicAsync(Topic).ConfigureAwait(false);
+        var exportInputTopic = PrepareTopic(Topic);
 
-                    // TODO: Download data from downloadUrl
-                }),
-                Task.Run(async () =>
-                {
-                    var bewirtschaftungseinheitTopic = new Topic()
-                    {
-                        TopicTitle = BaseTopic.lwb_bewirtschaftungseinheit.GetDescription(),
-                        Canton = Topic.Canton,
-                        BaseTopic = BaseTopic.lwb_bewirtschaftungseinheit,
-                    };
-                    var downloadUrl = await ExportTopicAsync(bewirtschaftungseinheitTopic).ConfigureAwait(false);
+        var bewirtschaftungseinheitTopic = new Topic()
+        {
+            TopicTitle = BaseTopic.lwb_bewirtschaftungseinheit.GetDescription(),
+            Canton = Topic.Canton,
+            BaseTopic = BaseTopic.lwb_bewirtschaftungseinheit,
+        };
+        var exportBewirtschaftungseinheitTopic = PrepareTopic(bewirtschaftungseinheitTopic);
 
-                    // TODO: Download data from downloadUrl
-                }),
-            };
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        var downloadUrls = await Task.WhenAll(exportInputTopic, exportBewirtschaftungseinheitTopic).ConfigureAwait(false);
+    }
+
+    private async Task<string> PrepareTopic(Topic topic)
+    {
+        var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
+
+        // TODO: Download data from downloadUrl and return the path to the downloaded file
+        return string.Empty;
     }
 }
