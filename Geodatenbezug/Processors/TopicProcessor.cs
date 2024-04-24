@@ -196,14 +196,13 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         Ogr.RegisterAll();
         Ogr.UseExceptions();
 
-        var inputFilePath = Path.Combine(dataDirectory, topic.BaseTopic.ToString() + "_v2_0_lv95.gpkg");
-        InputDataSource = Ogr.Open(inputFilePath, 1);
+        InputDataSource = Ogr.Open(InputDataPath, 1);
         if (InputDataSource == null)
         {
             throw new InvalidOperationException("Could not open input datasource.");
         }
 
-        var processedFilePath = inputFilePath.Replace(".gpkg", ".gdb", StringComparison.InvariantCulture);
+        var processedFilePath = InputDataPath.Replace(".gpkg", ".gdb", StringComparison.InvariantCulture);
         if (Directory.Exists(processedFilePath))
         {
             Directory.Delete(processedFilePath, true);
