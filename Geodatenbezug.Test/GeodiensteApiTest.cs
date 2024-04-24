@@ -306,9 +306,16 @@ public class GeodiensteApiTest
     }
 
     [TestMethod]
-    public void GetTokenFails()
+    public void GetTokenFailsNoKey()
     {
         var api = new GeodiensteApi(loggerMock.Object, httpClientFactoryMock.Object);
         Assert.ThrowsException<KeyNotFoundException>(() => api.GetToken(BaseTopic.lwb_rebbaukataster, Canton.AI), "Token not found for topic lwb_rebbaukataster and canton AI");
+    }
+
+    [TestMethod]
+    public void GetTokenFailsNoTokens()
+    {
+        var api = new GeodiensteApi(loggerMock.Object, httpClientFactoryMock.Object);
+        Assert.ThrowsException<InvalidOperationException>(() => api.GetToken(BaseTopic.lwb_bewirtschaftungseinheit, Canton.AI), "No tokens available for topic lwb_bewirtschaftungseinheit");
     }
 }
