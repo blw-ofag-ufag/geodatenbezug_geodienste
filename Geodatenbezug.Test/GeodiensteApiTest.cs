@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text.Json;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -282,7 +282,7 @@ public class GeodiensteApiTest
         Assert.ThrowsException<InvalidOperationException>(() => api.GetToken(BaseTopic.lwb_bewirtschaftungseinheit, Canton.AI), "No tokens available for topic lwb_bewirtschaftungseinheit");
     }
 
-    private IGeodiensteApi CreateGeodiensteApiMock()
+    private GeodiensteApi CreateGeodiensteApiMock()
     {
         var mockGeodiensteApi = new Mock<GeodiensteApi>(loggerMock.Object, httpClientFactoryMock.Object)
         {
