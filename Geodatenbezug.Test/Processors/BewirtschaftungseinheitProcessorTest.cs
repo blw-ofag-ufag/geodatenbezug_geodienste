@@ -37,9 +37,8 @@ public class BewirtschaftungseinheitProcessorTest
     }
 
     [TestMethod]
-    public async Task PrepareDataAsync()
+    public async Task RunGdalProcessingAsync()
     {
-        await processor.RunGdalProcessing();
+        await processor.RunGdalProcessingAsync();
     }
 }
-

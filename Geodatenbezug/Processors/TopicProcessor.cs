@@ -90,7 +90,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
 
             await PrepareDataAsync().ConfigureAwait(false);
 
-            await RunGdalProcessing().ConfigureAwait(false);
+            await RunGdalProcessingAsync().ConfigureAwait(false);
 
             var zipFileName = $"{Path.GetFileName(dataDirectory)}_{Topic.Canton}_{DateTime.Now.ToString("yyyyMMddHHmm", new CultureInfo("de-CH"))}.zip";
             var zipFileDirectory = Path.GetDirectoryName(DataDirectory) ?? throw new InvalidOperationException("Invalid data directory");
@@ -191,7 +191,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// <summary>
     /// Processes the data using GDAL.
     /// </summary>
-    protected internal async Task RunGdalProcessing()
+    protected internal async Task RunGdalProcessingAsync()
     {
         Ogr.RegisterAll();
         Ogr.UseExceptions();

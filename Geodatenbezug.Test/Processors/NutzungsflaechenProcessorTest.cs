@@ -75,4 +75,10 @@ public class NutzungsflaechenProcessorTest
         geodiensteApiMock.Verify(api => api.StartExportAsync(bewirtschaftungseinheitTopic), Times.Once);
         geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(bewirtschaftungseinheitTopic), Times.Once);
     }
+
+    [TestMethod]
+    public async Task RunGdalProcessingAsync()
+    {
+        await processor.RunGdalProcessingAsync();
+    }
 }
