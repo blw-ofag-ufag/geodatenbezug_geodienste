@@ -1,10 +1,9 @@
 ﻿using System.Net;
 using Geodatenbezug.Models;
-using Geodatenbezug.Processors;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Geodatenbezug;
+namespace Geodatenbezug.Processors;
 
 [TestClass]
 public class NutzungsflaechenProcessorTest
