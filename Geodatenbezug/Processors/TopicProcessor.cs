@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -96,8 +96,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     /// </summary>
     protected internal async Task<string> ExportTopicAsync(Topic topic)
     {
-        var token = GetToken(topic.BaseTopic, topic.Canton);
-        var exportResponse = await GeodiensteApi.StartExportAsync(topic, token).ConfigureAwait(false);
+        var exportResponse = await GeodiensteApi.StartExportAsync(topic).ConfigureAwait(false);
         if (!exportResponse.IsSuccessStatusCode)
         {
             var exportResponseContent = await exportResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -114,7 +113,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
             }
         }
 
-        var statusResponse = await GeodiensteApi.CheckExportStatusAsync(topic, token).ConfigureAwait(false);
+        var statusResponse = await GeodiensteApi.CheckExportStatusAsync(topic).ConfigureAwait(false);
         var statusResponseContent = await statusResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
         if (!statusResponse.IsSuccessStatusCode)
         {
