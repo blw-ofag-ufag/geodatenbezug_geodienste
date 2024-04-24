@@ -27,7 +27,6 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, ILogger log
                     {
                         TopicTitle = BaseTopic.lwb_bewirtschaftungseinheit.GetDescription(),
                         Canton = Topic.Canton,
-                        TopicName = BaseTopic.lwb_bewirtschaftungseinheit.ToString() + "_v2_0",
                         BaseTopic = BaseTopic.lwb_bewirtschaftungseinheit,
                     };
                     var downloadUrl = await ExportTopicAsync(bewirtschaftungseinheitTopic).ConfigureAwait(false);

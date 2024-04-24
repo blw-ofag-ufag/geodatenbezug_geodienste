@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -9,6 +9,14 @@ namespace Geodatenbezug;
 [TestClass]
 public class GeodiensteApiTest
 {
+    private readonly Topic topic = new ()
+    {
+        BaseTopic = BaseTopic.lwb_perimeter_ln_sf,
+        TopicTitle = "Perimeter LN- und Sömmerungsflächen",
+        Canton = Canton.ZG,
+        UpdatedAt = DateTime.Now.AddHours(-23),
+    };
+
     private Mock<ILogger<GeodiensteApi>> loggerMock;
     private Mock<IHttpClientFactory> httpClientFactoryMock;
     private HttpTestMessageHandler httpTestMessageHandler;
@@ -39,7 +47,6 @@ public class GeodiensteApiTest
                 new Topic
                 {
                     BaseTopic = BaseTopic.lwb_perimeter_ln_sf,
-                    TopicName = "lwb_perimeter_ln_sf_v2_0",
                     TopicTitle = "Perimeter LN- und Sömmerungsflächen",
                     Canton = Canton.ZG,
                     UpdatedAt = DateTime.Now.AddHours(-23),
@@ -47,7 +54,6 @@ public class GeodiensteApiTest
                 new Topic
                 {
                     BaseTopic = BaseTopic.lwb_rebbaukataster,
-                    TopicName = "lwb_rebbaukataster_v2_0",
                     TopicTitle = "Rebbaukataster",
                     Canton = Canton.ZG,
                     UpdatedAt = null,
@@ -84,14 +90,6 @@ public class GeodiensteApiTest
     [TestMethod]
     public async Task StartExportAsync()
     {
-        var topic = new Topic
-        {
-            BaseTopic = BaseTopic.lwb_perimeter_ln_sf,
-            TopicName = "lwb_perimeter_ln_sf_v2_0",
-            TopicTitle = "Perimeter LN- und Sömmerungsflächen",
-            Canton = Canton.ZG,
-            UpdatedAt = DateTime.Now.AddHours(-23),
-        };
         httpTestMessageHandler.SetTestMessageResponses(
         [
             new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
@@ -108,14 +106,6 @@ public class GeodiensteApiTest
     [TestMethod]
     public async Task StartExportAsyncTimeout()
     {
-        var topic = new Topic
-        {
-            BaseTopic = BaseTopic.lwb_perimeter_ln_sf,
-            TopicName = "lwb_perimeter_ln_sf_v2_0",
-            TopicTitle = "Perimeter LN- und Sömmerungsflächen",
-            Canton = Canton.ZG,
-            UpdatedAt = DateTime.Now.AddHours(-23),
-        };
         httpTestMessageHandler.SetTestMessageResponses(
         [
             new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
@@ -142,14 +132,6 @@ public class GeodiensteApiTest
     [TestMethod]
     public async Task StartExportAsyncFails()
     {
-        var topic = new Topic
-        {
-            BaseTopic = BaseTopic.lwb_perimeter_ln_sf,
-            TopicName = "lwb_perimeter_ln_sf_v2_0",
-            TopicTitle = "Perimeter LN- und Sömmerungsflächen",
-            Canton = Canton.ZG,
-            UpdatedAt = DateTime.Now.AddHours(-23),
-        };
         httpTestMessageHandler.SetTestMessageResponses(
         [
             new () { Code = HttpStatusCode.Unauthorized },
@@ -164,14 +146,6 @@ public class GeodiensteApiTest
     [TestMethod]
     public async Task CheckExportStatusAsync()
     {
-        var topic = new Topic
-        {
-            BaseTopic = BaseTopic.lwb_perimeter_ln_sf,
-            TopicName = "lwb_perimeter_ln_sf_v2_0",
-            TopicTitle = "Perimeter LN- und Sömmerungsflächen",
-            Canton = Canton.ZG,
-            UpdatedAt = DateTime.Now.AddHours(-23),
-        };
         var responseJson1 = new GeodiensteStatusSuccess()
         {
             Status = GeodiensteStatus.Queued,
@@ -206,14 +180,6 @@ public class GeodiensteApiTest
     [TestMethod]
     public async Task CheckExportStatusAsyncTimeout()
     {
-        var topic = new Topic
-        {
-            BaseTopic = BaseTopic.lwb_perimeter_ln_sf,
-            TopicName = "lwb_perimeter_ln_sf_v2_0",
-            TopicTitle = "Perimeter LN- und Sömmerungsflächen",
-            Canton = Canton.ZG,
-            UpdatedAt = DateTime.Now.AddHours(-23),
-        };
         httpTestMessageHandler.SetTestMessageResponses(
         [
             new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
@@ -242,14 +208,6 @@ public class GeodiensteApiTest
     [TestMethod]
     public async Task CheckExportStatusAsyncFails()
     {
-        var topic = new Topic
-        {
-            BaseTopic = BaseTopic.lwb_perimeter_ln_sf,
-            TopicName = "lwb_perimeter_ln_sf_v2_0",
-            TopicTitle = "Perimeter LN- und Sömmerungsflächen",
-            Canton = Canton.ZG,
-            UpdatedAt = DateTime.Now.AddHours(-23),
-        };
         httpTestMessageHandler.SetTestMessageResponses(
         [
             new () { Code = HttpStatusCode.Unauthorized },

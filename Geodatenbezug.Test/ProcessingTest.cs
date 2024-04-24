@@ -36,7 +36,6 @@ public class ProcessingTest
                 new ()
                 {
                     BaseTopic = BaseTopic.lwb_perimeter_ln_sf,
-                    TopicName = "lwb_perimeter_ln_sf_v2_0",
                     TopicTitle = "Perimeter LN- und Sömmerungsflächen",
                     Canton = Canton.SH,
                     UpdatedAt = datestring_delta4,
@@ -44,7 +43,6 @@ public class ProcessingTest
                 new ()
                 {
                     BaseTopic = BaseTopic.lwb_perimeter_ln_sf,
-                    TopicName = "lwb_perimeter_ln_sf_v2_0",
                     TopicTitle = "Perimeter LN- und Sömmerungsflächen",
                     Canton = Canton.ZG,
                     UpdatedAt = datestring_delta23,
@@ -52,7 +50,6 @@ public class ProcessingTest
                 new ()
                 {
                     BaseTopic = BaseTopic.lwb_rebbaukataster,
-                    TopicName = "lwb_rebbaukataster_v2_0",
                     TopicTitle = "Rebbaukataster",
                     Canton = Canton.SH,
                     UpdatedAt = datestring_delta30,
@@ -60,7 +57,6 @@ public class ProcessingTest
                 new ()
                 {
                     BaseTopic = BaseTopic.lwb_rebbaukataster,
-                    TopicName = "lwb_rebbaukataster_v2_0",
                     TopicTitle = "Rebbaukataster",
                     Canton = Canton.ZG,
                     UpdatedAt = null,

@@ -12,7 +12,6 @@ public class TopicProcessorTest
     {
         TopicTitle = BaseTopic.lwb_rebbaukataster.GetDescription(),
         Canton = Canton.AG,
-        TopicName = BaseTopic.lwb_rebbaukataster.ToString() + "_v2_0",
         BaseTopic = BaseTopic.lwb_rebbaukataster,
         UpdatedAt = DateTime.Now,
     };
