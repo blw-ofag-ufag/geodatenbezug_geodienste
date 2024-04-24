@@ -69,6 +69,8 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     /// </summary>
     protected internal async Task<string> ExportTopicAsync(Topic topic)
     {
+        logger.LogInformation($"Exportiere {topic.TopicTitle} ({topic.Canton})...");
+
         var exportResponse = await geodiensteApi.StartExportAsync(topic).ConfigureAwait(false);
         if (!exportResponse.IsSuccessStatusCode)
         {
