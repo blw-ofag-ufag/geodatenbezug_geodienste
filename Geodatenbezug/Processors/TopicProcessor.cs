@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO.Compression;
 using System.Net;
 using System.Text.Json;
@@ -191,7 +191,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// <summary>
     /// Processes the data using GDAL.
     /// </summary>
-    protected async Task RunGdalProcessing()
+    protected internal async Task RunGdalProcessing()
     {
         Ogr.RegisterAll();
         Ogr.UseExceptions();
