@@ -44,14 +44,6 @@ public class NutzungsflaechenProcessorTest
             BaseTopic = BaseTopic.lwb_bewirtschaftungseinheit,
         };
 
-        var processingResult = new ProcessingResult
-        {
-            Code = HttpStatusCode.NotFound,
-            Reason = "Not Found",
-            Info = "Data export information not found. Invalid token?",
-            TopicTitle = topic.TopicTitle,
-            Canton = topic.Canton,
-        };
         geodiensteApiMock
             .Setup(api => api.StartExportAsync(It.IsAny<Topic>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
