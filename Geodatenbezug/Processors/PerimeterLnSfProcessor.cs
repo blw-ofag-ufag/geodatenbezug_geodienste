@@ -14,7 +14,6 @@ public class PerimeterLnSfProcessor(IGeodiensteApi geodiensteApi, IAzureStorage 
     {
         var fieldTypeConversions = new Dictionary<string, FieldType>
         {
-            { "t_id", FieldType.OFTInteger },
             { "bezugsjahr", FieldType.OFTDateTime },
         };
         var perimeterLnSfLayer = CreateGdalLayer("perimeter_ln_sf", fieldTypeConversions);

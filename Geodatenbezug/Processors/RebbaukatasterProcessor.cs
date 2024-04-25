@@ -14,7 +14,6 @@ public class RebbaukatasterProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     {
         var fieldTypeConversions = new Dictionary<string, FieldType>
         {
-            { "t_id", FieldType.OFTInteger },
             { "aenderungsdatum", FieldType.OFTDateTime },
         };
         var rebbaukatasterLayer = CreateGdalLayer("rebbaukataster", fieldTypeConversions);

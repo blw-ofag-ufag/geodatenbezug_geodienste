@@ -14,7 +14,6 @@ public class BiodiversitaetsfoerderflaechenProcessor(IGeodiensteApi geodiensteAp
     {
         var fieldTypeConversions = new Dictionary<string, FieldType>
         {
-            { "t_id", FieldType.OFTInteger },
             { "bezugsjahr", FieldType.OFTDateTime },
             { "schnittzeitpunkt", FieldType.OFTDateTime },
             { "verpflichtung_von", FieldType.OFTDateTime },

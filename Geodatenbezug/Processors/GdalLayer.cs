@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using OSGeo.OGR;
 
 namespace Geodatenbezug.Topics;
@@ -25,6 +25,11 @@ public class GdalLayer
         this.processingLayer = processingLayer;
 
         var inputLayerDefinition = inputLayer.GetLayerDefn();
+
+        var tIdFieldDefinition = new FieldDefn("t_id", FieldType.OFTInteger);
+        processingLayer.CreateField(tIdFieldDefinition, 1);
+        tIdFieldDefinition.Dispose();
+
         for (var i = 0; i < inputLayerDefinition.GetFieldCount(); i++)
         {
             var originalFieldDefinition = inputLayerDefinition.GetFieldDefn(i);
@@ -67,17 +72,23 @@ public class GdalLayer
                 var fieldName = processingFieldDefinition.GetName();
                 var fieldType = processingFieldDefinition.GetFieldType();
 
+                if (fieldName == "t_id")
+                {
+                    newFeature.SetField(fieldName, inputFeature.GetFID());
+                    continue;
+                }
+
                 if (fieldType == FieldType.OFTInteger)
                 {
-                    newFeature.SetField(fieldName, inputFeature.GetFieldAsInteger(j));
+                    newFeature.SetField(fieldName, inputFeature.GetFieldAsInteger(j - 1));
                 }
                 else if (fieldType == FieldType.OFTReal)
                 {
-                    newFeature.SetField(fieldName, inputFeature.GetFieldAsDouble(j));
+                    newFeature.SetField(fieldName, inputFeature.GetFieldAsDouble(j - 1));
                 }
                 else if (fieldType == FieldType.OFTDateTime)
                 {
-                    var value = inputFeature.GetFieldAsString(j);
+                    var value = inputFeature.GetFieldAsString(j - 1);
                     if (string.IsNullOrEmpty(value))
                     {
                         continue;

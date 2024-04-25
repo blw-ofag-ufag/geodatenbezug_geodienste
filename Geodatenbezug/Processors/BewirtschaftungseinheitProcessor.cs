@@ -14,7 +14,6 @@ public class BewirtschaftungseinheitProcessor(IGeodiensteApi geodiensteApi, IAzu
     {
         var fieldTypeConversions = new Dictionary<string, FieldType>
         {
-            { "t_id", FieldType.OFTInteger },
             { "bezugsjahr", FieldType.OFTDateTime },
         };
 
