@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.IO.Compression;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -127,6 +128,33 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
         {
             return await httpClient.GetAsync(url).ConfigureAwait(false);
         }).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<string> DownloadExportAsync(string downloadUrl, string destinationPath)
+    {
+        logger.LogInformation($"Lade die Daten herunter {downloadUrl}...");
+        Directory.CreateDirectory(destinationPath);
+        var downloadedFilePath = string.Empty;
+        using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));
+        using var stream = await httpClient.GetStreamAsync(downloadUrl).ConfigureAwait(false);
+        using var archive = new ZipArchive(stream);
+        foreach (var entry in archive.Entries)
+        {
+            if (entry.Name.EndsWith(".gpkg", StringComparison.OrdinalIgnoreCase))
+            {
+                downloadedFilePath = Path.Combine(destinationPath, entry.Name);
+                entry.ExtractToFile(downloadedFilePath, overwrite: true);
+                break;
+            }
+        }
+
+        if (string.IsNullOrEmpty(downloadedFilePath))
+        {
+            throw new FileNotFoundException("Keine GeoPackage-Datei im Archiv gefunden.");
+        }
+
+        return downloadedFilePath;
     }
 
     /// <inheritdoc />

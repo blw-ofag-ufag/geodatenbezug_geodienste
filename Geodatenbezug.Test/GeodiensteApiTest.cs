@@ -3,10 +3,13 @@ using System.Text.Json;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Moq.Protected;
 
 namespace Geodatenbezug;
 
 [TestClass]
+[DeploymentItem("testdata/lwb_perimeter_terrassenreben_lv95.zip", "testdata")]
+[DeploymentItem("testdata/lwb_perimeter_terrassenreben_lv95_no_gpkg.zip", "testdata")]
 public class GeodiensteApiTest
 {
     private readonly Topic topic = new ()
@@ -217,6 +220,56 @@ public class GeodiensteApiTest
 
         var result = await CreateGeodiensteApiMock().CheckExportStatusAsync(topic);
         Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task DownloadExportAsync()
+    {
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                Content = new StreamContent(File.OpenRead("testdata\\lwb_perimeter_terrassenreben_lv95.zip")),
+            });
+
+        httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient(mockHttpMessageHandler.Object));
+
+        var downloadUrl = "http://test.com/test.zip";
+        var destinationPath = ".\\testresult";
+        var destinationFile = Path.Combine(destinationPath, "lwb_perimeter_terrassenreben_v2_0_lv95.gpkg");
+
+        loggerMock.Setup(LogLevel.Information, $"Lade die Daten herunter {downloadUrl}...", Times.Once());
+
+        var result = await new GeodiensteApi(loggerMock.Object, httpClientFactoryMock.Object).DownloadExportAsync(downloadUrl, destinationPath);
+        Assert.AreEqual(destinationFile, result);
+        Assert.IsTrue(File.Exists(destinationFile));
+    }
+
+    [TestMethod]
+    public async Task DownloadExportAsyncNoPackage()
+    {
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                Content = new StreamContent(File.OpenRead("testdata\\lwb_perimeter_terrassenreben_lv95_no_gpkg.zip")),
+            });
+
+        httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient(mockHttpMessageHandler.Object));
+
+        var downloadUrl = "http://test.com/test.zip";
+        var destinationPath = ".\\testresult";
+        loggerMock.Setup(LogLevel.Information, $"Lade die Daten herunter {downloadUrl}...", Times.Once());
+
+        await Assert.ThrowsExceptionAsync<FileNotFoundException>(async () => await new GeodiensteApi(loggerMock.Object, httpClientFactoryMock.Object).DownloadExportAsync(downloadUrl, destinationPath), "Keine GeoPackage-Datei im Archiv gefunden.");
     }
 
     [TestMethod]

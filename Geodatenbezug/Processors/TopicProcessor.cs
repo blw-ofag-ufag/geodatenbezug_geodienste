@@ -10,15 +10,38 @@ namespace Geodatenbezug.Processors;
 /// </summary>
 public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logger, Topic topic) : ITopicProcessor
 {
+    private readonly string dataDirectory = Path.Combine(Path.GetTempPath(), "Geodatenbezug", topic.Canton.ToString(), topic.BaseTopic.ToString());
+
     /// <summary>
-    /// The topic that is being processed.
+    /// The directory where the data is stored for processing.
     /// </summary>
-    protected Topic Topic => topic;
+    protected string DataDirectory => dataDirectory;
+
+    private string inputDataPath = string.Empty;
+
+    /// <summary>
+    /// The input data for processing.
+    /// </summary>
+    protected string InputDataPath
+    {
+        get { return inputDataPath; }
+        set { inputDataPath = value; }
+    }
+
+    /// <summary>
+    /// The geodienste.ch API.
+    /// </summary>
+    protected IGeodiensteApi GeodiensteApi => geodiensteApi;
 
     /// <summary>
     /// The logger for the processor.
     /// </summary>
     protected ILogger Logger => logger;
+
+    /// <summary>
+    /// The topic that is being processed.
+    /// </summary>
+    protected Topic Topic => topic;
 
     private readonly ProcessingResult processingResult = new ()
     {
@@ -39,7 +62,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
         {
             logger.LogInformation($"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})...");
 
-            await PrepareData().ConfigureAwait(false);
+            await PrepareDataAsync().ConfigureAwait(false);
 
             // TODO: Process data and upload data to storage.
         }
@@ -61,12 +84,11 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     /// <summary>
     /// Prepares the data for processing.
     /// </summary>
-    protected internal virtual async Task PrepareData()
+    protected internal virtual async Task PrepareDataAsync()
     {
         logger.LogInformation($"Bereite Daten für die Prozessierung von {topic.TopicTitle} ({topic.Canton}) vor...");
         var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
-
-        // TODO: Download data from downloadUrl
+        InputDataPath = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -76,7 +98,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
     {
         logger.LogInformation($"Exportiere {topic.TopicTitle} ({topic.Canton})...");
 
-        var exportResponse = await geodiensteApi.StartExportAsync(topic).ConfigureAwait(false);
+        var exportResponse = await GeodiensteApi.StartExportAsync(topic).ConfigureAwait(false);
         if (!exportResponse.IsSuccessStatusCode)
         {
             var exportResponseContent = await exportResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -93,7 +115,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, ILogger logge
             }
         }
 
-        var statusResponse = await geodiensteApi.CheckExportStatusAsync(topic).ConfigureAwait(false);
+        var statusResponse = await GeodiensteApi.CheckExportStatusAsync(topic).ConfigureAwait(false);
         var statusResponseContent = await statusResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
         if (!statusResponse.IsSuccessStatusCode)
         {
