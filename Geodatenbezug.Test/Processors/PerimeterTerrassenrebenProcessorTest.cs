@@ -8,7 +8,7 @@ namespace Geodatenbezug.Processors;
 [DeploymentItem("testdata/lwb_perimeter_terrassenreben_v2_0_lv95_NE_202404191123.gpkg", "testdata")]
 public class PerimeterTerrassenrebenProcessorTest
 {
-    private readonly Topic topic = new()
+    private readonly Topic topic = new ()
     {
         TopicTitle = BaseTopic.lwb_perimeter_terrassenreben.GetDescription(),
         Canton = Canton.NE,

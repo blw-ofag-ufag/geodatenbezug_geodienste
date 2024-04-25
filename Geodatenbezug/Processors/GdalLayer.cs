@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using OSGeo.OGR;
 
 namespace Geodatenbezug.Topics;
@@ -35,9 +35,9 @@ public class GdalLayer
             var originalFieldDefinition = inputLayerDefinition.GetFieldDefn(i);
             var fieldName = originalFieldDefinition.GetName();
             FieldDefn newFieldDefinition;
-            if (fieldTypeConversions != null && fieldTypeConversions.ContainsKey(fieldName))
+            if (fieldTypeConversions != null && fieldTypeConversions.TryGetValue(fieldName, out var fieldType))
             {
-                newFieldDefinition = new FieldDefn(fieldName, fieldTypeConversions[fieldName]);
+                newFieldDefinition = new FieldDefn(fieldName, fieldType);
             }
             else
             {

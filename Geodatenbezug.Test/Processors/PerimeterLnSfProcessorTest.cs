@@ -8,7 +8,7 @@ namespace Geodatenbezug.Processors;
 [DeploymentItem("testdata/lwb_perimeter_ln_sf_v2_0_lv95_NE_202404191123.gpkg", "testdata")]
 public class PerimeterLnSfProcessorTest
 {
-    private readonly Topic topic = new()
+    private readonly Topic topic = new ()
     {
         TopicTitle = BaseTopic.lwb_perimeter_ln_sf.GetDescription(),
         Canton = Canton.NE,
