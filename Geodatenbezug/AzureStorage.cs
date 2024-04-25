@@ -45,6 +45,6 @@ public class AzureStorage(ILogger<AzureStorage> logger) : IAzureStorage
         var accountName = Helper.ExtractSettingByKey(connectionString, "AccountName");
         var accountKey = Helper.ExtractSettingByKey(connectionString, "AccountKey");
         string sasToken = sasBuilder.ToSasQueryParameters(new StorageSharedKeyCredential(accountName, accountKey)).ToString();
-        return blobClient.Uri + "?" + sasToken;
+        return $"{blobClient.Uri}?{sasToken}";
     }
 }
