@@ -166,6 +166,6 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
             throw new InvalidOperationException($"No tokens available for topic {baseTopic}");
         }
 
-        return Helper.ExtractSettingByKey(topicTokens, canton.ToString());
+        return topicTokens.ExtractValueByKey(canton.ToString());
     }
 }
