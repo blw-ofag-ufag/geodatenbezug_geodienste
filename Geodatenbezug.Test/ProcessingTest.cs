@@ -9,12 +9,14 @@ public class ProcessingTest
 {
     private Mock<ILogger<Processor>> loggerMock;
     private Mock<IGeodiensteApi> geodiensteApiMock;
+    private Mock<IAzureStorage> azureStorageMock;
 
     [TestInitialize]
     public void Initialize()
     {
         loggerMock = new Mock<ILogger<Processor>>(MockBehavior.Strict);
         geodiensteApiMock = new Mock<IGeodiensteApi>(MockBehavior.Strict);
+        azureStorageMock = new Mock<IAzureStorage>(MockBehavior.Strict);
     }
 
     [TestCleanup]
@@ -69,7 +71,7 @@ public class ProcessingTest
         loggerMock.Setup(LogLevel.Information, "Thema Rebbaukataster (ZG) ist nicht verfügbar");
         loggerMock.Setup(LogLevel.Information, "2 Themen werden prozessiert");
 
-        var topicsToProcess = await new Processor(geodiensteApiMock.Object, loggerMock.Object).GetTopicsToProcess();
+        var topicsToProcess = await new Processor(geodiensteApiMock.Object, azureStorageMock.Object, loggerMock.Object).GetTopicsToProcess();
         Assert.AreEqual(2, topicsToProcess.Count);
         Assert.AreEqual(BaseTopic.lwb_perimeter_ln_sf, topicsToProcess[0].BaseTopic);
         Assert.AreEqual(Canton.SH, topicsToProcess[0].Canton);

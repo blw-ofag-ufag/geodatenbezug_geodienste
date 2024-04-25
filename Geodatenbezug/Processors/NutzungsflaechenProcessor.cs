@@ -6,7 +6,7 @@ namespace Geodatenbezug.Processors;
 /// <summary>
 /// The processor for the topic "Nutzungsflächen".
 /// </summary>
-public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, ILogger logger, Topic topic) : TopicProcessor(geodiensteApi, logger, topic)
+public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage, ILogger logger, Topic topic) : TopicProcessor(geodiensteApi, azureStorage, logger, topic)
 {
     private string bewirtschaftungseinheitDataPath = string.Empty;
 

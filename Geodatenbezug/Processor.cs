@@ -8,7 +8,7 @@ namespace Geodatenbezug;
 /// <summary>
 /// Handles the processing of the topics.
 /// </summary>
-public class Processor(IGeodiensteApi geodiensteApi, ILogger<Processor> logger)
+public class Processor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage, ILogger<Processor> logger)
 {
     /// <summary>
     /// Gets the topics that have new data and need to be processed.
@@ -51,7 +51,7 @@ public class Processor(IGeodiensteApi geodiensteApi, ILogger<Processor> logger)
     /// </summary>
     public async Task<ProcessingResult> ProcessTopic(Topic topic)
     {
-        var topicProcessor = TopicProcessorFactory.Create(geodiensteApi, logger, topic);
+        var topicProcessor = TopicProcessorFactory.Create(geodiensteApi, azureStorage, logger, topic);
         return await topicProcessor.ProcessAsync().ConfigureAwait(false);
     }
 }

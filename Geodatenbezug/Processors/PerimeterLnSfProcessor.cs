@@ -6,6 +6,6 @@ namespace Geodatenbezug.Processors;
 /// <summary>
 /// The processor for the topic "Perimeter Ln Sf".
 /// </summary>
-public class PerimeterLnSfProcessor(IGeodiensteApi geodiensteApi, ILogger logger, Topic topic) : TopicProcessor(geodiensteApi, logger, topic)
+public class PerimeterLnSfProcessor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage, ILogger logger, Topic topic) : TopicProcessor(geodiensteApi, azureStorage, logger, topic)
 {
 }
