@@ -230,7 +230,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// <summary>
     /// Creates a new GDAL layer for processing.
     /// </summary>
-    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldType>? fieldTypeConversions, string[] fieldsToDrop)
+    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldType>? fieldTypeConversions, List<string> fieldsToDrop)
     {
         var inputLayer = InputDataSource.GetLayerByName(layerName);
 
