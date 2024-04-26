@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using Geodatenbezug.Processors;
 using OSGeo.OGR;
 
 namespace Geodatenbezug.Processors;
