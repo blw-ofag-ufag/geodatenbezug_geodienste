@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using OSGeo.OGR;
 
-namespace Geodatenbezug.Topics;
+namespace Geodatenbezug.Processors;
 
 /// <summary>
 /// Handles the processing of a layer using GDAL.
