@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using OSGeo.OGR;
 
 namespace Geodatenbezug.Topics;
@@ -34,6 +34,11 @@ public class GdalLayer
         {
             var originalFieldDefinition = inputLayerDefinition.GetFieldDefn(i);
             var fieldName = originalFieldDefinition.GetName();
+            if (fieldName == "t_id")
+            {
+                continue;
+            }
+
             FieldDefn newFieldDefinition;
             if (fieldTypeConversions != null && fieldTypeConversions.TryGetValue(fieldName, out var fieldType))
             {
@@ -72,6 +77,8 @@ public class GdalLayer
                 var fieldName = processingFieldDefinition.GetName();
                 var fieldType = processingFieldDefinition.GetFieldType();
 
+                var iterator = inputLayer.GetFIDColumn() == "t_id" ? j - 1 : j;
+
                 if (fieldName == "t_id")
                 {
                     newFeature.SetField(fieldName, inputFeature.GetFID());
@@ -80,15 +87,15 @@ public class GdalLayer
 
                 if (fieldType == FieldType.OFTInteger)
                 {
-                    newFeature.SetField(fieldName, inputFeature.GetFieldAsInteger(j - 1));
+                    newFeature.SetField(fieldName, inputFeature.GetFieldAsInteger(iterator));
                 }
                 else if (fieldType == FieldType.OFTReal)
                 {
-                    newFeature.SetField(fieldName, inputFeature.GetFieldAsDouble(j - 1));
+                    newFeature.SetField(fieldName, inputFeature.GetFieldAsDouble(iterator));
                 }
                 else if (fieldType == FieldType.OFTDateTime)
                 {
-                    var value = inputFeature.GetFieldAsString(j - 1);
+                    var value = inputFeature.GetFieldAsString(iterator);
                     if (string.IsNullOrEmpty(value))
                     {
                         continue;
@@ -102,7 +109,7 @@ public class GdalLayer
                 }
                 else
                 {
-                    newFeature.SetField(fieldName, inputFeature.GetFieldAsString(j));
+                    newFeature.SetField(fieldName, inputFeature.GetFieldAsString(iterator));
                 }
             }
 
