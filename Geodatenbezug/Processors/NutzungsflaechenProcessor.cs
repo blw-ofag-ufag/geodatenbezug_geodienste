@@ -1,4 +1,4 @@
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Serialization;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -42,7 +42,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
     }
 
     /// <inheritdoc/>
-    protected async override Task ProcessTopic()
+    protected async override Task ProcessTopicAsync()
     {
         var fieldTypeConversions = new Dictionary<string, FieldType>
         {

@@ -210,7 +210,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         var openFileGdbDriver = Ogr.GetDriverByName("OpenFileGDB");
         ProcessingDataSource = openFileGdbDriver.CreateDataSource(processedFilePath, null);
 
-        await ProcessTopic().ConfigureAwait(false);
+        await ProcessTopicAsync().ConfigureAwait(false);
 
         InputDataSource.Dispose();
         ProcessingDataSource.Dispose();
@@ -247,5 +247,5 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// <summary>
     /// Performs the actual processing of the topic.
     /// </summary>
-    protected abstract Task ProcessTopic();
+    protected abstract Task ProcessTopicAsync();
 }

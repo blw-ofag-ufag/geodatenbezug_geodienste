@@ -10,7 +10,7 @@ namespace Geodatenbezug.Processors;
 public class BiodiversitaetsfoerderflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage, ILogger logger, Topic topic) : TopicProcessor(geodiensteApi, azureStorage, logger, topic)
 {
     /// <inheritdoc/>
-    protected override Task ProcessTopic()
+    protected override Task ProcessTopicAsync()
     {
         var fieldTypeConversions = new Dictionary<string, FieldType>
         {
