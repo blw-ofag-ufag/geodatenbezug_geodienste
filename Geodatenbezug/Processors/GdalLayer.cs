@@ -85,6 +85,11 @@ public class GdalLayer
                     continue;
                 }
 
+                if (inputFeature.IsFieldNull(iterator))
+                {
+                    continue;
+                }
+
                 if (fieldType == FieldType.OFTInteger)
                 {
                     newFeature.SetField(fieldName, inputFeature.GetFieldAsInteger(iterator));
@@ -95,13 +100,7 @@ public class GdalLayer
                 }
                 else if (fieldType == FieldType.OFTDateTime)
                 {
-                    var value = inputFeature.GetFieldAsString(iterator);
-                    if (string.IsNullOrEmpty(value))
-                    {
-                        continue;
-                    }
-
-                    var dateTimeValues = value.Split("-");
+                    var dateTimeValues = inputFeature.GetFieldAsString(iterator).Split("-");
                     var year = int.Parse(dateTimeValues[0], CultureInfo.InvariantCulture);
                     var month = dateTimeValues.Length > 1 ? int.Parse(dateTimeValues[1], CultureInfo.InvariantCulture) : 1;
                     var day = dateTimeValues.Length > 2 ? int.Parse(dateTimeValues[2], CultureInfo.InvariantCulture) : 1;
