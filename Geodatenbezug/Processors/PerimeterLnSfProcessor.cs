@@ -17,10 +17,6 @@ public class PerimeterLnSfProcessor(IGeodiensteApi geodiensteApi, IAzureStorage 
             { "bezugsjahr", FieldType.OFTDateTime },
         };
         var perimeterLnSfLayer = CreateGdalLayer("perimeter_ln_sf", fieldTypeConversions);
-
-        // TODO: Fields do not exist in the input data
-        perimeterLnSfLayer.RemoveField("_part_number");
-        perimeterLnSfLayer.RemoveField("_geometry_name");
         perimeterLnSfLayer.CopyFeatures();
         perimeterLnSfLayer.ConvertMultiPartToSinglePartGeometry();
 
