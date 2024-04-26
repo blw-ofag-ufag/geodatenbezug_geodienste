@@ -162,6 +162,7 @@ public class GdalLayer
                 for (var j = 0; j < geometry.GetGeometryCount(); j++)
                 {
                     var newFeature = feature.Clone();
+                    newFeature.SetFID(-1);
                     newFeature.SetGeometry(geometry.GetGeometryRef(j));
                     processingLayer.CreateFeature(newFeature);
                     newFeature.Dispose();
