@@ -222,6 +222,16 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// </summary>
     public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldType>? fieldTypeConversions)
     {
+#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
+        return CreateGdalLayer(layerName, fieldTypeConversions, []);
+#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
+    }
+
+    /// <summary>
+    /// Creates a new GDAL layer for processing.
+    /// </summary>
+    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldType>? fieldTypeConversions, string[] fieldsToDrop)
+    {
         var inputLayer = InputDataSource.GetLayerByName(layerName);
 
         // Workaround https://github.com/blw-ofag-ufag/geodatenbezug_geodienste/issues/45
@@ -231,7 +241,8 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         var processingLayer = ProcessingDataSource.CreateLayer(layerName, inputLayer.GetSpatialRef(), geometryType, []);
         fieldTypeConversions ??= [];
 #pragma warning restore SA1010 // Opening square brackets should be spaced correctly
-        return new GdalLayer(inputLayer, processingLayer, fieldTypeConversions);
+
+        return new GdalLayer(inputLayer, processingLayer, fieldTypeConversions, fieldsToDrop);
     }
 
     /// <summary>

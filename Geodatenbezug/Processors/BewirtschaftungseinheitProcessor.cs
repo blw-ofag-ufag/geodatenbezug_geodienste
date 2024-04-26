@@ -20,9 +20,9 @@ public class BewirtschaftungseinheitProcessor(IGeodiensteApi geodiensteApi, IAzu
         var betriebLayer = CreateGdalLayer("betrieb", fieldTypeConversions);
         betriebLayer.CopyFeatures();
         betriebLayer.ConvertMultiPartToSinglePartGeometry();
-
-        var bewirtschaftungseinheitLayer = CreateGdalLayer("bewirtschaftungseinheit", fieldTypeConversions);
-        bewirtschaftungseinheitLayer.RemoveField("identifikator_be");
+#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
+        var bewirtschaftungseinheitLayer = CreateGdalLayer("bewirtschaftungseinheit", fieldTypeConversions, ["identifikator_be"]);
+#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
         bewirtschaftungseinheitLayer.CopyFeatures();
         bewirtschaftungseinheitLayer.ConvertMultiPartToSinglePartGeometry();
 

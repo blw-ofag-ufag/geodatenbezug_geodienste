@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using OSGeo.OGR;
 
 namespace Geodatenbezug.Topics;
@@ -19,7 +19,7 @@ public class GdalLayer
     /// <summary>
     /// Initializes a new instance of the <see cref="GdalLayer"/> class.
     /// </summary>
-    public GdalLayer(Layer inputLayer, Layer processingLayer, Dictionary<string, FieldType> fieldTypeConversions)
+    public GdalLayer(Layer inputLayer, Layer processingLayer, Dictionary<string, FieldType> fieldTypeConversions, string[] fieldsToDrop)
     {
         this.inputLayer = inputLayer;
         this.processingLayer = processingLayer;
@@ -34,7 +34,7 @@ public class GdalLayer
         {
             var originalFieldDefinition = inputLayerDefinition.GetFieldDefn(i);
             var fieldName = originalFieldDefinition.GetName();
-            if (fieldName == "t_id")
+            if (fieldName == "t_id" || fieldsToDrop.Contains(fieldName))
             {
                 continue;
             }
@@ -77,30 +77,28 @@ public class GdalLayer
                 var fieldName = processingFieldDefinition.GetName();
                 var fieldType = processingFieldDefinition.GetFieldType();
 
-                var iterator = inputLayer.GetFIDColumn() == "t_id" ? j - 1 : j;
-
                 if (fieldName == "t_id")
                 {
                     newFeature.SetField(fieldName, inputFeature.GetFID());
                     continue;
                 }
 
-                if (inputFeature.IsFieldNull(iterator))
+                if (inputFeature.IsFieldNull(fieldName))
                 {
                     continue;
                 }
 
                 if (fieldType == FieldType.OFTInteger)
                 {
-                    newFeature.SetField(fieldName, inputFeature.GetFieldAsInteger(iterator));
+                    newFeature.SetField(fieldName, inputFeature.GetFieldAsInteger(fieldName));
                 }
                 else if (fieldType == FieldType.OFTReal)
                 {
-                    newFeature.SetField(fieldName, inputFeature.GetFieldAsDouble(iterator));
+                    newFeature.SetField(fieldName, inputFeature.GetFieldAsDouble(fieldName));
                 }
                 else if (fieldType == FieldType.OFTDateTime)
                 {
-                    var dateTimeValues = inputFeature.GetFieldAsString(iterator).Split("-");
+                    var dateTimeValues = inputFeature.GetFieldAsString(fieldName).Split("-");
                     var year = int.Parse(dateTimeValues[0], CultureInfo.InvariantCulture);
                     var month = dateTimeValues.Length > 1 ? int.Parse(dateTimeValues[1], CultureInfo.InvariantCulture) : 1;
                     var day = dateTimeValues.Length > 2 ? int.Parse(dateTimeValues[2], CultureInfo.InvariantCulture) : 1;
@@ -108,24 +106,12 @@ public class GdalLayer
                 }
                 else
                 {
-                    newFeature.SetField(fieldName, inputFeature.GetFieldAsString(iterator));
+                    newFeature.SetField(fieldName, inputFeature.GetFieldAsString(fieldName));
                 }
             }
 
             processingLayer.CreateFeature(newFeature);
             newFeature.Dispose();
-        }
-    }
-
-    /// <summary>
-    /// Remove a field from the layer.
-    /// </summary>
-    public void RemoveField(string fieldName)
-    {
-        var fieldIndex = processingLayer.GetLayerDefn().GetFieldIndex(fieldName);
-        if (fieldIndex >= 0)
-        {
-            processingLayer.DeleteField(fieldIndex);
         }
     }
 
