@@ -7,9 +7,6 @@ namespace Geodatenbezug.Models;
 #pragma warning disable SA1600 // Elements should be documented
 public class Transfer
 {
-    /*    [XmlElement("HEADERSECTION")]
-        public HeaderSection HeaderSection { get; set; }*/
-
     [XmlElement("DATASECTION")]
     required public DataSection DataSection { get; set; }
 }
