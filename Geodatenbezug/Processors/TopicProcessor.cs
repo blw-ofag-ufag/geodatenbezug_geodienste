@@ -192,6 +192,8 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// </summary>
     protected internal async Task RunGdalProcessingAsync()
     {
+        logger.LogInformation($"Starte GDAL-Prozessierung von Thema {topic.TopicTitle} ({topic.Canton})...");
+
         Ogr.RegisterAll();
         Ogr.UseExceptions();
 
