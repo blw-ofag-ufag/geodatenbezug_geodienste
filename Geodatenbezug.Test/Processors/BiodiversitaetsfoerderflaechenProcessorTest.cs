@@ -77,6 +77,8 @@ public class BiodiversitaetsfoerderflaechenProcessorTest
         GdalAssert.AssertFieldType(qualitaetResultLayer, "verpflichtung_von", FieldType.OFTDateTime);
         GdalAssert.AssertFieldType(qualitaetResultLayer, "verpflichtung_bis", FieldType.OFTDateTime);
         GdalAssert.AssertFieldType(qualitaetResultLayer, "schnittzeitpunkt", FieldType.OFTDateTime);
+        GdalAssert.AssertFieldType(qualitaetResultLayer, "ist_definitiv", FieldType.OFTInteger, FieldSubType.OFSTInt16);
+        GdalAssert.AssertFieldType(qualitaetResultLayer, "beitragsberechtigt", FieldType.OFTInteger, FieldSubType.OFSTInt16);
 
         GdalAssert.AssertOnlyValidLnfCodes(qualitaetResultLayer);
 
@@ -128,6 +130,9 @@ public class BiodiversitaetsfoerderflaechenProcessorTest
         GdalAssert.AssertFieldType(vernetzungResultLayer, "verpflichtung_von", FieldType.OFTDateTime);
         GdalAssert.AssertFieldType(vernetzungResultLayer, "verpflichtung_bis", FieldType.OFTDateTime);
         GdalAssert.AssertFieldType(vernetzungResultLayer, "schnittzeitpunkt", FieldType.OFTDateTime);
+        GdalAssert.AssertFieldType(qualitaetResultLayer, "ist_definitiv", FieldType.OFTInteger, FieldSubType.OFSTInt16);
+        GdalAssert.AssertFieldType(qualitaetResultLayer, "beitragsberechtigt", FieldType.OFTInteger, FieldSubType.OFSTInt16);
+        GdalAssert.AssertFieldType(qualitaetResultLayer, "nhg", FieldType.OFTInteger, FieldSubType.OFSTInt16);
 
         GdalAssert.AssertOnlyValidLnfCodes(qualitaetResultLayer);
 

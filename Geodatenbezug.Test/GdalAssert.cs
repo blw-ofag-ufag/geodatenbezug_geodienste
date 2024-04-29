@@ -45,6 +45,17 @@ internal static class GdalAssert
     }
 
     /// <summary>
+    /// Asserts that the field has the expected type and subtype.
+    /// </summary>
+    internal static void AssertFieldType(Layer resultLayer, string fieldName, FieldType expectedFieldType, FieldSubType expectedFieldSubType)
+    {
+        var resultLayerDefn = resultLayer.GetLayerDefn();
+        var fieldIndex = resultLayerDefn.GetFieldIndex(fieldName);
+        Assert.AreEqual(resultLayerDefn.GetFieldDefn(fieldIndex).GetFieldType(), expectedFieldType);
+        Assert.AreEqual(resultLayerDefn.GetFieldDefn(fieldIndex).GetSubType(), expectedFieldSubType);
+    }
+
+    /// <summary>
     /// Asserts that the result layer contains only single-part geometries.
     /// </summary>
     internal static void AssertOnlySinglePartGeometries(Layer resultLayer)

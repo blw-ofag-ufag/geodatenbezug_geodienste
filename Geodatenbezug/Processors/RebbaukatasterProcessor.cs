@@ -12,10 +12,12 @@ public class RebbaukatasterProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// <inheritdoc/>
     protected override Task ProcessTopic()
     {
-        var fieldTypeConversions = new Dictionary<string, FieldType>
+        using var aenderungsdatumFieldDefinition = new FieldDefn("aenderungsdatum", FieldType.OFTDateTime);
+        var fieldTypeConversions = new Dictionary<string, FieldDefn>
         {
-            { "aenderungsdatum", FieldType.OFTDateTime },
+            { aenderungsdatumFieldDefinition.GetName(), aenderungsdatumFieldDefinition },
         };
+
         var rebbaukatasterLayer = CreateGdalLayer("rebbaukataster", fieldTypeConversions);
         rebbaukatasterLayer.CopyFeatures();
         rebbaukatasterLayer.ConvertMultiPartToSinglePartGeometry();
