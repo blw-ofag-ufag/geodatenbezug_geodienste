@@ -1,4 +1,4 @@
-﻿using System.Xml;
+using System.Xml;
 using System.Xml.Serialization;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -79,7 +79,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         ProcessingDataSource.DeleteLayer(0);
 
         var nutzungsflaechenJoinedLayer = ProcessingDataSource.GetLayerByName("nutzungsflaechen_joined");
-        var nutzungsflaechenLayer = ProcessingDataSource.CreateLayer("nutzungsflaechen", null, nutzungsflaechenJoinedLayer.GetGeomType(), null);
+        var nutzungsflaechenLayer = ProcessingDataSource.CreateLayer("nutzungsflaechen", tmpLayer.GetSpatialRef(), nutzungsflaechenJoinedLayer.GetGeomType(), null);
         var fieldNameMapping = new Dictionary<string, string>();
         for (var i = 0; i < nutzungsflaechenJoinedLayer.GetLayerDefn().GetFieldCount(); i++)
         {
