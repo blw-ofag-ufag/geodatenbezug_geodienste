@@ -41,7 +41,7 @@ internal static class GdalAssert
     {
         var resultLayerDefn = resultLayer.GetLayerDefn();
         var fieldIndex = resultLayerDefn.GetFieldIndex(fieldName);
-        Assert.AreEqual(resultLayerDefn.GetFieldDefn(fieldIndex).GetFieldType(), expectedFieldType);
+        Assert.AreEqual(expectedFieldType, resultLayerDefn.GetFieldDefn(fieldIndex).GetFieldType());
     }
 
     /// <summary>
@@ -51,8 +51,8 @@ internal static class GdalAssert
     {
         var resultLayerDefn = resultLayer.GetLayerDefn();
         var fieldIndex = resultLayerDefn.GetFieldIndex(fieldName);
-        Assert.AreEqual(resultLayerDefn.GetFieldDefn(fieldIndex).GetFieldType(), expectedFieldType);
-        Assert.AreEqual(resultLayerDefn.GetFieldDefn(fieldIndex).GetSubType(), expectedFieldSubType);
+        Assert.AreEqual(expectedFieldType, resultLayerDefn.GetFieldDefn(fieldIndex).GetFieldType());
+        Assert.AreEqual(expectedFieldSubType, resultLayerDefn.GetFieldDefn(fieldIndex).GetSubType());
     }
 
     /// <summary>
