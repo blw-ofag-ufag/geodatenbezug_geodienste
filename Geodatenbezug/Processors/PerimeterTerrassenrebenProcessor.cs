@@ -12,11 +12,14 @@ public class PerimeterTerrassenrebenProcessor(IGeodiensteApi geodiensteApi, IAzu
     /// <inheritdoc/>
     protected override Task ProcessTopicAsync()
     {
-        var fieldTypeConversions = new Dictionary<string, FieldType>
+        using var bezugsjahrFieldDefinition = new FieldDefn("bezugsjahr", FieldType.OFTDateTime);
+        using var aenderungsdatumFieldDefinition = new FieldDefn("aenderungsdatum", FieldType.OFTDateTime);
+        var fieldTypeConversions = new Dictionary<string, FieldDefn>
         {
-            { "bezugsjahr", FieldType.OFTDateTime },
-            { "aenderungsdatum", FieldType.OFTDateTime },
+            { bezugsjahrFieldDefinition.GetName(), bezugsjahrFieldDefinition },
+            { aenderungsdatumFieldDefinition.GetName(), aenderungsdatumFieldDefinition },
         };
+
         var perimeterTerrassenrebenLayer = CreateGdalLayer("perimeter_terrassenreben", fieldTypeConversions);
         perimeterTerrassenrebenLayer.CopyFeatures();
         perimeterTerrassenrebenLayer.ConvertMultiPartToSinglePartGeometry();

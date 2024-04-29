@@ -1,6 +1,7 @@
 ﻿using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
+using OSGeo.OGR;
 
 namespace Geodatenbezug.Processors;
 
@@ -24,6 +25,8 @@ public class PerimeterLnSfProcessorTest
     [TestInitialize]
     public void Initialize()
     {
+        GdalAssert.Initialize();
+
         loggerMock = new Mock<ILogger<Processor>>(MockBehavior.Strict);
         geodiensteApiMock = new Mock<IGeodiensteApi>(MockBehavior.Strict);
         azureStorageMock = new Mock<IAzureStorage>(MockBehavior.Strict);
@@ -41,5 +44,40 @@ public class PerimeterLnSfProcessorTest
     {
         processor.InputDataPath = "testdata\\lwb_perimeter_ln_sf_v2_0_lv95_NE_202404191123.gpkg";
         await processor.RunGdalProcessingAsync();
+
+        var layerName = "perimeter_ln_sf";
+
+        var inputSource = Ogr.Open(processor.InputDataPath, 0);
+        var inputLayer = inputSource.GetLayerByName(layerName);
+
+        var resultSource = Ogr.Open(processor.InputDataPath.Replace(".gpkg", ".gdb", StringComparison.InvariantCulture), 0);
+        var resultLayer = resultSource.GetLayerByName(layerName);
+
+        var expectedLayerFields = new List<string>
+            {
+                "t_id",
+                "bezugsjahr",
+                "typ",
+                "identifikator",
+                "flaeche_m2",
+                "kanton",
+            };
+        GdalAssert.AssertLayerFields(resultLayer, expectedLayerFields);
+
+        GdalAssert.AssertFieldType(resultLayer, "t_id", FieldType.OFTInteger);
+        GdalAssert.AssertFieldType(resultLayer, "bezugsjahr", FieldType.OFTDateTime);
+
+        GdalAssert.AssertOnlySinglePartGeometries(resultLayer);
+
+        var firstInputFeature = inputLayer.GetNextFeature();
+        resultLayer.ResetReading();
+        var firstResultFeature = resultLayer.GetNextFeature();
+        Assert.AreEqual(firstInputFeature.GetFID(), firstResultFeature.GetFieldAsInteger("t_id"));
+        GdalAssert.AssertDateTime(firstInputFeature, firstResultFeature, "bezugsjahr");
+        Assert.AreEqual(firstInputFeature.GetFieldAsString("typ"), firstResultFeature.GetFieldAsString("typ"));
+        Assert.AreEqual(firstInputFeature.GetFieldAsString("identifikator"), firstResultFeature.GetFieldAsString("identifikator"));
+        Assert.AreEqual(firstInputFeature.GetFieldAsInteger("flaeche_m2"), firstResultFeature.GetFieldAsInteger("flaeche_m2"));
+        Assert.AreEqual(firstInputFeature.GetFieldAsString("kanton"), firstResultFeature.GetFieldAsString("kanton"));
+        GdalAssert.AssertGeometry(firstInputFeature, firstResultFeature);
     }
 }

@@ -44,9 +44,10 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
     /// <inheritdoc/>
     protected async override Task ProcessTopicAsync()
     {
-        var fieldTypeConversions = new Dictionary<string, FieldType>
+        using var bezugsJahrFieldDefinition = new FieldDefn("bezugsjahr", FieldType.OFTDateTime);
+        var fieldTypeConversions = new Dictionary<string, FieldDefn>
         {
-            { "bezugsjahr", FieldType.OFTDateTime },
+            { bezugsJahrFieldDefinition.GetName(), bezugsJahrFieldDefinition },
         };
         var fieldsToDrop = new List<string>
         {
@@ -174,9 +175,9 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         nutzungsartLayer.CreateField(lnfCode, 1);
         lnfCode.Dispose();
 
-        // TODO: Check suptype to type FieldSubType.OFSTBoolean
         var istBffQiName = "ist_bff_qi";
         var istBffQi = new FieldDefn(istBffQiName, FieldType.OFTInteger);
+        istBffQi.SetSubType(FieldSubType.OFSTInt16);
         nutzungsartLayer.CreateField(istBffQi, 1);
         istBffQi.Dispose();
 

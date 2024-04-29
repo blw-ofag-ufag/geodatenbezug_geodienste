@@ -19,7 +19,7 @@ public class GdalLayer
     /// <summary>
     /// Initializes a new instance of the <see cref="GdalLayer"/> class.
     /// </summary>
-    public GdalLayer(Layer inputLayer, Layer processingLayer, Dictionary<string, FieldType> fieldTypeConversions, List<string> fieldsToDrop)
+    public GdalLayer(Layer inputLayer, Layer processingLayer, Dictionary<string, FieldDefn> fieldTypeConversions, List<string> fieldsToDrop)
     {
         this.inputLayer = inputLayer;
         this.processingLayer = processingLayer;
@@ -39,21 +39,18 @@ public class GdalLayer
                 continue;
             }
 
-            FieldDefn newFieldDefinition;
-            if (fieldTypeConversions != null && fieldTypeConversions.TryGetValue(fieldName, out var fieldType))
+            if (fieldTypeConversions != null && fieldTypeConversions.TryGetValue(fieldName, out var fieldDefinition))
             {
-                newFieldDefinition = new FieldDefn(fieldName, fieldType);
+                processingLayer.CreateField(fieldDefinition, 1);
             }
             else
             {
-                newFieldDefinition = new FieldDefn(fieldName, originalFieldDefinition.GetFieldType());
+                var newFieldDefinition = new FieldDefn(fieldName, originalFieldDefinition.GetFieldType());
                 newFieldDefinition.SetWidth(originalFieldDefinition.GetWidth());
                 newFieldDefinition.SetPrecision(originalFieldDefinition.GetPrecision());
+                processingLayer.CreateField(newFieldDefinition, 1);
+                newFieldDefinition.Dispose();
             }
-
-            // TODO: Check approx_ok value
-            processingLayer.CreateField(newFieldDefinition, 1);
-            newFieldDefinition.Dispose();
         }
     }
 

@@ -219,7 +219,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// <summary>
     /// Creates a new GDAL layer for processing.
     /// </summary>
-    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldType>? fieldTypeConversions)
+    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldDefn>? fieldTypeConversions)
     {
 #pragma warning disable SA1010 // Opening square brackets should be spaced correctly
         return CreateGdalLayer(layerName, fieldTypeConversions, []);
@@ -229,7 +229,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// <summary>
     /// Creates a new GDAL layer for processing.
     /// </summary>
-    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldType>? fieldTypeConversions, List<string> fieldsToDrop)
+    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldDefn>? fieldTypeConversions, List<string> fieldsToDrop)
     {
         var inputLayer = InputDataSource.GetLayerByName(layerName);
 
