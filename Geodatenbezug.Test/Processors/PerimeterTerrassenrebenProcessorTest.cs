@@ -43,6 +43,8 @@ public class PerimeterTerrassenrebenProcessorTest
     [TestMethod]
     public async Task RunGdalProcessingAsync()
     {
+        loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung von Thema {topic.TopicTitle} ({topic.Canton})...");
+
         processor.InputDataPath = "testdata\\lwb_perimeter_terrassenreben_v2_0_lv95_NE_202404191123.gpkg";
         await processor.RunGdalProcessingAsync();
 
