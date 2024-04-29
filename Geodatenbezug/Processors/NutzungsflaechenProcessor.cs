@@ -14,6 +14,15 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
     private const string CatalogUrl = "https://models.geo.admin.ch/BLW/LWB_Nutzungsflaechen_Kataloge_V2_0.xml";
     private string bewirtschaftungseinheitDataPath = string.Empty;
 
+    /// <summary>
+    /// The path to the data of the topic "Bewirtschaftungseinheit".
+    /// </summary>
+    protected internal string BewirtschaftungseinheitDataPath
+    {
+        get { return bewirtschaftungseinheitDataPath; }
+        set { bewirtschaftungseinheitDataPath = value; }
+    }
+
     /// <inheritdoc />
     protected internal override async Task PrepareDataAsync()
     {
@@ -110,6 +119,11 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             fieldNameMapping[fieldName] = originalFieldName;
 
             var newFieldDefinition = new FieldDefn(fieldName, fieldDefn.GetFieldType());
+            if (fieldDefn.GetSubType() != FieldSubType.OFSTNone)
+            {
+                newFieldDefinition.SetSubType(fieldDefn.GetSubType());
+            }
+
             newFieldDefinition.SetWidth(fieldDefn.GetWidth());
             newFieldDefinition.SetPrecision(fieldDefn.GetPrecision());
             nutzungsflaechenLayer.CreateField(newFieldDefinition, 1);
