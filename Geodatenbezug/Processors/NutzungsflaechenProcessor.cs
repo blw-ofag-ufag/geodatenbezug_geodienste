@@ -106,9 +106,9 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
                 fieldName = originalFieldName.Replace($"{NutzungsflaechenLayerName}_", string.Empty, StringComparison.CurrentCulture);
             }
 
-            if (originalFieldName.Contains(NutzungsartLayerName, StringComparison.CurrentCulture))
+            if (originalFieldName.Contains(NutzungsartLayerName, StringComparison.InvariantCulture))
             {
-                fieldName = originalFieldName.Replace($"{NutzungsartLayerName}_", string.Empty, StringComparison.CurrentCulture);
+                fieldName = originalFieldName.Replace($"{NutzungsartLayerName}_", string.Empty, StringComparison.InvariantCulture);
             }
 
             if (originalFieldName == $"{BewirtschaftungseinheitLayerName}_betriebsnummer")
