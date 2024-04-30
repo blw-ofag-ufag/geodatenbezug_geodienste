@@ -91,25 +91,25 @@ public class NutzungsflaechenProcessorTest
         var resultLayer = resultSource.GetLayerByName(layerName);
 
         var expectedLayerFields = new List<string>
-            {
-                "t_id",
-                "bezugsjahr",
-                "lnf_code",
-                "code_programm",
-                "programm",
-                "nutzungsidentifikator",
-                "bewirtschaftungsgrad",
-                "flaeche_m2",
-                "kanton",
-                "ist_bff_qi",
-                "hauptkategorie_de",
-                "hauptkategorie_fr",
-                "hauptkategorie_it",
-                "nutzung_de",
-                "nutzung_fr",
-                "nutzung_it",
-                "bewe_betriebsnummer",
-            };
+        {
+            "t_id",
+            "bezugsjahr",
+            "lnf_code",
+            "code_programm",
+            "programm",
+            "nutzungsidentifikator",
+            "bewirtschaftungsgrad",
+            "flaeche_m2",
+            "kanton",
+            "ist_bff_qi",
+            "hauptkategorie_de",
+            "hauptkategorie_fr",
+            "hauptkategorie_it",
+            "nutzung_de",
+            "nutzung_fr",
+            "nutzung_it",
+            "bewe_betriebsnummer",
+        };
         GdalAssert.AssertLayerFields(resultLayer, expectedLayerFields);
 
         GdalAssert.AssertFieldType(resultLayer, "t_id", FieldType.OFTInteger);
