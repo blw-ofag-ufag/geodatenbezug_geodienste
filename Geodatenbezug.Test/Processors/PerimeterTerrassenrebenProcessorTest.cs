@@ -1,5 +1,4 @@
 ﻿using Geodatenbezug.Models;
-using MaxRev.Gdal.Core;
 using Microsoft.Extensions.Logging;
 using Moq;
 using OSGeo.OGR;
