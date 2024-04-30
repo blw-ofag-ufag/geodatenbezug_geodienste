@@ -39,11 +39,10 @@ public static class LayerExtensions
             {
                 for (var j = 0; j < geometry.GetGeometryCount(); j++)
                 {
-                    var newFeature = feature.Clone();
+                    using var newFeature = feature.Clone();
                     newFeature.SetFID(-1);
                     newFeature.SetGeometry(geometry.GetGeometryRef(j));
                     layer.CreateFeature(newFeature);
-                    newFeature.Dispose();
                 }
 
                 layer.DeleteFeature(feature.GetFID());
