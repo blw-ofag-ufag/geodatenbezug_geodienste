@@ -20,38 +20,20 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// </summary>
     protected string DataDirectory => dataDirectory;
 
-    private string inputDataPath = string.Empty;
-
     /// <summary>
     /// The input data for processing.
     /// </summary>
-    protected internal string InputDataPath
-    {
-        get { return inputDataPath; }
-        set { inputDataPath = value; }
-    }
-
-    private DataSource? inputDataSource;
+    protected internal string InputDataPath { get; set; } = string.Empty;
 
     /// <summary>
     /// The <see cref="DataSource"/> for the input data.
     /// </summary>
-    protected DataSource? InputDataSource
-    {
-        get { return inputDataSource; }
-        set { inputDataSource = value; }
-    }
-
-    private DataSource? processingDataSource;
+    protected DataSource? InputDataSource { get; set; }
 
     /// <summary>
     /// The <see cref="DataSource"/> for the processed data.
     /// </summary>
-    protected DataSource? ProcessingDataSource
-    {
-        get { return processingDataSource; }
-        set { processingDataSource = value; }
-    }
+    protected DataSource? ProcessingDataSource { get; set; }
 
     /// <summary>
     /// The geodienste.ch API.
@@ -107,7 +89,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         {
             if (processingResult.Code == HttpStatusCode.Processing)
             {
-                logger.LogError(ex, $"Fehler beim Verarbeiten des Themas {topic.TopicTitle} ({topic.Canton})");
+                logger.LogError(ex, $"Fehler beim Verarbeiten des Themas {topic.TopicTitle} ({topic.Canton}): {ex.Message}");
 
                 processingResult.Code = HttpStatusCode.InternalServerError;
                 processingResult.Reason = ex.Message;
@@ -215,7 +197,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         var openFileGdbDriver = Ogr.GetDriverByName("OpenFileGDB");
         ProcessingDataSource = openFileGdbDriver.CreateDataSource(processedFilePath, null);
 
-        await ProcessTopic().ConfigureAwait(false);
+        await ProcessTopicAsync().ConfigureAwait(false);
 
         InputDataSource.Dispose();
         ProcessingDataSource.Dispose();
@@ -232,7 +214,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// <summary>
     /// Creates a new GDAL layer for processing.
     /// </summary>
-    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldDefn>? fieldTypeConversions, string[] fieldsToDrop)
+    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldDefn>? fieldTypeConversions, List<string> fieldsToDrop)
     {
         var inputLayer = InputDataSource.GetLayerByName(layerName);
 
@@ -248,5 +230,5 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// <summary>
     /// Performs the actual processing of the topic.
     /// </summary>
-    protected abstract Task ProcessTopic();
+    protected abstract Task ProcessTopicAsync();
 }

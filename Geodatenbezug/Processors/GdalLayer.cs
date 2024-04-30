@@ -21,7 +21,7 @@ public class GdalLayer
     /// <summary>
     /// Initializes a new instance of the <see cref="GdalLayer"/> class.
     /// </summary>
-    public GdalLayer(Layer inputLayer, Layer processingLayer, Dictionary<string, FieldDefn> fieldTypeConversions, string[] fieldsToDrop)
+    public GdalLayer(Layer inputLayer, Layer processingLayer, Dictionary<string, FieldDefn> fieldTypeConversions, List<string> fieldsToDrop)
     {
         this.inputLayer = inputLayer;
         this.processingLayer = processingLayer;
@@ -119,16 +119,7 @@ public class GdalLayer
     /// </summary>
     public void FilterLnfCodes()
     {
-        processingLayer.ResetReading();
-        for (var i = 0; i < processingLayer.GetFeatureCount(1); i++)
-        {
-            var feature = processingLayer.GetNextFeature();
-            var lnfCode = feature.GetFieldAsInteger("lnf_code");
-            if ((lnfCode >= 921 && lnfCode <= 928) || lnfCode == 950 || lnfCode == 951)
-            {
-                processingLayer.DeleteFeature(feature.GetFID());
-            }
-        }
+        processingLayer.FilterLnfCodes();
     }
 
     /// <summary>
@@ -136,24 +127,6 @@ public class GdalLayer
     /// </summary>
     public void ConvertMultiPartToSinglePartGeometry()
     {
-        processingLayer.ResetReading();
-        for (var i = 0; i < processingLayer.GetFeatureCount(1); i++)
-        {
-            var feature = processingLayer.GetNextFeature();
-            var geometry = feature.GetGeometryRef();
-
-            if (geometry.GetGeometryCount() > 1)
-            {
-                for (var j = 0; j < geometry.GetGeometryCount(); j++)
-                {
-                    using var newFeature = feature.Clone();
-                    newFeature.SetFID(-1);
-                    newFeature.SetGeometry(geometry.GetGeometryRef(j));
-                    processingLayer.CreateFeature(newFeature);
-                }
-
-                processingLayer.DeleteFeature(feature.GetFID());
-            }
-        }
+        processingLayer.ConvertMultiPartToSinglePartGeometry();
     }
 }

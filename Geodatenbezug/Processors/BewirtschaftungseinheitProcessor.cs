@@ -10,7 +10,7 @@ namespace Geodatenbezug.Processors;
 public class BewirtschaftungseinheitProcessor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage, ILogger logger, Topic topic) : TopicProcessor(geodiensteApi, azureStorage, logger, topic)
 {
     /// <inheritdoc/>
-    protected override Task ProcessTopic()
+    protected override Task ProcessTopicAsync()
     {
         using var bezugsjahrFieldDefinition = new FieldDefn("bezugsjahr", FieldType.OFTDateTime);
         var fieldTypeConversions = new Dictionary<string, FieldDefn>
