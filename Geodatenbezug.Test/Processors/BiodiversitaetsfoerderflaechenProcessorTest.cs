@@ -55,23 +55,23 @@ public class BiodiversitaetsfoerderflaechenProcessorTest
         var qualitaetResultLayer = resultSource.GetLayerByName(qualitaetLayerName);
 
         var expectedQualitaetLayerFields = new List<string>
-            {
-                "t_id",
-                "bezugsjahr",
-                "anzahl_baeume",
-                "ist_definitiv",
-                "verpflichtung_von",
-                "verpflichtung_bis",
-                "schnittzeitpunkt",
-                "bewirtschaftungsgrad",
-                "beitragsberechtigt",
-                "nhg",
-                "qualitaetsanteil",
-                "lnf_code",
-                "identifikator",
-                "flaeche_m2",
-                "kanton",
-            };
+        {
+            "t_id",
+            "bezugsjahr",
+            "anzahl_baeume",
+            "ist_definitiv",
+            "verpflichtung_von",
+            "verpflichtung_bis",
+            "schnittzeitpunkt",
+            "bewirtschaftungsgrad",
+            "beitragsberechtigt",
+            "nhg",
+            "qualitaetsanteil",
+            "lnf_code",
+            "identifikator",
+            "flaeche_m2",
+            "kanton",
+        };
         GdalAssert.AssertLayerFields(qualitaetResultLayer, expectedQualitaetLayerFields);
 
         GdalAssert.AssertFieldType(qualitaetResultLayer, "t_id", FieldType.OFTInteger);
@@ -111,20 +111,20 @@ public class BiodiversitaetsfoerderflaechenProcessorTest
         var vernetzungResultLayer = resultSource.GetLayerByName(vernetzungLayerName);
 
         var expectedVernetzungLayerFields = new List<string>
-            {
-                "t_id",
-                "bezugsjahr",
-                "anzahl_baeume",
-                "ist_definitiv",
-                "verpflichtung_von",
-                "verpflichtung_bis",
-                "schnittzeitpunkt",
-                "beitragsberechtigt",
-                "lnf_code",
-                "identifikator",
-                "flaeche_m2",
-                "kanton",
-            };
+        {
+            "t_id",
+            "bezugsjahr",
+            "anzahl_baeume",
+            "ist_definitiv",
+            "verpflichtung_von",
+            "verpflichtung_bis",
+            "schnittzeitpunkt",
+            "beitragsberechtigt",
+            "lnf_code",
+            "identifikator",
+            "flaeche_m2",
+            "kanton",
+        };
         GdalAssert.AssertLayerFields(vernetzungResultLayer, expectedVernetzungLayerFields);
 
         GdalAssert.AssertFieldType(vernetzungResultLayer, "t_id", FieldType.OFTInteger);

@@ -55,14 +55,14 @@ public class BewirtschaftungseinheitProcessorTest
         var betriebResultLayer = resultSource.GetLayerByName(betriebLayerName);
 
         var expectedBetriebLayerFields = new List<string>
-            {
-                "t_id",
-                "bezugsjahr",
-                "betriebsnummer",
-                "betriebsname",
-                "bur_nr",
-                "kanton",
-            };
+        {
+            "t_id",
+            "bezugsjahr",
+            "betriebsnummer",
+            "betriebsname",
+            "bur_nr",
+            "kanton",
+        };
         GdalAssert.AssertLayerFields(betriebResultLayer, expectedBetriebLayerFields);
 
         GdalAssert.AssertFieldType(betriebResultLayer, "t_id", FieldType.OFTInteger);
@@ -86,18 +86,18 @@ public class BewirtschaftungseinheitProcessorTest
         var bewirtschaftungseinheitResultLayer = resultSource.GetLayerByName(bewirtschaftungseinheitLayerName);
 
         var expectedBewirtschaftungseinheitLayerFields = new List<string>
-            {
-                "t_id",
-                "bezugsjahr",
-                "ist_definitiv",
-                "betriebsnummer",
-                "ps_nr",
-                "bur_nr",
-                "gemeinde",
-                "zone_ausland",
-                "flaeche_m2",
-                "kanton",
-            };
+        {
+            "t_id",
+            "bezugsjahr",
+            "ist_definitiv",
+            "betriebsnummer",
+            "ps_nr",
+            "bur_nr",
+            "gemeinde",
+            "zone_ausland",
+            "flaeche_m2",
+            "kanton",
+        };
         GdalAssert.AssertLayerFields(bewirtschaftungseinheitResultLayer, expectedBewirtschaftungseinheitLayerFields);
 
         GdalAssert.AssertFieldType(bewirtschaftungseinheitResultLayer, "t_id", FieldType.OFTInteger);
@@ -126,15 +126,15 @@ public class BewirtschaftungseinheitProcessorTest
         var produktionsstaetteResultLayer = resultSource.GetLayerByName(produktionsstaetteLayerName);
 
         var expectedProduktionsstaetteLayerFields = new List<string>
-            {
-                "t_id",
-                "bezugsjahr",
-                "ps_nr",
-                "ps_name",
-                "betriebsnummer",
-                "bur_nr",
-                "kanton",
-            };
+        {
+            "t_id",
+            "bezugsjahr",
+            "ps_nr",
+            "ps_name",
+            "betriebsnummer",
+            "bur_nr",
+            "kanton",
+        };
         GdalAssert.AssertLayerFields(produktionsstaetteResultLayer, expectedProduktionsstaetteLayerFields);
 
         GdalAssert.AssertFieldType(produktionsstaetteResultLayer, "t_id", FieldType.OFTInteger);

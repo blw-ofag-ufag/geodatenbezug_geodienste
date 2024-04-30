@@ -56,14 +56,14 @@ public class PerimeterLnSfProcessorTest
         var resultLayer = resultSource.GetLayerByName(layerName);
 
         var expectedLayerFields = new List<string>
-            {
-                "t_id",
-                "bezugsjahr",
-                "typ",
-                "identifikator",
-                "flaeche_m2",
-                "kanton",
-            };
+        {
+            "t_id",
+            "bezugsjahr",
+            "typ",
+            "identifikator",
+            "flaeche_m2",
+            "kanton",
+        };
         GdalAssert.AssertLayerFields(resultLayer, expectedLayerFields);
 
         GdalAssert.AssertFieldType(resultLayer, "t_id", FieldType.OFTInteger);
