@@ -8,6 +8,8 @@ namespace Geodatenbezug.Processors;
 /// </summary>
 public class GdalLayer
 {
+    private const string TIdFieldName = "t_id";
+
     private readonly Layer inputLayer;
     private readonly Layer processingLayer;
 
@@ -26,14 +28,14 @@ public class GdalLayer
 
         var inputLayerDefinition = inputLayer.GetLayerDefn();
 
-        using var tIdFieldDefinition = new FieldDefn("t_id", FieldType.OFTInteger);
+        using var tIdFieldDefinition = new FieldDefn(TIdFieldName, FieldType.OFTInteger);
         processingLayer.CreateField(tIdFieldDefinition, 1);
 
         for (var i = 0; i < inputLayerDefinition.GetFieldCount(); i++)
         {
             var originalFieldDefinition = inputLayerDefinition.GetFieldDefn(i);
             var fieldName = originalFieldDefinition.GetName();
-            if (fieldName == "t_id" || fieldsToDrop.Contains(fieldName))
+            if (fieldName == TIdFieldName || fieldsToDrop.Contains(fieldName))
             {
                 continue;
             }
@@ -72,7 +74,7 @@ public class GdalLayer
                 var fieldName = processingFieldDefinition.GetName();
                 var fieldType = processingFieldDefinition.GetFieldType();
 
-                if (fieldName == "t_id")
+                if (fieldName == TIdFieldName)
                 {
                     newFeature.SetField(fieldName, inputFeature.GetFID());
                     continue;
