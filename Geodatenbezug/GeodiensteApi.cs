@@ -2,7 +2,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 using Polly;
@@ -155,8 +154,10 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
         return downloadedFilePath;
     }
 
-    /// <inheritdoc />
-    public virtual string GetToken(BaseTopic baseTopic, Canton canton)
+    /// <summary>
+    /// Gets the token for the given topic and canton from the environment variables.
+    /// </summary>
+    protected internal virtual string GetToken(BaseTopic baseTopic, Canton canton)
     {
         var topicTokens = Environment.GetEnvironmentVariable("tokens_" + baseTopic.ToString());
         if (string.IsNullOrEmpty(topicTokens))

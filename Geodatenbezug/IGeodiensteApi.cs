@@ -23,11 +23,6 @@ public interface IGeodiensteApi
     Task<HttpResponseMessage> CheckExportStatusAsync(Topic topic);
 
     /// <summary>
-    /// Gets the token for the given topic and canton from the environment variables.
-    /// </summary>
-    public string GetToken(BaseTopic baseTopic, Canton canton);
-
-    /// <summary>
     /// Downloads the export from geodienste.ch to the specified destination.
     /// </summary>
     Task<string> DownloadExportAsync(string downloadUrl, string destinationPath);
