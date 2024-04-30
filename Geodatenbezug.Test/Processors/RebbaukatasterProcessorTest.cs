@@ -26,8 +26,6 @@ public class RebbaukatasterProcessorTest
     [TestInitialize]
     public void Initialize()
     {
-        GdalAssert.Initialize();
-
         loggerMock = new Mock<ILogger<Processor>>(MockBehavior.Strict);
         geodiensteApiMock = new Mock<IGeodiensteApi>(MockBehavior.Strict);
         azureStorageMock = new Mock<IAzureStorage>(MockBehavior.Strict);
@@ -57,13 +55,13 @@ public class RebbaukatasterProcessorTest
         var resultLayer = resultSource.GetLayerByName(layerName);
 
         var expectedLayerFields = new List<string>
-            {
-                "t_id",
-                "identifikator",
-                "aenderungsdatum",
-                "flaeche_m2",
-                "kanton",
-            };
+        {
+            "t_id",
+            "identifikator",
+            "aenderungsdatum",
+            "flaeche_m2",
+            "kanton",
+        };
         GdalAssert.AssertLayerFields(resultLayer, expectedLayerFields);
 
         GdalAssert.AssertFieldType(resultLayer, "t_id", FieldType.OFTInteger);

@@ -29,9 +29,7 @@ public class BewirtschaftungseinheitProcessor(IGeodiensteApi geodiensteApi, IAzu
         using var isDefinitivFieldDefinition = new FieldDefn("ist_definitiv", FieldType.OFTInteger);
         isDefinitivFieldDefinition.SetSubType(FieldSubType.OFSTInt16);
         fieldTypeConversions.Add(isDefinitivFieldDefinition.GetName(), isDefinitivFieldDefinition);
-#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
         var bewirtschaftungseinheitLayer = CreateGdalLayer("bewirtschaftungseinheit", fieldTypeConversions, ["identifikator_be"]);
-#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
         bewirtschaftungseinheitLayer.CopyFeatures();
         bewirtschaftungseinheitLayer.ConvertMultiPartToSinglePartGeometry();
 

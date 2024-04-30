@@ -41,9 +41,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
         catch (HttpRequestException ex)
         {
             logger.LogError($"Fehler beim Abrufen der Themeninformationen von geodienste.ch: {ex.Message}");
-#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
             return [];
-#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
         }
     }
 

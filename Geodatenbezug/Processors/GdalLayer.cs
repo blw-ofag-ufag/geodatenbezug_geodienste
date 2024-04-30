@@ -8,6 +8,8 @@ namespace Geodatenbezug.Processors;
 /// </summary>
 public class GdalLayer
 {
+    private const string TIdFieldName = "t_id";
+
     private readonly Layer inputLayer;
     private readonly Layer processingLayer;
 
@@ -26,15 +28,14 @@ public class GdalLayer
 
         var inputLayerDefinition = inputLayer.GetLayerDefn();
 
-        var tIdFieldDefinition = new FieldDefn("t_id", FieldType.OFTInteger);
+        using var tIdFieldDefinition = new FieldDefn(TIdFieldName, FieldType.OFTInteger);
         processingLayer.CreateField(tIdFieldDefinition, 1);
-        tIdFieldDefinition.Dispose();
 
         for (var i = 0; i < inputLayerDefinition.GetFieldCount(); i++)
         {
             var originalFieldDefinition = inputLayerDefinition.GetFieldDefn(i);
             var fieldName = originalFieldDefinition.GetName();
-            if (fieldName == "t_id" || fieldsToDrop.Contains(fieldName))
+            if (fieldName == TIdFieldName || fieldsToDrop.Contains(fieldName))
             {
                 continue;
             }
@@ -45,11 +46,10 @@ public class GdalLayer
             }
             else
             {
-                var newFieldDefinition = new FieldDefn(fieldName, originalFieldDefinition.GetFieldType());
+                using var newFieldDefinition = new FieldDefn(fieldName, originalFieldDefinition.GetFieldType());
                 newFieldDefinition.SetWidth(originalFieldDefinition.GetWidth());
                 newFieldDefinition.SetPrecision(originalFieldDefinition.GetPrecision());
                 processingLayer.CreateField(newFieldDefinition, 1);
-                newFieldDefinition.Dispose();
             }
         }
     }
@@ -64,7 +64,7 @@ public class GdalLayer
         {
             var inputFeature = inputLayer.GetNextFeature();
             var processingLayerDefinition = processingLayer.GetLayerDefn();
-            var newFeature = new Feature(processingLayerDefinition);
+            using var newFeature = new Feature(processingLayerDefinition);
             newFeature.SetGeometry(inputFeature.GetGeometryRef());
 
             for (var j = 0; j < processingLayerDefinition.GetFieldCount(); j++)
@@ -74,7 +74,7 @@ public class GdalLayer
                 var fieldName = processingFieldDefinition.GetName();
                 var fieldType = processingFieldDefinition.GetFieldType();
 
-                if (fieldName == "t_id")
+                if (fieldName == TIdFieldName)
                 {
                     newFeature.SetField(fieldName, inputFeature.GetFID());
                     continue;
@@ -95,11 +95,14 @@ public class GdalLayer
                 }
                 else if (fieldType == FieldType.OFTDateTime)
                 {
-                    var dateTimeValues = inputFeature.GetFieldAsString(fieldName).Split("-");
-                    var year = int.Parse(dateTimeValues[0], CultureInfo.InvariantCulture);
-                    var month = dateTimeValues.Length > 1 ? int.Parse(dateTimeValues[1], CultureInfo.InvariantCulture) : 1;
-                    var day = dateTimeValues.Length > 2 ? int.Parse(dateTimeValues[2], CultureInfo.InvariantCulture) : 1;
-                    newFeature.SetField(fieldName, year, month, day, 0, 0, 0, 0);
+                    var inputValue = inputFeature.GetFieldAsString(fieldName);
+                    if (!DateTime.TryParse(inputValue, out var inputDate))
+                    {
+                        var inputYear = int.Parse(inputValue, CultureInfo.InvariantCulture);
+                        inputDate = new DateTime(inputYear, 1, 1);
+                    }
+
+                    newFeature.SetField(fieldName, inputDate.Year, inputDate.Month, inputDate.Day, 0, 0, 0, 0);
                 }
                 else
                 {
@@ -108,7 +111,6 @@ public class GdalLayer
             }
 
             processingLayer.CreateFeature(newFeature);
-            newFeature.Dispose();
         }
     }
 

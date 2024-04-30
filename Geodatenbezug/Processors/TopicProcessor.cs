@@ -100,6 +100,8 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             processingResult.Code = HttpStatusCode.OK;
             processingResult.Reason = "Success";
             processingResult.Info = "Data processed successfully";
+
+            logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) erfolgreich verarbeitet. DownloadUrl: {processingResult.DownloadUrl}");
         }
         catch (Exception ex)
         {
@@ -200,6 +202,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         InputDataSource = Ogr.Open(InputDataPath, 1);
         if (InputDataSource == null)
         {
+            logger.LogError($"Fehler beim Öffnen des Eingabedatensatzes {InputDataPath}");
             throw new InvalidOperationException("Could not open input datasource.");
         }
 
@@ -223,9 +226,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// </summary>
     public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldDefn>? fieldTypeConversions)
     {
-#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
         return CreateGdalLayer(layerName, fieldTypeConversions, []);
-#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
     }
 
     /// <summary>
@@ -238,10 +239,8 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         // Workaround https://github.com/blw-ofag-ufag/geodatenbezug_geodienste/issues/45
         var geometryType = inputLayer.GetNextFeature().GetGeometryRef().GetGeometryType();
 
-#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
         var processingLayer = ProcessingDataSource.CreateLayer(layerName, inputLayer.GetSpatialRef(), geometryType, []);
         fieldTypeConversions ??= [];
-#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
 
         return new GdalLayer(inputLayer, processingLayer, fieldTypeConversions, fieldsToDrop);
     }
