@@ -36,27 +36,40 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
                 results.Add(result);
             }
         }
+
+        await context.CallActivityAsync(nameof(SendNotification), results).ConfigureAwait(true);
     }
 
     /// <summary>
     /// Durable function to retrieve the topics to process.
     /// </summary>
     /// <param name="param">An unused parameter that is required by the azure function.</param>
-    /// <returns>A JSON string with the <see cref="Topic"/>s to process.</returns>
+    /// <returns>A list with the <see cref="Topic"/>s to process.</returns>
     [Function(nameof(RetrieveTopics))]
     public async Task<List<Topic>?> RetrieveTopics([ActivityTrigger] string param)
     {
-        logger.LogInformation("Laden der Themen...");
         return await processing.GetTopicsToProcess().ConfigureAwait(false);
     }
 
     /// <summary>
     /// Durable function to process a single topic.
     /// </summary>
+    /// <param name="topic">The <see cref="Topic"/> to be processed.</param>
+    /// <returns>The <see cref="ProcessingResult"/>.</returns>
     [Function(nameof(ProcessTopic))]
     public async Task<ProcessingResult?> ProcessTopic([ActivityTrigger] Topic topic)
     {
         return await processing.ProcessTopic(topic).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Durable function to send a notification with the processing results.
+    /// </summary>
+    /// <param name="results">A list with the <see cref="ProcessingResult"/>s.</param>
+    [Function(nameof(SendNotification))]
+    public void SendNotification([ActivityTrigger] List<ProcessingResult> results)
+    {
+        processing.SendEmail(results);
     }
 
     /// <summary>
