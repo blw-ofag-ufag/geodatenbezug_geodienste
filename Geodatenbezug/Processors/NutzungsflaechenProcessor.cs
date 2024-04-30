@@ -1,4 +1,4 @@
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Serialization;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -231,12 +231,12 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             using var feature = new Feature(nutzungsartLayer.GetLayerDefn());
             feature.SetField(lnfCodeName, entry.LnfCode);
             feature.SetField(istBffQiName, entry.IstBFFQI ? 1 : 0);
-            feature.SetField(hauptkategorieDeName, entry.Hauptkategorie.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.FirstOrDefault(t => t.Language == "de").Text);
-            feature.SetField(hauptkategorieFrName, entry.Hauptkategorie.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.FirstOrDefault(t => t.Language == "fr").Text);
-            feature.SetField(hauptkategorieItName, entry.Hauptkategorie.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.FirstOrDefault(t => t.Language == "it").Text);
-            feature.SetField(nutzungDeName, entry.Nutzung.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.FirstOrDefault(t => t.Language == "de").Text);
-            feature.SetField(nutzungFrName, entry.Nutzung.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.FirstOrDefault(t => t.Language == "fr").Text);
-            feature.SetField(nutzungItName, entry.Nutzung.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.FirstOrDefault(t => t.Language == "it").Text);
+            feature.SetField(hauptkategorieDeName, entry.Hauptkategorie.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.Single(t => t.Language == "de").Text);
+            feature.SetField(hauptkategorieFrName, entry.Hauptkategorie.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.Single(t => t.Language == "fr").Text);
+            feature.SetField(hauptkategorieItName, entry.Hauptkategorie.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.Single(t => t.Language == "it").Text);
+            feature.SetField(nutzungDeName, entry.Nutzung.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.Single(t => t.Language == "de").Text);
+            feature.SetField(nutzungFrName, entry.Nutzung.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.Single(t => t.Language == "fr").Text);
+            feature.SetField(nutzungItName, entry.Nutzung.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.Single(t => t.Language == "it").Text);
             nutzungsartLayer.CreateFeature(feature);
         });
     }
