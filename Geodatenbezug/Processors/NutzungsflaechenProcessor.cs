@@ -53,6 +53,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
     /// <inheritdoc/>
     protected async override Task ProcessTopicAsync()
     {
+        // Load the input data and apply first processing steps to reduce the data
         using var bezugsJahrFieldDefinition = new FieldDefn("bezugsjahr", FieldType.OFTDateTime);
         var fieldTypeConversions = new Dictionary<string, FieldDefn>
         {
@@ -76,8 +77,10 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         nutzungsflaechenTempLayer.CopyFeatures();
         nutzungsflaechenTempLayer.FilterLnfCodes();
 
+        // Create a temporary layer with data from the nutzungsart catalog
         await CreateNutzungsartLayerAsync().ConfigureAwait(false);
 
+        // Join the nutzungsflaechen layer with the nutzungsart layer and the bewirtschaftungseinheit layer, then add the new joined layer to the processing data source
         var joinQuery = @$"
             SELECT {NutzungsflaechenLayerName}.*, {NutzungsartLayerName}.*, {BewirtschaftungseinheitLayerName}.betriebsnummer
             FROM {NutzungsflaechenLayerName}
@@ -86,8 +89,10 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         var tmpLayer = ProcessingDataSource.ExecuteSQL(joinQuery, null, "OGRSQL");
         ProcessingDataSource.CopyLayer(tmpLayer, NutzungsflaechenJoinedLayerName, null);
 
+        // Delete the initial nutzungsflaechen layer because we want to create a new one with the joined data
         ProcessingDataSource.DeleteLayer(0);
 
+        // Create a new nutzungsflaechen layer with the desired fields
         var nutzungsflaechenJoinedLayer = ProcessingDataSource.GetLayerByName(NutzungsflaechenJoinedLayerName);
         var nutzungsflaechenLayer = ProcessingDataSource.CreateLayer(NutzungsflaechenLayerName, tmpLayer.GetSpatialRef(), nutzungsflaechenJoinedLayer.GetGeomType(), null);
         var fieldNameMapping = new Dictionary<string, string>();
@@ -96,11 +101,14 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             var fieldDefn = nutzungsflaechenJoinedLayer.GetLayerDefn().GetFieldDefn(i);
             var originalFieldName = fieldDefn.GetName();
             string fieldName = originalFieldName;
+
+            // Drop the fields that where only needed for the join
             if (originalFieldName == $"{NutzungsartLayerName}_lnf_code" || originalFieldName == $"{NutzungsflaechenLayerName}_identifikator_be")
             {
                 continue;
             }
 
+            // Rename the fields to remove the layer name prefix
             if (originalFieldName.Contains(NutzungsflaechenLayerName, StringComparison.CurrentCulture))
             {
                 fieldName = originalFieldName.Replace($"{NutzungsflaechenLayerName}_", string.Empty, StringComparison.CurrentCulture);
@@ -118,6 +126,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
 
             fieldNameMapping[fieldName] = originalFieldName;
 
+            // Booleans are represented as an Int16 FieldSubTypes, so we have to apply the subtype to the field definition if it's available
             using var newFieldDefinition = new FieldDefn(fieldName, fieldDefn.GetFieldType());
             if (fieldDefn.GetSubType() != FieldSubType.OFSTNone)
             {
@@ -129,6 +138,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             nutzungsflaechenLayer.CreateField(newFieldDefinition, 1);
         }
 
+        // Copy the features from the joined layer to the new nutzungsflaechen layer
         nutzungsflaechenJoinedLayer.ResetReading();
         for (var i = 0; i < nutzungsflaechenJoinedLayer.GetFeatureCount(1); i++)
         {
@@ -172,6 +182,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
 
         nutzungsflaechenLayer.ConvertMultiPartToSinglePartGeometry();
 
+        // Delete the temporary work layers
         ProcessingDataSource.ExecuteSQL($"DROP TABLE {NutzungsflaechenJoinedLayerName}", null, "OGRSQL");
         ProcessingDataSource.ExecuteSQL($"DROP TABLE {NutzungsartLayerName}", null, "OGRSQL");
     }
@@ -232,6 +243,8 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
 
     private async Task<List<LnfKatalogNutzungsart>> GetLnfKatalogNutzungsartAsync()
     {
+        Logger.LogInformation($"Lade Nutzungsart-Katalog  von {CatalogUrl}...");
+
         using var httpClient = new HttpClient();
         var xmlData = await httpClient.GetStringAsync(CatalogUrl).ConfigureAwait(false);
 

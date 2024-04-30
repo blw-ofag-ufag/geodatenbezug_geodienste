@@ -74,6 +74,7 @@ public class NutzungsflaechenProcessorTest
     public async Task RunGdalProcessingAsync()
     {
         loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung von Thema {topic.TopicTitle} ({topic.Canton})...");
+        loggerMock.Setup(LogLevel.Information, $"Lade Nutzungsart-Katalog  von https://models.geo.admin.ch/BLW/LWB_Nutzungsflaechen_Kataloge_V2_0.xml...");
 
         processor.InputDataPath = "testdata\\lwb_nutzungsflaechen_v2_0_lv95_NE_202404191123.gpkg";
         processor.BewirtschaftungseinheitDataPath = "testdata\\lwb_bewirtschaftungseinheit_v2_0_lv95_NE_202404191123.gpkg";
