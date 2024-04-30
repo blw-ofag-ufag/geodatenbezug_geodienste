@@ -4,6 +4,7 @@ using System.Net;
 using System.Text.Json;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
+using OSGeo.OGR;
 
 namespace Geodatenbezug.Processors;
 
@@ -24,10 +25,32 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// <summary>
     /// The input data for processing.
     /// </summary>
-    protected string InputDataPath
+    protected internal string InputDataPath
     {
         get { return inputDataPath; }
         set { inputDataPath = value; }
+    }
+
+    private DataSource? inputDataSource;
+
+    /// <summary>
+    /// The <see cref="DataSource"/> for the input data.
+    /// </summary>
+    protected DataSource? InputDataSource
+    {
+        get { return inputDataSource; }
+        set { inputDataSource = value; }
+    }
+
+    private DataSource? processingDataSource;
+
+    /// <summary>
+    /// The <see cref="DataSource"/> for the processed data.
+    /// </summary>
+    protected DataSource? ProcessingDataSource
+    {
+        get { return processingDataSource; }
+        set { processingDataSource = value; }
     }
 
     /// <summary>
@@ -66,7 +89,8 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
 
             await PrepareDataAsync().ConfigureAwait(false);
 
-            // TODO: Process data.
+            await RunGdalProcessingAsync().ConfigureAwait(false);
+
             var zipFileName = $"{Path.GetFileName(dataDirectory)}_{Topic.Canton}_{DateTime.Now.ToString("yyyyMMddHHmm", new CultureInfo("de-CH"))}.zip";
             var zipFileDirectory = Path.GetDirectoryName(DataDirectory) ?? throw new InvalidOperationException("Invalid data directory");
             var zipFullFilePath = Path.Combine(zipFileDirectory, zipFileName);
@@ -76,6 +100,8 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             processingResult.Code = HttpStatusCode.OK;
             processingResult.Reason = "Success";
             processingResult.Info = "Data processed successfully";
+
+            logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) erfolgreich verarbeitet. DownloadUrl: {processingResult.DownloadUrl}");
         }
         catch (Exception ex)
         {
@@ -162,4 +188,65 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
 
         return statusMessage.DownloadUrl;
     }
+
+    /// <summary>
+    /// Processes the data using GDAL.
+    /// </summary>
+    protected internal async Task RunGdalProcessingAsync()
+    {
+        logger.LogInformation($"Starte GDAL-Prozessierung von Thema {topic.TopicTitle} ({topic.Canton})...");
+
+        Ogr.RegisterAll();
+        Ogr.UseExceptions();
+
+        InputDataSource = Ogr.Open(InputDataPath, 1);
+        if (InputDataSource == null)
+        {
+            logger.LogError($"Fehler beim Öffnen des Eingabedatensatzes {InputDataPath}");
+            throw new InvalidOperationException("Could not open input datasource.");
+        }
+
+        var processedFilePath = InputDataPath.Replace(".gpkg", ".gdb", StringComparison.InvariantCulture);
+        if (Directory.Exists(processedFilePath))
+        {
+            Directory.Delete(processedFilePath, true);
+        }
+
+        var openFileGdbDriver = Ogr.GetDriverByName("OpenFileGDB");
+        ProcessingDataSource = openFileGdbDriver.CreateDataSource(processedFilePath, null);
+
+        await ProcessTopic().ConfigureAwait(false);
+
+        InputDataSource.Dispose();
+        ProcessingDataSource.Dispose();
+    }
+
+    /// <summary>
+    /// Creates a new GDAL layer for processing.
+    /// </summary>
+    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldDefn>? fieldTypeConversions)
+    {
+        return CreateGdalLayer(layerName, fieldTypeConversions, []);
+    }
+
+    /// <summary>
+    /// Creates a new GDAL layer for processing.
+    /// </summary>
+    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldDefn>? fieldTypeConversions, string[] fieldsToDrop)
+    {
+        var inputLayer = InputDataSource.GetLayerByName(layerName);
+
+        // Workaround https://github.com/blw-ofag-ufag/geodatenbezug_geodienste/issues/45
+        var geometryType = inputLayer.GetNextFeature().GetGeometryRef().GetGeometryType();
+
+        var processingLayer = ProcessingDataSource.CreateLayer(layerName, inputLayer.GetSpatialRef(), geometryType, []);
+        fieldTypeConversions ??= [];
+
+        return new GdalLayer(inputLayer, processingLayer, fieldTypeConversions, fieldsToDrop);
+    }
+
+    /// <summary>
+    /// Performs the actual processing of the topic.
+    /// </summary>
+    protected abstract Task ProcessTopic();
 }

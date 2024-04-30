@@ -36,4 +36,10 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
         return await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
     }
+
+    /// <inheritdoc/>
+    protected override Task ProcessTopic()
+    {
+        throw new NotImplementedException();
+    }
 }

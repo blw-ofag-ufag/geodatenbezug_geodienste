@@ -6,12 +6,13 @@ using Moq;
 namespace Geodatenbezug.Processors;
 
 [TestClass]
+[DeploymentItem("testdata/lwb_nutzungsflaechen_v2_0_lv95_NE_202404191123.gpkg", "testdata")]
 public class NutzungsflaechenProcessorTest
 {
     private readonly Topic topic = new ()
     {
         TopicTitle = BaseTopic.lwb_nutzungsflaechen.GetDescription(),
-        Canton = Canton.AG,
+        Canton = Canton.NE,
         BaseTopic = BaseTopic.lwb_nutzungsflaechen,
         UpdatedAt = DateTime.Now,
     };
