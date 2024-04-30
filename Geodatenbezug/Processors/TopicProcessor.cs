@@ -100,6 +100,8 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             processingResult.Code = HttpStatusCode.OK;
             processingResult.Reason = "Success";
             processingResult.Info = "Data processed successfully";
+
+            logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) erfolgreich verarbeitet. DownloadUrl: {processingResult.DownloadUrl}");
         }
         catch (Exception ex)
         {
@@ -200,6 +202,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         InputDataSource = Ogr.Open(InputDataPath, 1);
         if (InputDataSource == null)
         {
+            logger.LogError($"Fehler beim Öffnen des Eingabedatensatzes {InputDataPath}");
             throw new InvalidOperationException("Could not open input datasource.");
         }
 
