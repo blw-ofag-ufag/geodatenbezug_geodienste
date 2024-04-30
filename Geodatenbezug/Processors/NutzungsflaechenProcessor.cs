@@ -109,9 +109,9 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             }
 
             // Rename the fields to remove the layer name prefix
-            if (originalFieldName.Contains(NutzungsflaechenLayerName, StringComparison.CurrentCulture))
+            if (originalFieldName.Contains(NutzungsflaechenLayerName, StringComparison.InvariantCulture))
             {
-                fieldName = originalFieldName.Replace($"{NutzungsflaechenLayerName}_", string.Empty, StringComparison.CurrentCulture);
+                fieldName = originalFieldName.Replace($"{NutzungsflaechenLayerName}_", string.Empty, StringComparison.InvariantCulture);
             }
 
             if (originalFieldName.Contains(NutzungsartLayerName, StringComparison.InvariantCulture))
