@@ -26,8 +26,6 @@ public class PerimeterTerrassenrebenProcessorTest
     [TestInitialize]
     public void Initialize()
     {
-        GdalAssert.Initialize();
-
         loggerMock = new Mock<ILogger<Processor>>(MockBehavior.Strict);
         geodiensteApiMock = new Mock<IGeodiensteApi>(MockBehavior.Strict);
         azureStorageMock = new Mock<IAzureStorage>(MockBehavior.Strict);

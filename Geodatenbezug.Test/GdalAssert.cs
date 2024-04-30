@@ -10,16 +10,6 @@ namespace Geodatenbezug;
 internal static class GdalAssert
 {
     /// <summary>
-    /// Initializes the GDAL environment.
-    /// </summary>
-    internal static void Initialize()
-    {
-        GdalBase.ConfigureAll();
-        Ogr.RegisterAll();
-        Ogr.UseExceptions();
-    }
-
-    /// <summary>
     /// Asserts that the result layer has the expected fields.
     /// </summary>
     internal static void AssertLayerFields(Layer resultLayer, List<string> expectedLayerFields)
