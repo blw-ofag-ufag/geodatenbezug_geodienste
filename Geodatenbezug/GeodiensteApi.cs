@@ -39,7 +39,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
         }
         catch (HttpRequestException ex)
         {
-            logger.LogError($"Fehler beim Abrufen der Themeninformationen von geodienste.ch: {ex.Message}");
+            logger.LogError(ex, $"Fehler beim Abrufen der Themeninformationen von geodienste.ch: {ex.Message}");
             return [];
         }
     }
