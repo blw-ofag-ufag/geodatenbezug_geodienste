@@ -68,6 +68,7 @@ internal static class GdalAssert
             if (feature.GetGeometryRef().GetGeometryCount() > 1)
             {
                 hasOnlySinglePartGeometries = false;
+                break;
             }
         }
 
@@ -88,6 +89,7 @@ internal static class GdalAssert
             if ((lnfCode >= 921 && lnfCode <= 928) || lnfCode == 950 || lnfCode == 951)
             {
                 hasOnlyValidLnfCodes = false;
+                break;
             }
         }
 
