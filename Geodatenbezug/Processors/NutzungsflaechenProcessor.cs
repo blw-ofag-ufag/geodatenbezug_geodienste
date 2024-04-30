@@ -1,4 +1,4 @@
-﻿using System.Xml;
+using System.Xml;
 using System.Xml.Serialization;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -243,7 +243,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
 
     private async Task<List<LnfKatalogNutzungsart>> GetLnfKatalogNutzungsartAsync()
     {
-        Logger.LogInformation($"Lade Nutzungsart-Katalog  von {CatalogUrl}...");
+        Logger.LogInformation($"Lade Nutzungsart-Katalog von {CatalogUrl}...");
 
         using var httpClient = new HttpClient();
         var xmlData = await httpClient.GetStringAsync(CatalogUrl).ConfigureAwait(false);
@@ -259,6 +259,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         }
         else
         {
+            Logger.LogError("Deserialisierung von Nutzungsart-Katalog fehlgeschlagen.");
             throw new InvalidOperationException("Deserialization failed or returned null.");
         }
     }
