@@ -1,4 +1,4 @@
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Serialization;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -118,7 +118,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
 
             fieldNameMapping[fieldName] = originalFieldName;
 
-            var newFieldDefinition = new FieldDefn(fieldName, fieldDefn.GetFieldType());
+            using var newFieldDefinition = new FieldDefn(fieldName, fieldDefn.GetFieldType());
             if (fieldDefn.GetSubType() != FieldSubType.OFSTNone)
             {
                 newFieldDefinition.SetSubType(fieldDefn.GetSubType());
@@ -127,14 +127,13 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             newFieldDefinition.SetWidth(fieldDefn.GetWidth());
             newFieldDefinition.SetPrecision(fieldDefn.GetPrecision());
             nutzungsflaechenLayer.CreateField(newFieldDefinition, 1);
-            newFieldDefinition.Dispose();
         }
 
         nutzungsflaechenJoinedLayer.ResetReading();
         for (var i = 0; i < nutzungsflaechenJoinedLayer.GetFeatureCount(1); i++)
         {
             var feature = nutzungsflaechenJoinedLayer.GetNextFeature();
-            var newFeature = new Feature(nutzungsflaechenLayer.GetLayerDefn());
+            using var newFeature = new Feature(nutzungsflaechenLayer.GetLayerDefn());
             newFeature.SetGeometry(feature.GetGeometryRef());
 
             for (var j = 0; j < nutzungsflaechenLayer.GetLayerDefn().GetFieldCount(); j++)
@@ -169,7 +168,6 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             }
 
             nutzungsflaechenLayer.CreateFeature(newFeature);
-            newFeature.Dispose();
         }
 
         nutzungsflaechenLayer.ConvertMultiPartToSinglePartGeometry();
@@ -185,44 +183,37 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         var nutzungsartLayer = ProcessingDataSource.CreateLayer(NutzungsartLayerName, null, wkbGeometryType.wkbNone, null);
 
         var lnfCodeName = "lnf_code";
-        var lnfCode = new FieldDefn(lnfCodeName, FieldType.OFTInteger);
+        using var lnfCode = new FieldDefn(lnfCodeName, FieldType.OFTInteger);
         nutzungsartLayer.CreateField(lnfCode, 1);
-        lnfCode.Dispose();
 
         var istBffQiName = "ist_bff_qi";
-        var istBffQi = new FieldDefn(istBffQiName, FieldType.OFTInteger);
+        using var istBffQi = new FieldDefn(istBffQiName, FieldType.OFTInteger);
         istBffQi.SetSubType(FieldSubType.OFSTInt16);
         nutzungsartLayer.CreateField(istBffQi, 1);
-        istBffQi.Dispose();
 
         var hauptkategorieDeName = "hauptkategorie_de";
-        var hauptkategorieDe = new FieldDefn(hauptkategorieDeName, FieldType.OFTString);
+        using var hauptkategorieDe = new FieldDefn(hauptkategorieDeName, FieldType.OFTString);
         nutzungsartLayer.CreateField(hauptkategorieDe, 1);
-        hauptkategorieDe.Dispose();
 
         var hauptkategorieFrName = "hauptkategorie_fr";
-        var hauptkategorieFr = new FieldDefn(hauptkategorieFrName, FieldType.OFTString);
+        using var hauptkategorieFr = new FieldDefn(hauptkategorieFrName, FieldType.OFTString);
         nutzungsartLayer.CreateField(hauptkategorieFr, 1);
-        hauptkategorieFr.Dispose();
 
         var hauptkategorieItName = "hauptkategorie_it";
-        var hauptkategorieIt = new FieldDefn(hauptkategorieItName, FieldType.OFTString);
+        using var hauptkategorieIt = new FieldDefn(hauptkategorieItName, FieldType.OFTString);
         nutzungsartLayer.CreateField(hauptkategorieIt, 1);
-        hauptkategorieIt.Dispose();
 
         var nutzungDeName = "nutzung_de";
         using var nutzungDe = new FieldDefn(nutzungDeName, FieldType.OFTString);
         nutzungsartLayer.CreateField(nutzungDe, 1);
 
         var nutzungFrName = "nutzung_fr";
-        var nutzungFr = new FieldDefn(nutzungFrName, FieldType.OFTString);
+        using var nutzungFr = new FieldDefn(nutzungFrName, FieldType.OFTString);
         nutzungsartLayer.CreateField(nutzungFr, 1);
-        nutzungFr.Dispose();
 
         var nutzungItName = "nutzung_it";
-        var nutzungIt = new FieldDefn(nutzungItName, FieldType.OFTString);
+        using var nutzungIt = new FieldDefn(nutzungItName, FieldType.OFTString);
         nutzungsartLayer.CreateField(nutzungIt, 1);
-        nutzungIt.Dispose();
 
         catalogData.ForEach(entry =>
         {
