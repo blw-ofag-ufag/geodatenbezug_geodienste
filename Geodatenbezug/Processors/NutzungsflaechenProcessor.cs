@@ -11,6 +11,11 @@ namespace Geodatenbezug.Processors;
 /// </summary>
 public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage, ILogger logger, Topic topic) : TopicProcessor(geodiensteApi, azureStorage, logger, topic)
 {
+    private const string NutzungsflaechenLayerName = "nutzungsflaechen";
+    private const string NutzungsflaechenJoinedLayerName = $"{NutzungsflaechenLayerName}_joined";
+    private const string NutzungsartLayerName = "nutzungsart";
+    private const string BewirtschaftungseinheitLayerName = "bewirtschaftungseinheit";
+
     private const string CatalogUrl = "https://models.geo.admin.ch/BLW/LWB_Nutzungsflaechen_Kataloge_V2_0.xml";
     private string bewirtschaftungseinheitDataPath = string.Empty;
 
@@ -72,46 +77,46 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             "schnittzeitpunkt",
         };
 
-        var nutzungsflaechenTempLayer = CreateGdalLayer("nutzungsflaechen", fieldTypeConversions, fieldsToDrop);
+        var nutzungsflaechenTempLayer = CreateGdalLayer(NutzungsflaechenLayerName, fieldTypeConversions, fieldsToDrop);
         nutzungsflaechenTempLayer.CopyFeatures();
         nutzungsflaechenTempLayer.FilterLnfCodes();
 
         await CreateNutzungsartLayerAsync().ConfigureAwait(false);
 
         var joinQuery = @$"
-            SELECT nutzungsflaechen.*, nutzungsart.*, bewirtschaftungseinheit.betriebsnummer
-            FROM nutzungsflaechen
-            LEFT JOIN nutzungsart ON nutzungsflaechen.lnf_code = nutzungsart.lnf_code
-            LEFT JOIN '{bewirtschaftungseinheitDataPath}'.bewirtschaftungseinheit ON nutzungsflaechen.identifikator_be = bewirtschaftungseinheit.identifikator_be";
+            SELECT {NutzungsflaechenLayerName}.*, {NutzungsartLayerName}.*, {BewirtschaftungseinheitLayerName}.betriebsnummer
+            FROM {NutzungsflaechenLayerName}
+            LEFT JOIN {NutzungsartLayerName} ON {NutzungsflaechenLayerName}.lnf_code = {NutzungsartLayerName}.lnf_code
+            LEFT JOIN '{bewirtschaftungseinheitDataPath}'.{BewirtschaftungseinheitLayerName} ON {NutzungsflaechenLayerName}.identifikator_be = {BewirtschaftungseinheitLayerName}.identifikator_be";
         var tmpLayer = ProcessingDataSource.ExecuteSQL(joinQuery, null, "OGRSQL");
-        ProcessingDataSource.CopyLayer(tmpLayer, "nutzungsflaechen_joined", null);
+        ProcessingDataSource.CopyLayer(tmpLayer, NutzungsflaechenJoinedLayerName, null);
 
         ProcessingDataSource.DeleteLayer(0);
 
-        var nutzungsflaechenJoinedLayer = ProcessingDataSource.GetLayerByName("nutzungsflaechen_joined");
-        var nutzungsflaechenLayer = ProcessingDataSource.CreateLayer("nutzungsflaechen", tmpLayer.GetSpatialRef(), nutzungsflaechenJoinedLayer.GetGeomType(), null);
+        var nutzungsflaechenJoinedLayer = ProcessingDataSource.GetLayerByName(NutzungsflaechenJoinedLayerName);
+        var nutzungsflaechenLayer = ProcessingDataSource.CreateLayer(NutzungsflaechenLayerName, tmpLayer.GetSpatialRef(), nutzungsflaechenJoinedLayer.GetGeomType(), null);
         var fieldNameMapping = new Dictionary<string, string>();
         for (var i = 0; i < nutzungsflaechenJoinedLayer.GetLayerDefn().GetFieldCount(); i++)
         {
             var fieldDefn = nutzungsflaechenJoinedLayer.GetLayerDefn().GetFieldDefn(i);
             var originalFieldName = fieldDefn.GetName();
             string fieldName = originalFieldName;
-            if (originalFieldName == "nutzungsart_lnf_code" || originalFieldName == "nutzungsflaechen_identifikator_be")
+            if (originalFieldName == $"{NutzungsartLayerName}_lnf_code" || originalFieldName == $"{NutzungsflaechenLayerName}_identifikator_be")
             {
                 continue;
             }
 
-            if (originalFieldName.Contains("nutzungsflaechen", StringComparison.CurrentCulture))
+            if (originalFieldName.Contains(NutzungsflaechenLayerName, StringComparison.CurrentCulture))
             {
-                fieldName = originalFieldName.Replace("nutzungsflaechen_", string.Empty, StringComparison.CurrentCulture);
+                fieldName = originalFieldName.Replace($"{NutzungsflaechenLayerName}_", string.Empty, StringComparison.CurrentCulture);
             }
 
-            if (originalFieldName.Contains("nutzungsart", StringComparison.CurrentCulture))
+            if (originalFieldName.Contains(NutzungsartLayerName, StringComparison.CurrentCulture))
             {
-                fieldName = originalFieldName.Replace("nutzungsart_", string.Empty, StringComparison.CurrentCulture);
+                fieldName = originalFieldName.Replace($"{NutzungsartLayerName}_", string.Empty, StringComparison.CurrentCulture);
             }
 
-            if (originalFieldName == "bewirtschaftungseinheit_betriebsnummer")
+            if (originalFieldName == $"{BewirtschaftungseinheitLayerName}_betriebsnummer")
             {
                 fieldName = "bewe_betriebsnummer";
             }
@@ -174,15 +179,15 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
 
         nutzungsflaechenLayer.ConvertMultiPartToSinglePartGeometry();
 
-        ProcessingDataSource.ExecuteSQL("DROP TABLE nutzungsflaechen_joined", null, "OGRSQL");
-        ProcessingDataSource.ExecuteSQL("DROP TABLE nutzungsart", null, "OGRSQL");
+        ProcessingDataSource.ExecuteSQL($"DROP TABLE {NutzungsflaechenJoinedLayerName}", null, "OGRSQL");
+        ProcessingDataSource.ExecuteSQL($"DROP TABLE {NutzungsartLayerName}", null, "OGRSQL");
     }
 
     private async Task CreateNutzungsartLayerAsync()
     {
         var catalogData = await GetLnfKatalogNutzungsartAsync().ConfigureAwait(false);
 
-        var nutzungsartLayer = ProcessingDataSource.CreateLayer("nutzungsart", null, wkbGeometryType.wkbNone, null);
+        var nutzungsartLayer = ProcessingDataSource.CreateLayer(NutzungsartLayerName, null, wkbGeometryType.wkbNone, null);
 
         var lnfCodeName = "lnf_code";
         var lnfCode = new FieldDefn(lnfCodeName, FieldType.OFTInteger);
