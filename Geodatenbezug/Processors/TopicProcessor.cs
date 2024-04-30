@@ -20,38 +20,20 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// </summary>
     protected string DataDirectory => dataDirectory;
 
-    private string inputDataPath = string.Empty;
-
     /// <summary>
     /// The input data for processing.
     /// </summary>
-    protected internal string InputDataPath
-    {
-        get { return inputDataPath; }
-        set { inputDataPath = value; }
-    }
-
-    private DataSource? inputDataSource;
+    protected internal string InputDataPath { get; set; } = string.Empty;
 
     /// <summary>
     /// The <see cref="DataSource"/> for the input data.
     /// </summary>
-    protected DataSource? InputDataSource
-    {
-        get { return inputDataSource; }
-        set { inputDataSource = value; }
-    }
-
-    private DataSource? processingDataSource;
+    protected DataSource? InputDataSource { get; set; }
 
     /// <summary>
     /// The <see cref="DataSource"/> for the processed data.
     /// </summary>
-    protected DataSource? ProcessingDataSource
-    {
-        get { return processingDataSource; }
-        set { processingDataSource = value; }
-    }
+    protected DataSource? ProcessingDataSource { get; set; }
 
     /// <summary>
     /// The geodienste.ch API.

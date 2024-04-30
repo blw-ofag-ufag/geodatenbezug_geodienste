@@ -1,4 +1,4 @@
-﻿using System.Xml;
+using System.Xml;
 using System.Xml.Serialization;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -17,16 +17,11 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
     private const string BewirtschaftungseinheitLayerName = "bewirtschaftungseinheit";
 
     private const string CatalogUrl = "https://models.geo.admin.ch/BLW/LWB_Nutzungsflaechen_Kataloge_V2_0.xml";
-    private string bewirtschaftungseinheitDataPath = string.Empty;
 
     /// <summary>
     /// The path to the data of the topic "Bewirtschaftungseinheit".
     /// </summary>
-    protected internal string BewirtschaftungseinheitDataPath
-    {
-        get { return bewirtschaftungseinheitDataPath; }
-        set { bewirtschaftungseinheitDataPath = value; }
-    }
+    protected internal string BewirtschaftungseinheitDataPath { get; set; } = string.Empty;
 
     /// <inheritdoc />
     protected internal override async Task PrepareDataAsync()
@@ -46,7 +41,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         var downloadUrls = await Task.WhenAll(exportInputTopic, exportBewirtschaftungseinheitTopic).ConfigureAwait(false);
 
         InputDataPath = downloadUrls[0];
-        bewirtschaftungseinheitDataPath = downloadUrls[1];
+        BewirtschaftungseinheitDataPath = downloadUrls[1];
     }
 
     private async Task<string> PrepareTopic(Topic topic)
@@ -87,7 +82,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             SELECT {NutzungsflaechenLayerName}.*, {NutzungsartLayerName}.*, {BewirtschaftungseinheitLayerName}.betriebsnummer
             FROM {NutzungsflaechenLayerName}
             LEFT JOIN {NutzungsartLayerName} ON {NutzungsflaechenLayerName}.lnf_code = {NutzungsartLayerName}.lnf_code
-            LEFT JOIN '{bewirtschaftungseinheitDataPath}'.{BewirtschaftungseinheitLayerName} ON {NutzungsflaechenLayerName}.identifikator_be = {BewirtschaftungseinheitLayerName}.identifikator_be";
+            LEFT JOIN '{BewirtschaftungseinheitDataPath}'.{BewirtschaftungseinheitLayerName} ON {NutzungsflaechenLayerName}.identifikator_be = {BewirtschaftungseinheitLayerName}.identifikator_be";
         var tmpLayer = ProcessingDataSource.ExecuteSQL(joinQuery, null, "OGRSQL");
         ProcessingDataSource.CopyLayer(tmpLayer, NutzungsflaechenJoinedLayerName, null);
 
