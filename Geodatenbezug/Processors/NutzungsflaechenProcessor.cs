@@ -232,7 +232,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         catalogData.ForEach(entry =>
         {
             using var feature = new Feature(nutzungsartLayer.GetLayerDefn());
-            feature.SetField(lnfCodeName, entry.LNFCode);
+            feature.SetField(lnfCodeName, entry.LnfCode);
             feature.SetField(istBffQiName, entry.IstBFFQI ? 1 : 0);
             feature.SetField(hauptkategorieDeName, entry.Hauptkategorie.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.FirstOrDefault(t => t.Language == "de").Text);
             feature.SetField(hauptkategorieFrName, entry.Hauptkategorie.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.FirstOrDefault(t => t.Language == "fr").Text);
@@ -256,7 +256,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
 
         if (deserializedObject is Transfer catalog)
         {
-            return catalog.DataSection.LNFKataloge.LNFKatalogNutzungsart;
+            return catalog.DataSection.LnfKataloge.LnfKatalogNutzungsart;
         }
         else
         {
