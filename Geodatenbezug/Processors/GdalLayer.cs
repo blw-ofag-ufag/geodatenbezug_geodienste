@@ -26,9 +26,8 @@ public class GdalLayer
 
         var inputLayerDefinition = inputLayer.GetLayerDefn();
 
-        var tIdFieldDefinition = new FieldDefn("t_id", FieldType.OFTInteger);
+        using var tIdFieldDefinition = new FieldDefn("t_id", FieldType.OFTInteger);
         processingLayer.CreateField(tIdFieldDefinition, 1);
-        tIdFieldDefinition.Dispose();
 
         for (var i = 0; i < inputLayerDefinition.GetFieldCount(); i++)
         {
@@ -45,11 +44,10 @@ public class GdalLayer
             }
             else
             {
-                var newFieldDefinition = new FieldDefn(fieldName, originalFieldDefinition.GetFieldType());
+                using var newFieldDefinition = new FieldDefn(fieldName, originalFieldDefinition.GetFieldType());
                 newFieldDefinition.SetWidth(originalFieldDefinition.GetWidth());
                 newFieldDefinition.SetPrecision(originalFieldDefinition.GetPrecision());
                 processingLayer.CreateField(newFieldDefinition, 1);
-                newFieldDefinition.Dispose();
             }
         }
     }
@@ -64,7 +62,7 @@ public class GdalLayer
         {
             var inputFeature = inputLayer.GetNextFeature();
             var processingLayerDefinition = processingLayer.GetLayerDefn();
-            var newFeature = new Feature(processingLayerDefinition);
+            using var newFeature = new Feature(processingLayerDefinition);
             newFeature.SetGeometry(inputFeature.GetGeometryRef());
 
             for (var j = 0; j < processingLayerDefinition.GetFieldCount(); j++)
@@ -108,7 +106,6 @@ public class GdalLayer
             }
 
             processingLayer.CreateFeature(newFeature);
-            newFeature.Dispose();
         }
     }
 
@@ -144,11 +141,10 @@ public class GdalLayer
             {
                 for (var j = 0; j < geometry.GetGeometryCount(); j++)
                 {
-                    var newFeature = feature.Clone();
+                    using var newFeature = feature.Clone();
                     newFeature.SetFID(-1);
                     newFeature.SetGeometry(geometry.GetGeometryRef(j));
                     processingLayer.CreateFeature(newFeature);
-                    newFeature.Dispose();
                 }
 
                 processingLayer.DeleteFeature(feature.GetFID());
