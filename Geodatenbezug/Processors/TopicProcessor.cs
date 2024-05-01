@@ -90,7 +90,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         {
             if (processingResult.Code == HttpStatusCode.Processing)
             {
-                logger.LogError(ex, $"Fehler beim Verarbeiten des Themas {topic.TopicTitle} ({topic.Canton}): {ex.Message}");
+                logger.LogError($"Fehler beim Verarbeiten des Themas {topic.TopicTitle} ({topic.Canton}): {ex.Message}");
 
                 processingResult.Code = HttpStatusCode.InternalServerError;
                 processingResult.Reason = ex.Message;
