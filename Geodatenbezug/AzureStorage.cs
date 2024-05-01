@@ -17,7 +17,7 @@ public class AzureStorage(ILogger<AzureStorage> logger) : IAzureStorage
     /// <inheritdoc />
     public async Task<string> UploadFileAsync(string storageFilePath, string localFilePath)
     {
-        logger.LogInformation($"Lade Datei {localFilePath} in den Azure Storage hoch...");
+        logger.LogInformation($"Lade Datei {localFilePath} in den Azure Storage hoch");
         var connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
         if (string.IsNullOrEmpty(connectionString))
         {
@@ -30,7 +30,7 @@ public class AzureStorage(ILogger<AzureStorage> logger) : IAzureStorage
         using var localFileStream = File.OpenRead(localFilePath);
         await blobClient.UploadAsync(localFileStream).ConfigureAwait(false);
 
-        logger.LogInformation($"Erstelle DownloadUrl für Datei {localFilePath}...");
+        logger.LogInformation($"Erstelle DownloadUrl für Datei {localFilePath}");
         var sasBuilder = new BlobSasBuilder
         {
             BlobContainerName = StorageContainerName,

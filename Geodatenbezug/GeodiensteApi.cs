@@ -50,7 +50,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     {
         var token = GetToken(topic.BaseTopic, topic.Canton);
         var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/export.json";
-        logger.LogInformation($"Starte den Datenexport für {topic.TopicTitle} ({topic.Canton}) mit {url}...");
+        logger.LogInformation($"Starte den Datenexport für {topic.TopicTitle} ({topic.Canton}) mit {url}");
         using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));
 
         var retryPolicy = Policy
@@ -91,7 +91,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     {
         var token = GetToken(topic.BaseTopic, topic.Canton);
         var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/status.json";
-        logger.LogInformation($"Prüfe den Status des Datenexports für {topic.TopicTitle} ({topic.Canton}) mit {url}...");
+        logger.LogInformation($"Prüfe den Status des Datenexports für {topic.TopicTitle} ({topic.Canton}) mit {url}");
         using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));
 
         var retryPolicy = Policy
@@ -131,7 +131,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     /// <inheritdoc />
     public async Task<string> DownloadExportAsync(string downloadUrl, string destinationPath)
     {
-        logger.LogInformation($"Lade die Daten herunter {downloadUrl}...");
+        logger.LogInformation($"Lade die Daten herunter {downloadUrl}");
         Directory.CreateDirectory(destinationPath);
         var downloadedFilePath = string.Empty;
         using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));
