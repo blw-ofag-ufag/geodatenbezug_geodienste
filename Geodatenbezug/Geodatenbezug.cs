@@ -37,7 +37,10 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
             }
         }
 
-        await context.CallActivityAsync(nameof(SendNotification), results).ConfigureAwait(true);
+        if (results.Count > 0)
+        {
+            await context.CallActivityAsync(nameof(SendNotification), results).ConfigureAwait(true);
+        }
     }
 
     /// <summary>
@@ -46,7 +49,7 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     /// <param name="param">An unused parameter that is required by the azure function.</param>
     /// <returns>A list with the <see cref="Topic"/>s to process.</returns>
     [Function(nameof(RetrieveTopics))]
-    public async Task<List<Topic>?> RetrieveTopics([ActivityTrigger] string param)
+    public async Task<List<Topic>> RetrieveTopics([ActivityTrigger] string param)
     {
         return await processing.GetTopicsToProcess().ConfigureAwait(false);
     }
