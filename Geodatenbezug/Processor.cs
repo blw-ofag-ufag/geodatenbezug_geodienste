@@ -16,30 +16,29 @@ public class Processor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage,
     public async Task<List<Topic>> GetTopicsToProcess()
     {
         var topics = await geodiensteApi.RequestTopicInfoAsync().ConfigureAwait(false);
-        var currentTime = DateTime.Now;
-        var topicsToProcess = topics.FindAll(topic =>
+        var topicsToProcess = new List<Topic>();
+        foreach (var topic in topics)
         {
             if (topic.UpdatedAt.HasValue)
             {
-                var updatedAtString = topic.UpdatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-                var timeDifference = currentTime - topic.UpdatedAt.Value;
-                if (timeDifference.Days < 1)
+                var updatedAtString = topic.UpdatedAt.Value.ToString("G", CultureInfo.InvariantCulture);
+
+                var lastProcessed = await azureStorage.GetLastProcessed(topic).ConfigureAwait(false);
+                if (lastProcessed == null || lastProcessed < topic.UpdatedAt.Value)
                 {
                     logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) wurde am {updatedAtString} aktualisiert und wird verarbeitet");
-                    return true;
+                    topicsToProcess.Add(topic);
                 }
                 else
                 {
                     logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) wurde seit {updatedAtString} nicht aktualisiert");
-                    return false;
                 }
             }
             else
             {
                 logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) ist nicht verfügbar");
-                return false;
             }
-        });
+        }
 
         var topicsProcessedMessage = topicsToProcess.Count != 1 ? "Themen werden" : "Thema wird";
         logger.LogInformation($"{topicsToProcess.Count} {topicsProcessedMessage} prozessiert");
