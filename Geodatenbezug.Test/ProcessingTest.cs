@@ -10,7 +10,7 @@ public class ProcessingTest
     private Mock<ILogger<Processor>> loggerMock;
     private Mock<IGeodiensteApi> geodiensteApiMock;
     private Mock<IAzureStorage> azureStorageMock;
-    private Mock<MailService> mailServiceMock;
+    private Mock<IMailService> mailServiceMock;
     private Processor processor;
 
     [TestInitialize]
@@ -19,7 +19,7 @@ public class ProcessingTest
         loggerMock = new Mock<ILogger<Processor>>(MockBehavior.Strict);
         geodiensteApiMock = new Mock<IGeodiensteApi>(MockBehavior.Strict);
         azureStorageMock = new Mock<IAzureStorage>(MockBehavior.Strict);
-        mailServiceMock = new Mock<MailService>(MockBehavior.Strict);
+        mailServiceMock = new Mock<IMailService>(MockBehavior.Strict);
         processor = new Processor(geodiensteApiMock.Object, azureStorageMock.Object, loggerMock.Object, mailServiceMock.Object);
     }
 

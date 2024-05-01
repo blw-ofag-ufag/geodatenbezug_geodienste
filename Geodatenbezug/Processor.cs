@@ -8,13 +8,15 @@ namespace Geodatenbezug;
 /// <summary>
 /// Handles the processing of the topics.
 /// </summary>
-public class Processor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage, ILogger<Processor> logger, MailService mailService)
+public class Processor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage, ILogger<Processor> logger, IMailService mailService)
 {
     /// <summary>
     /// Gets the topics that have new data and need to be processed.
     /// </summary>
     public async Task<List<Topic>> GetTopicsToProcess()
     {
+        logger.LogInformation("Laden der Themen...");
+
         var topics = await geodiensteApi.RequestTopicInfoAsync().ConfigureAwait(false);
         var currentTime = DateTime.Now;
         var topicsToProcess = topics.FindAll(topic =>

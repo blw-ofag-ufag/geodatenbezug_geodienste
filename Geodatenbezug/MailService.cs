@@ -10,11 +10,11 @@ namespace Geodatenbezug;
 /// <summary>
 /// Service for sending emails.
 /// </summary>
-public class MailService(ILogger<MailService> logger)
+#pragma warning disable SA1009 // Closing parenthesis should be spaced correctly
+public class MailService(ILogger<MailService> logger) : IMailService
+#pragma warning restore SA1009 // Closing parenthesis should be spaced correctly
 {
-    /// <summary>
-    /// Sends an email with the processing results.
-    /// </summary>
+    /// <inheritdoc />
     public void SendProcessingResults(List<ProcessingResult> results)
     {
         try
