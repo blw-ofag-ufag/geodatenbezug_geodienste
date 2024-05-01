@@ -21,7 +21,7 @@ public class Processor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage,
         {
             if (topic.UpdatedAt.HasValue)
             {
-                var updatedAtString = topic.UpdatedAt.Value.ToString("G", CultureInfo.InvariantCulture);
+                var updatedAtString = topic.UpdatedAt.Value.ToString("G", CultureInfo.GetCultureInfo("de-CH"));
 
                 var lastProcessed = await azureStorage.GetLastProcessed(topic).ConfigureAwait(false);
                 if (lastProcessed == null || lastProcessed < topic.UpdatedAt.Value)
