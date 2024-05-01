@@ -43,14 +43,20 @@ public class AzureStorage(ILogger<AzureStorage> logger) : IAzureStorage
     public async Task<DateTime?> GetLastProcessed(Topic topic)
     {
         var containerClient = new BlobServiceClient(ConnectionString).GetBlobContainerClient(StorageContainerName);
+        var creationDates = new List<DateTime>();
 
         await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
         {
             if (blobItem.Name.Contains(topic.Canton.ToString(), StringComparison.InvariantCulture)
                 && blobItem.Name.Contains(topic.BaseTopic.ToString(), StringComparison.InvariantCulture))
             {
-                return blobItem.Properties.CreatedOn.GetValueOrDefault().DateTime;
+                creationDates.Add(blobItem.Properties.CreatedOn.GetValueOrDefault().DateTime);
             }
+        }
+
+        if (creationDates.Count > 0)
+        {
+            return creationDates.Max();
         }
 
         return null;
