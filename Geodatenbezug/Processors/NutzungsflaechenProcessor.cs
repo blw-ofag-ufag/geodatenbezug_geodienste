@@ -26,7 +26,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
     /// <inheritdoc />
     protected internal override async Task PrepareDataAsync()
     {
-        Logger.LogInformation($"Bereite Daten für die Prozessierung von {Topic.TopicTitle} ({Topic.Canton}) vor");
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Bereite Daten für die Prozessierung vor");
 
         var exportInputTopic = PrepareTopic(Topic);
 

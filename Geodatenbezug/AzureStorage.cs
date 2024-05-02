@@ -42,7 +42,7 @@ public class AzureStorage(ILogger<AzureStorage> logger) : IAzureStorage
     /// <inheritdoc />
     public async Task<DateTime?> GetLastProcessed(Topic topic)
     {
-        logger.LogInformation($"Frage letzte Prozessierung des Themas {topic.TopicTitle} ({topic.Canton}) ab");
+        logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Frage letzte Prozessierung des Themas ab");
         var containerClient = new BlobServiceClient(ConnectionString).GetBlobContainerClient(StorageContainerName);
         var creationDates = new List<DateTime>();
 
@@ -66,7 +66,7 @@ public class AzureStorage(ILogger<AzureStorage> logger) : IAzureStorage
     /// <inheritdoc />
     public async Task<string> UploadFileAsync(string storageFilePath, string localFilePath)
     {
-        logger.LogInformation($"Lade Datei {localFilePath} in den Azure Storage hoch...");
+        logger.LogInformation($"Lade Datei {localFilePath} in den Azure Storage hoch");
 
         var containerClient = new BlobServiceClient(ConnectionString).GetBlobContainerClient(StorageContainerName);
         var blobClient = containerClient.GetBlobClient(storageFilePath);

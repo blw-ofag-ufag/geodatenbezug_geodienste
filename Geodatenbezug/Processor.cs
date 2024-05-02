@@ -28,17 +28,17 @@ public class Processor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage,
                 var lastProcessed = await azureStorage.GetLastProcessed(topic).ConfigureAwait(false);
                 if (lastProcessed == null || lastProcessed < topic.UpdatedAt.Value)
                 {
-                    logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) wurde am {updatedAtString} aktualisiert und wird verarbeitet");
+                    logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Thema wurde am {updatedAtString} aktualisiert und wird verarbeitet");
                     topicsToProcess.Add(topic);
                 }
                 else
                 {
-                    logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) wurde seit {updatedAtString} nicht aktualisiert");
+                    logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Thema wurde seit {updatedAtString} nicht aktualisiert");
                 }
             }
             else
             {
-                logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) ist nicht verfügbar");
+                logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Thema ist nicht verfügbar");
             }
         }
 

@@ -71,10 +71,10 @@ public class ProcessingTest
             ]);
 
         loggerMock.Setup(LogLevel.Information, "Laden der Themen...");
-        loggerMock.Setup(LogLevel.Information, $"Thema Perimeter LN- und Sömmerungsflächen (SH) wurde am {datestring_delta4.ToString("G", CultureInfo.GetCultureInfo("de-CH"))} aktualisiert und wird verarbeitet");
-        loggerMock.Setup(LogLevel.Information, $"Thema Perimeter LN- und Sömmerungsflächen (ZG) wurde am {datestring_delta23.ToString("G", CultureInfo.GetCultureInfo("de-CH"))} aktualisiert und wird verarbeitet");
-        loggerMock.Setup(LogLevel.Information, $"Thema Rebbaukataster (SH) wurde seit {datestring_delta30.ToString("G", CultureInfo.GetCultureInfo("de-CH"))} nicht aktualisiert");
-        loggerMock.Setup(LogLevel.Information, "Thema Rebbaukataster (ZG) ist nicht verfügbar");
+        loggerMock.Setup(LogLevel.Information, $"Perimeter LN- und Sömmerungsflächen (SH): Thema wurde am {datestring_delta4.ToString("G", CultureInfo.GetCultureInfo("de-CH"))} aktualisiert und wird verarbeitet");
+        loggerMock.Setup(LogLevel.Information, $"Perimeter LN- und Sömmerungsflächen (ZG): Thema wurde am {datestring_delta23.ToString("G", CultureInfo.GetCultureInfo("de-CH"))} aktualisiert und wird verarbeitet");
+        loggerMock.Setup(LogLevel.Information, $"Rebbaukataster (SH): Thema wurde seit {datestring_delta30.ToString("G", CultureInfo.GetCultureInfo("de-CH"))} nicht aktualisiert");
+        loggerMock.Setup(LogLevel.Information, "Rebbaukataster (ZG): Thema ist nicht verfügbar");
         loggerMock.Setup(LogLevel.Information, "2 Themen werden prozessiert");
 
         azureStorageMock.SetupSequence(storage => storage.GetLastProcessed(It.IsAny<Topic>()))

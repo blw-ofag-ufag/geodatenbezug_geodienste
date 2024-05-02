@@ -68,13 +68,13 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     {
         try
         {
-            logger.LogInformation($"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})");
+            logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Verarbeite Thema");
 
             await PrepareDataAsync().ConfigureAwait(false);
 
             await RunGdalProcessingAsync().ConfigureAwait(false);
 
-            logger.LogInformation($"Zippe Resultate für {topic.TopicTitle} ({topic.Canton})");
+            logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Zippe Resultate");
             var zipFileName = $"{Path.GetFileName(dataDirectory)}_{Topic.Canton}_{DateTime.Now.ToString("yyyyMMddHHmm", new CultureInfo("de-CH"))}.zip";
             var zipFileDirectory = Path.GetDirectoryName(DataDirectory) ?? throw new InvalidOperationException("Invalid data directory");
             var zipFullFilePath = Path.Combine(zipFileDirectory, zipFileName);
@@ -85,7 +85,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             processingResult.Reason = "Success";
             processingResult.Info = "Data processed successfully";
 
-            logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) erfolgreich verarbeitet. DownloadUrl: {processingResult.DownloadUrl}");
+            logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Thema erfolgreich verarbeitet. DownloadUrl: {processingResult.DownloadUrl}");
 
             File.Delete(zipFullFilePath);
             Directory.Delete(DataDirectory, true);
@@ -94,7 +94,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         {
             if (processingResult.Code == HttpStatusCode.Processing)
             {
-                logger.LogError(ex, $"Fehler beim Verarbeiten des Themas {topic.TopicTitle} ({topic.Canton}): {ex.Message}");
+                logger.LogError(ex, $"{topic.TopicTitle} ({topic.Canton}): Fehler beim Verarbeiten des Themas: {ex.Message}");
 
                 processingResult.Code = HttpStatusCode.InternalServerError;
                 processingResult.Reason = ex.Message;
@@ -110,7 +110,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// </summary>
     protected internal virtual async Task PrepareDataAsync()
     {
-        logger.LogInformation($"Bereite Daten für die Prozessierung von {topic.TopicTitle} ({topic.Canton}) vor");
+        logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Bereite Daten für die Prozessierung vor");
         var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
         InputDataPath = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
     }
@@ -120,7 +120,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// </summary>
     protected internal async Task<string> ExportTopicAsync(Topic topic)
     {
-        logger.LogInformation($"Exportiere {topic.TopicTitle} ({topic.Canton})");
+        logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Export");
 
         var exportResponse = await GeodiensteApi.StartExportAsync(topic).ConfigureAwait(false);
         if (!exportResponse.IsSuccessStatusCode)
@@ -130,7 +130,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             if (!errorMessage.Error.Contains(GeodiensteExportError.OnlyOneExport, StringComparison.CurrentCulture))
             {
                 var errorString = exportResponse.StatusCode == HttpStatusCode.Unauthorized ? exportResponse.ReasonPhrase : errorMessage.Error;
-                logger.LogError($"Fehler beim Starten des Exports für Thema {topic.TopicTitle} ({topic.Canton}): {exportResponse.StatusCode} - {errorString}");
+                logger.LogError($"{topic.TopicTitle} ({topic.Canton}): Fehler beim Starten des Exports: {exportResponse.StatusCode} - {errorString}");
 
                 processingResult.Code = exportResponse.StatusCode;
                 processingResult.Reason = exportResponse.ReasonPhrase;
@@ -144,7 +144,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         if (!statusResponse.IsSuccessStatusCode)
         {
             var errorMessage = JsonSerializer.Deserialize<GeodiensteStatusError>(statusResponseContent);
-            logger.LogError($"Fehler bei der Statusabfrage des Datenexports für Thema {topic.TopicTitle} ({topic.Canton}): {statusResponse.StatusCode} - {errorMessage.Error}");
+            logger.LogError($"{topic.TopicTitle} ({topic.Canton}): Fehler bei der Statusabfrage des Datenexports: {statusResponse.StatusCode} - {errorMessage.Error}");
 
             processingResult.Code = statusResponse.StatusCode;
             processingResult.Reason = statusResponse.ReasonPhrase;
@@ -155,7 +155,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         var statusMessage = JsonSerializer.Deserialize<GeodiensteStatusSuccess>(statusResponseContent);
         if (statusMessage.Status == GeodiensteStatus.Failed)
         {
-            logger.LogError($"Fehler bei der Statusabfrage des Datenexports für Thema {topic.TopicTitle} ({topic.Canton}): {statusMessage.Info}");
+            logger.LogError($"{topic.TopicTitle} ({topic.Canton}): Fehler bei der Statusabfrage des Datenexports: {statusMessage.Info}");
 
             processingResult.Code = statusResponse.StatusCode;
             processingResult.Reason = statusMessage.Status.ToString();
@@ -165,7 +165,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
 
         if (statusMessage.DownloadUrl == null)
         {
-            logger.LogError($"Fehler bei der Statusabfrage des Datenexports für Thema {topic.TopicTitle} ({topic.Canton}): Download-URL nicht gefunden");
+            logger.LogError($"{topic.TopicTitle} ({topic.Canton}): Fehler bei der Statusabfrage des Datenexports: Download-URL nicht gefunden");
 
             processingResult.Code = statusResponse.StatusCode;
             processingResult.Reason = statusMessage.Status.ToString();
@@ -181,7 +181,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// </summary>
     protected internal async Task RunGdalProcessingAsync()
     {
-        logger.LogInformation($"Starte GDAL-Prozessierung von Thema {topic.TopicTitle} ({topic.Canton})");
+        logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Starte GDAL-Prozessierung");
 
         Ogr.RegisterAll();
         Ogr.UseExceptions();

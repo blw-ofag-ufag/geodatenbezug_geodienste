@@ -59,9 +59,8 @@ public class NutzungsflaechenProcessorTest
             .Setup(api => api.DownloadExportAsync(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync("downloadedFilePath");
 
-        loggerMock.Setup(LogLevel.Information, $"Bereite Daten für die Prozessierung von {topic.TopicTitle} ({topic.Canton}) vor");
-        loggerMock.Setup(LogLevel.Information, $"Exportiere {topic.TopicTitle} ({topic.Canton})");
-        loggerMock.Setup(LogLevel.Information, $"Exportiere {bewirtschaftungseinheitTopic.TopicTitle} ({bewirtschaftungseinheitTopic.Canton})");
+        loggerMock.Setup(LogLevel.Information, $"Bereite Daten für die Prozessierung vor");
+        loggerMock.Setup(LogLevel.Information, $"Export", Times.Exactly(2));
 
         await processor.PrepareDataAsync();
         geodiensteApiMock.Verify(api => api.StartExportAsync(topic), Times.Once);
@@ -73,7 +72,7 @@ public class NutzungsflaechenProcessorTest
     [TestMethod]
     public async Task RunGdalProcessingAsync()
     {
-        loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung von Thema {topic.TopicTitle} ({topic.Canton})");
+        loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung");
         loggerMock.Setup(LogLevel.Information, $"Lade Nutzungsart-Katalog von https://models.geo.admin.ch/BLW/LWB_Nutzungsflaechen_Kataloge_V2_0.xml");
 
         processor.InputDataPath = "testdata\\lwb_nutzungsflaechen_v2_0_lv95_NE_202404191123.gpkg";
