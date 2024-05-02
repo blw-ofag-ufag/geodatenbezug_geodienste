@@ -85,6 +85,9 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             processingResult.Info = "Data processed successfully";
 
             logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) erfolgreich verarbeitet. DownloadUrl: {processingResult.DownloadUrl}");
+
+            File.Delete(zipFullFilePath);
+            Directory.Delete(DataDirectory, true);
         }
         catch (Exception ex)
         {
