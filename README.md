@@ -4,6 +4,17 @@
 
 Dieses Projekt implementiert einen automatisierten Datenintegrationsprozess für landwirtschaftliche Geodaten, die von der Plattform geodienste.ch bereitgestellt werden.
 
+## Log abfragen
+
+Um im Azure Portal die relevanten Logs inkl. Exceptions abzufragen, kann folgende Query ausgeführt werden:
+
+```
+traces
+| where customDimensions.CategoryName startswith "Geodatenbezug."
+| union exceptions
+| where customDimensions.CategoryName startswith "Geodatenbezug."
+```
+
 ## Einrichten der Entwicklungsumgebung
 
 Folgende Komponenten müssen auf dem Entwicklungsrechner installiert sein:
