@@ -42,6 +42,8 @@ public class AzureStorage(ILogger<AzureStorage> logger) : IAzureStorage
     /// <inheritdoc />
     public async Task<DateTime?> GetLastProcessed(Topic topic)
     {
+        logger.LogInformation($"Lade Datei {localFilePath} in den Azure Storage hoch");
+        
         var containerClient = new BlobServiceClient(ConnectionString).GetBlobContainerClient(StorageContainerName);
         var creationDates = new List<DateTime>();
 
@@ -73,7 +75,7 @@ public class AzureStorage(ILogger<AzureStorage> logger) : IAzureStorage
         using var localFileStream = File.OpenRead(localFilePath);
         await blobClient.UploadAsync(localFileStream).ConfigureAwait(false);
 
-        logger.LogInformation($"Erstelle DownloadUrl für Datei {localFilePath}...");
+        logger.LogInformation($"Erstelle DownloadUrl für Datei {localFilePath}");
         var sasBuilder = new BlobSasBuilder
         {
             BlobContainerName = StorageContainerName,
