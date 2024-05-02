@@ -82,7 +82,7 @@ public class ProcessingTest
             .ReturnsAsync((DateTime?)null)
             .ReturnsAsync(datestring_delta23);
 
-        var topicsToProcess = await new Processor(geodiensteApiMock.Object, azureStorageMock.Object, loggerMock.Object).GetTopicsToProcess();
+        var topicsToProcess = await processor.GetTopicsToProcess();
         Assert.AreEqual(2, topicsToProcess.Count);
         Assert.AreEqual(BaseTopic.lwb_perimeter_ln_sf, topicsToProcess[0].BaseTopic);
         Assert.AreEqual(Canton.SH, topicsToProcess[0].Canton);
