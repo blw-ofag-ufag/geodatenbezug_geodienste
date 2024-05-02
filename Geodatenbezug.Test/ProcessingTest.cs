@@ -1,4 +1,5 @@
-﻿using Geodatenbezug.Models;
+﻿using System.Globalization;
+using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -70,13 +71,18 @@ public class ProcessingTest
             ]);
 
         loggerMock.Setup(LogLevel.Information, "Laden der Themen...");
-        loggerMock.Setup(LogLevel.Information, $"Thema Perimeter LN- und Sömmerungsflächen (SH) wurde am {datestring_delta4:yyyy-MM-dd HH:mm:ss} aktualisiert und wird verarbeitet");
-        loggerMock.Setup(LogLevel.Information, $"Thema Perimeter LN- und Sömmerungsflächen (ZG) wurde am {datestring_delta23:yyyy-MM-dd HH:mm:ss} aktualisiert und wird verarbeitet");
-        loggerMock.Setup(LogLevel.Information, $"Thema Rebbaukataster (SH) wurde seit {datestring_delta30:yyyy-MM-dd HH:mm:ss} nicht aktualisiert");
+        loggerMock.Setup(LogLevel.Information, $"Thema Perimeter LN- und Sömmerungsflächen (SH) wurde am {datestring_delta4.ToString("G", CultureInfo.GetCultureInfo("de-CH"))} aktualisiert und wird verarbeitet");
+        loggerMock.Setup(LogLevel.Information, $"Thema Perimeter LN- und Sömmerungsflächen (ZG) wurde am {datestring_delta23.ToString("G", CultureInfo.GetCultureInfo("de-CH"))} aktualisiert und wird verarbeitet");
+        loggerMock.Setup(LogLevel.Information, $"Thema Rebbaukataster (SH) wurde seit {datestring_delta30.ToString("G", CultureInfo.GetCultureInfo("de-CH"))} nicht aktualisiert");
         loggerMock.Setup(LogLevel.Information, "Thema Rebbaukataster (ZG) ist nicht verfügbar");
         loggerMock.Setup(LogLevel.Information, "2 Themen werden prozessiert");
 
-        var topicsToProcess = await processor.GetTopicsToProcess();
+        azureStorageMock.SetupSequence(storage => storage.GetLastProcessed(It.IsAny<Topic>()))
+            .ReturnsAsync(datestring_delta23)
+            .ReturnsAsync((DateTime?)null)
+            .ReturnsAsync(datestring_delta23);
+
+        var topicsToProcess = await new Processor(geodiensteApiMock.Object, azureStorageMock.Object, loggerMock.Object).GetTopicsToProcess();
         Assert.AreEqual(2, topicsToProcess.Count);
         Assert.AreEqual(BaseTopic.lwb_perimeter_ln_sf, topicsToProcess[0].BaseTopic);
         Assert.AreEqual(Canton.SH, topicsToProcess[0].Canton);
