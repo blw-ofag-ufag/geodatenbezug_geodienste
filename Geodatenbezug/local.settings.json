@@ -3,6 +3,10 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "TimeTriggerSchedule": "0 0 3 * * *"
+    "TimeTriggerSchedule": "0 0 3 * * *",
+    "SmtpHost": "mailhog.geow.cloud",
+    "SmtpFrom": "notifications@geowerkstatt.ch",
+    "SmtpTo": "geodaten@blw.admin.ch",
+    "SmtpCc": "support@geowerkstatt.ch"
   }
 }

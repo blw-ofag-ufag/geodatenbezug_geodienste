@@ -35,6 +35,10 @@ Für die Requests ans Geodienste API müssen folgende Umgebungsvariablen eingeri
 - tokens_lwb_bewirtschaftungseinheit: _Aus dem Azure Portal kopieren_
 - tokens_lwb_nutzungsflaechen: _Aus dem Azure Portal kopieren_
 
+### E-Mail Versand-Tests
+
+In der Entwicklungs- und Testumgebung verwenden wir [MailHog](https://mailhog.geow.cloud/) anstatt die Nachrichten wirklich zu verschicken.
+
 ### Azure Function ausführen
 
 1. Mit <kbd>F5</kbd> die Funktion starten.

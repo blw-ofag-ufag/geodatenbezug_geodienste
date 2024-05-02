@@ -1,4 +1,5 @@
-﻿using Geodatenbezug.Models;
+﻿using System.Globalization;
+using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -10,6 +11,8 @@ public class ProcessingTest
     private Mock<ILogger<Processor>> loggerMock;
     private Mock<IGeodiensteApi> geodiensteApiMock;
     private Mock<IAzureStorage> azureStorageMock;
+    private Mock<IMailService> mailServiceMock;
+    private Processor processor;
 
     [TestInitialize]
     public void Initialize()
@@ -17,6 +20,8 @@ public class ProcessingTest
         loggerMock = new Mock<ILogger<Processor>>(MockBehavior.Strict);
         geodiensteApiMock = new Mock<IGeodiensteApi>(MockBehavior.Strict);
         azureStorageMock = new Mock<IAzureStorage>(MockBehavior.Strict);
+        mailServiceMock = new Mock<IMailService>(MockBehavior.Strict);
+        processor = new Processor(geodiensteApiMock.Object, azureStorageMock.Object, loggerMock.Object, mailServiceMock.Object);
     }
 
     [TestCleanup]
@@ -65,13 +70,19 @@ public class ProcessingTest
                 },
             ]);
 
-        loggerMock.Setup(LogLevel.Information, $"Perimeter LN- und Sömmerungsflächen (SH): Thema wurde am {datestring_delta4:yyyy-MM-dd HH:mm:ss} aktualisiert und wird verarbeitet");
-        loggerMock.Setup(LogLevel.Information, $"Perimeter LN- und Sömmerungsflächen (ZG): Thema wurde am {datestring_delta23:yyyy-MM-dd HH:mm:ss} aktualisiert und wird verarbeitet");
-        loggerMock.Setup(LogLevel.Information, $"Rebbaukataster (SH): Thema wurde seit {datestring_delta30:yyyy-MM-dd HH:mm:ss} nicht aktualisiert");
+        loggerMock.Setup(LogLevel.Information, "Laden der Themen...");
+        loggerMock.Setup(LogLevel.Information, $"Perimeter LN- und Sömmerungsflächen (SH): Thema wurde am {datestring_delta4.ToString("G", CultureInfo.GetCultureInfo("de-CH"))} aktualisiert und wird verarbeitet");
+        loggerMock.Setup(LogLevel.Information, $"Perimeter LN- und Sömmerungsflächen (ZG): Thema wurde am {datestring_delta23.ToString("G", CultureInfo.GetCultureInfo("de-CH"))} aktualisiert und wird verarbeitet");
+        loggerMock.Setup(LogLevel.Information, $"Rebbaukataster (SH): Thema wurde seit {datestring_delta30.ToString("G", CultureInfo.GetCultureInfo("de-CH"))} nicht aktualisiert");
         loggerMock.Setup(LogLevel.Information, "Rebbaukataster (ZG): Thema ist nicht verfügbar");
         loggerMock.Setup(LogLevel.Information, "2 Themen werden prozessiert");
 
-        var topicsToProcess = await new Processor(geodiensteApiMock.Object, azureStorageMock.Object, loggerMock.Object).GetTopicsToProcess();
+        azureStorageMock.SetupSequence(storage => storage.GetLastProcessed(It.IsAny<Topic>()))
+            .ReturnsAsync(datestring_delta23)
+            .ReturnsAsync((DateTime?)null)
+            .ReturnsAsync(datestring_delta23);
+
+        var topicsToProcess = await processor.GetTopicsToProcess();
         Assert.AreEqual(2, topicsToProcess.Count);
         Assert.AreEqual(BaseTopic.lwb_perimeter_ln_sf, topicsToProcess[0].BaseTopic);
         Assert.AreEqual(Canton.SH, topicsToProcess[0].Canton);

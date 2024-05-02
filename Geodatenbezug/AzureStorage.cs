@@ -1,6 +1,8 @@
 ﻿using Azure.Storage;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
+using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Geodatenbezug;
@@ -13,18 +15,60 @@ public class AzureStorage(ILogger<AzureStorage> logger) : IAzureStorage
 #pragma warning restore SA1009 // Closing parenthesis should be spaced correctly
 {
     private const string StorageContainerName = "processed-topics";
+    private string connectionString = string.Empty;
+
+    /// <summary>
+    /// Connection string to the Azure Storage.
+    /// </summary>
+    protected string ConnectionString
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                var value = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+                if (string.IsNullOrEmpty(value))
+                {
+                    throw new InvalidOperationException("AzureWebJobsStorage is not set");
+                }
+
+                connectionString = value;
+            }
+
+            return connectionString;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<DateTime?> GetLastProcessed(Topic topic)
+    {
+        logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Frage letzte Prozessierung des Themas ab");
+        var containerClient = new BlobServiceClient(ConnectionString).GetBlobContainerClient(StorageContainerName);
+        var creationDates = new List<DateTime>();
+
+        await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
+        {
+            if (blobItem.Name.Contains(topic.Canton.ToString(), StringComparison.OrdinalIgnoreCase)
+                && blobItem.Name.Contains(topic.BaseTopic.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                creationDates.Add(blobItem.Properties.CreatedOn.GetValueOrDefault().DateTime);
+            }
+        }
+
+        if (creationDates.Count > 0)
+        {
+            return creationDates.Max();
+        }
+
+        return null;
+    }
 
     /// <inheritdoc />
     public async Task<string> UploadFileAsync(string storageFilePath, string localFilePath)
     {
         logger.LogInformation($"Lade Datei {localFilePath} in den Azure Storage hoch");
-        var connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
-        if (string.IsNullOrEmpty(connectionString))
-        {
-            throw new InvalidOperationException("AzureWebJobsStorage is not set");
-        }
 
-        var containerClient = new BlobServiceClient(connectionString).GetBlobContainerClient(StorageContainerName);
+        var containerClient = new BlobServiceClient(ConnectionString).GetBlobContainerClient(StorageContainerName);
         var blobClient = containerClient.GetBlobClient(storageFilePath);
 
         using var localFileStream = File.OpenRead(localFilePath);
@@ -42,8 +86,8 @@ public class AzureStorage(ILogger<AzureStorage> logger) : IAzureStorage
         };
         sasBuilder.SetPermissions(BlobSasPermissions.Read);
 
-        var accountName = connectionString.ExtractValueByKey("AccountName");
-        var accountKey = connectionString.ExtractValueByKey("AccountKey");
+        var accountName = ConnectionString.ExtractValueByKey("AccountName");
+        var accountKey = ConnectionString.ExtractValueByKey("AccountKey");
         string sasToken = sasBuilder.ToSasQueryParameters(new StorageSharedKeyCredential(accountName, accountKey)).ToString();
         return $"{blobClient.Uri}?{sasToken}";
     }

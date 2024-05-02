@@ -5,6 +5,10 @@
         <tokens_lwb_rebbaukataster>AG=token1;BE=token2;NW=token3</tokens_lwb_rebbaukataster>
         <AuthUser>user123</AuthUser>
         <AuthPw>password123</AuthPw>
+        <SmtpHost>mailhog.geow.cloud</SmtpHost>
+        <SmtpFrom>notifications@geowerkstatt.ch</SmtpFrom>
+        <SmtpTo>geodaten@blw.admin.ch</SmtpTo>
+        <SmtpCc>support@geowerkstatt.ch</SmtpCc>
     </EnvironmentVariables>
   </RunConfiguration>
 </RunSettings>

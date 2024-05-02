@@ -55,6 +55,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         Code = HttpStatusCode.Processing,
         Canton = topic.Canton,
         TopicTitle = topic.TopicTitle,
+        UpdatedAt = topic.UpdatedAt,
     };
 
     /// <summary>
