@@ -40,7 +40,7 @@ public class BiodiversitaetsfoerderflaechenProcessorTest
     [TestMethod]
     public async Task RunGdalProcessingAsync()
     {
-        loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung von Thema {topic.TopicTitle} ({topic.Canton})");
+        loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung");
 
         processor.InputDataPath = "testdata\\lwb_biodiversitaetsfoerderflaechen_v2_0_lv95_NE_202404191123.gpkg";
         await processor.RunGdalProcessingAsync();

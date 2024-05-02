@@ -25,18 +25,18 @@ public class Processor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage,
                 var timeDifference = currentTime - topic.UpdatedAt.Value;
                 if (timeDifference.Days < 1)
                 {
-                    logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) wurde am {updatedAtString} aktualisiert und wird verarbeitet");
+                    logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Thema wurde am {updatedAtString} aktualisiert und wird verarbeitet");
                     return true;
                 }
                 else
                 {
-                    logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) wurde seit {updatedAtString} nicht aktualisiert");
+                    logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Thema wurde seit {updatedAtString} nicht aktualisiert");
                     return false;
                 }
             }
             else
             {
-                logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) ist nicht verfügbar");
+                logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Thema ist nicht verfügbar");
                 return false;
             }
         });
