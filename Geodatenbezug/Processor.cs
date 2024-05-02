@@ -21,7 +21,7 @@ public class Processor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage,
         var topicsToProcess = new List<Topic>();
         foreach (var topic in topics)
         {
-            if (topic.UpdatedAt.HasValue)
+            if (topic.UpdatedAt.HasValue && topic.PublicationData != "Im Aufbau")
             {
                 var updatedAtString = topic.UpdatedAt.Value.ToString("G", CultureInfo.GetCultureInfo("de-CH"));
 
