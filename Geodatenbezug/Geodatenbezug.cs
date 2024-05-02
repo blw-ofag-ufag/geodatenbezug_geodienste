@@ -27,19 +27,18 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     {
         logger.LogInformation("Start der Prozessierung");
         var topics = await context.CallActivityAsync<List<Topic>>(nameof(RetrieveTopics)).ConfigureAwait(true);
-        var results = new List<ProcessingResult>();
+        var parallelProcessingTasks = new List<Task<ProcessingResult>>();
         foreach (var topic in topics)
         {
-            var result = await context.CallActivityAsync<ProcessingResult?>(nameof(ProcessTopic), topic).ConfigureAwait(true);
-            if (result != null)
-            {
-                results.Add(result);
-            }
+            parallelProcessingTasks.Add(context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), topic));
         }
 
-        if (results.Count > 0)
+        var results = await Task.WhenAll(parallelProcessingTasks).ConfigureAwait(true);
+        var resultList = results.ToList();
+
+        if (resultList.Count > 0)
         {
-            await context.CallActivityAsync(nameof(SendNotification), results).ConfigureAwait(true);
+            await context.CallActivityAsync(nameof(SendNotification), resultList).ConfigureAwait(true);
         }
     }
 
@@ -60,7 +59,7 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     /// <param name="topic">The <see cref="Topic"/> to be processed.</param>
     /// <returns>The <see cref="ProcessingResult"/>.</returns>
     [Function(nameof(ProcessTopic))]
-    public async Task<ProcessingResult?> ProcessTopic([ActivityTrigger] Topic topic)
+    public async Task<ProcessingResult> ProcessTopic([ActivityTrigger] Topic topic)
     {
         return await processing.ProcessTopic(topic).ConfigureAwait(false);
     }
