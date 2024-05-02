@@ -2,6 +2,7 @@
 
 /// <summary>
 /// Represents the cantons for which the geodata is processed.
+/// BS, Basel-Stadt is included in BL, Basel-Landschaft.
 /// </summary>
 public enum Canton
 {
@@ -11,7 +12,6 @@ public enum Canton
     AR,
     BE,
     BL,
-    BS,
     FR,
     GE,
     GL,
