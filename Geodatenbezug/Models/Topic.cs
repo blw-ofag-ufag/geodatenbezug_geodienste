@@ -32,4 +32,10 @@ public record Topic
     /// </summary>
     [JsonPropertyName("updated_at")]
     public DateTime? UpdatedAt { get; set; }
+
+    /// <summary>
+    /// Topic title.
+    /// </summary>
+    [JsonPropertyName("publication_data")]
+    public string? PublicationData { get; set; }
 }
