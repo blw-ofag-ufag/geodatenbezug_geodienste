@@ -11,6 +11,8 @@ public class ProcessingTest
     private Mock<ILogger<Processor>> loggerMock;
     private Mock<IGeodiensteApi> geodiensteApiMock;
     private Mock<IAzureStorage> azureStorageMock;
+    private Mock<IMailService> mailServiceMock;
+    private Processor processor;
 
     [TestInitialize]
     public void Initialize()
@@ -18,6 +20,8 @@ public class ProcessingTest
         loggerMock = new Mock<ILogger<Processor>>(MockBehavior.Strict);
         geodiensteApiMock = new Mock<IGeodiensteApi>(MockBehavior.Strict);
         azureStorageMock = new Mock<IAzureStorage>(MockBehavior.Strict);
+        mailServiceMock = new Mock<IMailService>(MockBehavior.Strict);
+        processor = new Processor(geodiensteApiMock.Object, azureStorageMock.Object, loggerMock.Object, mailServiceMock.Object);
     }
 
     [TestCleanup]
@@ -66,6 +70,7 @@ public class ProcessingTest
                 },
             ]);
 
+        loggerMock.Setup(LogLevel.Information, "Laden der Themen...");
         loggerMock.Setup(LogLevel.Information, $"Thema Perimeter LN- und Sömmerungsflächen (SH) wurde am {datestring_delta4.ToString("G", CultureInfo.GetCultureInfo("de-CH"))} aktualisiert und wird verarbeitet");
         loggerMock.Setup(LogLevel.Information, $"Thema Perimeter LN- und Sömmerungsflächen (ZG) wurde am {datestring_delta23.ToString("G", CultureInfo.GetCultureInfo("de-CH"))} aktualisiert und wird verarbeitet");
         loggerMock.Setup(LogLevel.Information, $"Thema Rebbaukataster (SH) wurde seit {datestring_delta30.ToString("G", CultureInfo.GetCultureInfo("de-CH"))} nicht aktualisiert");
@@ -77,7 +82,7 @@ public class ProcessingTest
             .ReturnsAsync((DateTime?)null)
             .ReturnsAsync(datestring_delta23);
 
-        var topicsToProcess = await new Processor(geodiensteApiMock.Object, azureStorageMock.Object, loggerMock.Object).GetTopicsToProcess();
+        var topicsToProcess = await processor.GetTopicsToProcess();
         Assert.AreEqual(2, topicsToProcess.Count);
         Assert.AreEqual(BaseTopic.lwb_perimeter_ln_sf, topicsToProcess[0].BaseTopic);
         Assert.AreEqual(Canton.SH, topicsToProcess[0].Canton);

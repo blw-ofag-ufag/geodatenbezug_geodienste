@@ -8,13 +8,15 @@ namespace Geodatenbezug;
 /// <summary>
 /// Handles the processing of the topics.
 /// </summary>
-public class Processor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage, ILogger<Processor> logger)
+public class Processor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage, ILogger<Processor> logger, IMailService mailService)
 {
     /// <summary>
     /// Gets the topics that have new data and need to be processed.
     /// </summary>
     public async Task<List<Topic>> GetTopicsToProcess()
     {
+        logger.LogInformation("Laden der Themen...");
+
         var topics = await geodiensteApi.RequestTopicInfoAsync().ConfigureAwait(false);
         var topicsToProcess = new List<Topic>();
         foreach (var topic in topics)
@@ -52,5 +54,13 @@ public class Processor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage,
     {
         var topicProcessor = TopicProcessorFactory.Create(geodiensteApi, azureStorage, logger, topic);
         return await topicProcessor.ProcessAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sends an email with the processing results.
+    /// </summary>
+    public void SendEmail(List<ProcessingResult> results)
+    {
+        mailService.SendProcessingResults(results);
     }
 }

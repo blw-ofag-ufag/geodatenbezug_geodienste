@@ -23,6 +23,7 @@ var host = new HostBuilder()
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", encodedCredentials);
         });
         services.AddTransient<Processor>();
+        services.AddTransient<IMailService, MailService>();
         services.AddTransient<IGeodiensteApi, GeodiensteApi>();
         services.AddTransient<IAzureStorage, AzureStorage>();
         services = services.Configure<LoggerFilterOptions>(options =>

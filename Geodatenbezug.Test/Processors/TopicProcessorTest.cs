@@ -49,6 +49,7 @@ public class TopicProcessorTest
             Code = HttpStatusCode.Processing,
             TopicTitle = topic.TopicTitle,
             Canton = topic.Canton,
+            UpdatedAt = topic.UpdatedAt.Value,
         };
         geodiensteApiMock
             .Setup(api => api.StartExportAsync(It.IsAny<Topic>()))
@@ -73,6 +74,7 @@ public class TopicProcessorTest
             Code = HttpStatusCode.Processing,
             TopicTitle = topic.TopicTitle,
             Canton = topic.Canton,
+            UpdatedAt = topic.UpdatedAt.Value,
         };
         geodiensteApiMock
             .Setup(api => api.StartExportAsync(It.IsAny<Topic>()))
@@ -99,6 +101,7 @@ public class TopicProcessorTest
             Info = "Data export information not found. Invalid token?",
             TopicTitle = topic.TopicTitle,
             Canton = topic.Canton,
+            UpdatedAt = topic.UpdatedAt.Value,
         };
         geodiensteApiMock
             .Setup(api => api.StartExportAsync(It.IsAny<Topic>()))
@@ -123,6 +126,7 @@ public class TopicProcessorTest
             Info = "An unexpected error occurred. Please try again by starting a new data export.",
             TopicTitle = topic.TopicTitle,
             Canton = topic.Canton,
+            UpdatedAt = topic.UpdatedAt.Value,
         };
         geodiensteApiMock
             .Setup(api => api.StartExportAsync(It.IsAny<Topic>()))
@@ -151,6 +155,7 @@ public class TopicProcessorTest
             Info = "Data export information not found. Invalid token?",
             TopicTitle = topic.TopicTitle,
             Canton = topic.Canton,
+            UpdatedAt = topic.UpdatedAt.Value,
         };
         geodiensteApiMock
             .Setup(api => api.StartExportAsync(It.IsAny<Topic>()))
@@ -179,6 +184,7 @@ public class TopicProcessorTest
             Info = "Inner exception details",
             TopicTitle = topic.TopicTitle,
             Canton = topic.Canton,
+            UpdatedAt = topic.UpdatedAt.Value,
         };
 
         processorMock.Setup(p => p.PrepareDataAsync())
