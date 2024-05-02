@@ -27,15 +27,13 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     {
         logger.LogInformation("Start der Prozessierung");
         var topics = await context.CallActivityAsync<List<Topic>>(nameof(RetrieveTopics)).ConfigureAwait(true);
-        var results = new List<ProcessingResult>();
+        var parallelProcessingTasks = new List<Task<ProcessingResult>>();
         foreach (var topic in topics)
         {
-            var result = await context.CallActivityAsync<ProcessingResult?>(nameof(ProcessTopic), topic).ConfigureAwait(true);
-            if (result != null)
-            {
-                results.Add(result);
-            }
+            parallelProcessingTasks.Add(context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), topic));
         }
+
+        var results = await Task.WhenAll(parallelProcessingTasks).ConfigureAwait(true);
     }
 
     /// <summary>
@@ -54,7 +52,7 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     /// Durable function to process a single topic.
     /// </summary>
     [Function(nameof(ProcessTopic))]
-    public async Task<ProcessingResult?> ProcessTopic([ActivityTrigger] Topic topic)
+    public async Task<ProcessingResult> ProcessTopic([ActivityTrigger] Topic topic)
     {
         return await processing.ProcessTopic(topic).ConfigureAwait(false);
     }
