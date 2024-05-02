@@ -72,11 +72,11 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
                     var errorResponse = JsonSerializer.Deserialize<GeodiensteExportError>(jsonString);
                     if (retryCount < 10)
                     {
-                        logger.LogInformation("Es läuft gerade ein anderer Export. Versuche es in 1 Minute erneut.");
+                        logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Es läuft gerade ein anderer Export. Versuche es in 1 Minute erneut.");
                     }
                     else
                     {
-                        logger.LogError("Es läuft bereits ein anderer Export. Zeitlimite überschritten.");
+                        logger.LogError($"{topic.TopicTitle} ({topic.Canton}): Es läuft bereits ein anderer Export. Zeitlimite überschritten.");
                     }
                 });
 
@@ -114,11 +114,11 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
                 var statusString = statusResponse.Status == GeodiensteStatus.Queued ? "in der Warteschlange" : "in Bearbeitung";
                 if (retryCount < 10)
                 {
-                    logger.LogInformation($"Export ist {statusString}. Versuche es in 1 Minute erneut.");
+                    logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Export ist {statusString}. Versuche es in 1 Minute erneut.");
                 }
                 else
                 {
-                    logger.LogError($"Zeitlimite überschritten. Status ist {statusString}");
+                    logger.LogError($"{topic.TopicTitle} ({topic.Canton}): Zeitlimite überschritten. Status ist {statusString}");
                 }
             });
 
