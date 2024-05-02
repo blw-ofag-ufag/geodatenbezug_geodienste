@@ -25,7 +25,7 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     [Function(nameof(OrchestrateProcessing))]
     public async Task OrchestrateProcessing([OrchestrationTrigger] TaskOrchestrationContext context)
     {
-        logger.LogInformation("Start der Prozessierung...");
+        logger.LogInformation("Start der Prozessierung");
         var topics = await context.CallActivityAsync<List<Topic>>(nameof(RetrieveTopics)).ConfigureAwait(true);
         var results = new List<ProcessingResult>();
         foreach (var topic in topics)

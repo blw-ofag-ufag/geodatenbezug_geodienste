@@ -49,7 +49,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     {
         var token = GetToken(topic.BaseTopic, topic.Canton);
         var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/export.json";
-        logger.LogInformation($"Starte den Datenexport für {topic.TopicTitle} ({topic.Canton}) mit {url}...");
+        logger.LogInformation($"Starte den Datenexport für {topic.TopicTitle} ({topic.Canton}) mit {url}");
         using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));
 
         var retryPolicy = Policy
@@ -71,11 +71,11 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
                     var errorResponse = JsonSerializer.Deserialize<GeodiensteExportError>(jsonString);
                     if (retryCount < 10)
                     {
-                        logger.LogInformation("Es läuft gerade ein anderer Export. Versuche es in 1 Minute erneut.");
+                        logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Es läuft gerade ein anderer Export. Versuche es in 1 Minute erneut.");
                     }
                     else
                     {
-                        logger.LogError("Es läuft bereits ein anderer Export. Zeitlimite überschritten.");
+                        logger.LogError($"{topic.TopicTitle} ({topic.Canton}): Es läuft bereits ein anderer Export. Zeitlimite überschritten.");
                     }
                 });
 
@@ -90,7 +90,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     {
         var token = GetToken(topic.BaseTopic, topic.Canton);
         var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/status.json";
-        logger.LogInformation($"Prüfe den Status des Datenexports für {topic.TopicTitle} ({topic.Canton}) mit {url}...");
+        logger.LogInformation($"Prüfe den Status des Datenexports für {topic.TopicTitle} ({topic.Canton}) mit {url}");
         using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));
 
         var retryPolicy = Policy
@@ -113,11 +113,11 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
                 var statusString = statusResponse.Status == GeodiensteStatus.Queued ? "in der Warteschlange" : "in Bearbeitung";
                 if (retryCount < 10)
                 {
-                    logger.LogInformation($"Export ist {statusString}. Versuche es in 1 Minute erneut.");
+                    logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Export ist {statusString}. Versuche es in 1 Minute erneut.");
                 }
                 else
                 {
-                    logger.LogError($"Zeitlimite überschritten. Status ist {statusString}");
+                    logger.LogError($"{topic.TopicTitle} ({topic.Canton}): Zeitlimite überschritten. Status ist {statusString}");
                 }
             });
 
@@ -130,7 +130,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     /// <inheritdoc />
     public async Task<string> DownloadExportAsync(string downloadUrl, string destinationPath)
     {
-        logger.LogInformation($"Lade die Daten herunter {downloadUrl}...");
+        logger.LogInformation($"Lade die Daten herunter {downloadUrl}");
         Directory.CreateDirectory(destinationPath);
         var downloadedFilePath = string.Empty;
         using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));

@@ -68,12 +68,13 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     {
         try
         {
-            logger.LogInformation($"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})...");
+            logger.LogInformation($"Verarbeite Thema {topic.TopicTitle} ({topic.Canton})");
 
             await PrepareDataAsync().ConfigureAwait(false);
 
             await RunGdalProcessingAsync().ConfigureAwait(false);
 
+            logger.LogInformation($"Zippe Resultate für {topic.TopicTitle} ({topic.Canton})");
             var zipFileName = $"{Path.GetFileName(dataDirectory)}_{Topic.Canton}_{DateTime.Now.ToString("yyyyMMddHHmm", new CultureInfo("de-CH"))}.zip";
             var zipFileDirectory = Path.GetDirectoryName(DataDirectory) ?? throw new InvalidOperationException("Invalid data directory");
             var zipFullFilePath = Path.Combine(zipFileDirectory, zipFileName);
@@ -85,6 +86,9 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             processingResult.Info = "Data processed successfully";
 
             logger.LogInformation($"Thema {topic.TopicTitle} ({topic.Canton}) erfolgreich verarbeitet. DownloadUrl: {processingResult.DownloadUrl}");
+
+            File.Delete(zipFullFilePath);
+            Directory.Delete(DataDirectory, true);
         }
         catch (Exception ex)
         {
@@ -106,7 +110,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// </summary>
     protected internal virtual async Task PrepareDataAsync()
     {
-        logger.LogInformation($"Bereite Daten für die Prozessierung von {topic.TopicTitle} ({topic.Canton}) vor...");
+        logger.LogInformation($"Bereite Daten für die Prozessierung von {topic.TopicTitle} ({topic.Canton}) vor");
         var downloadUrl = await ExportTopicAsync(topic).ConfigureAwait(false);
         InputDataPath = await GeodiensteApi.DownloadExportAsync(downloadUrl, DataDirectory).ConfigureAwait(false);
     }
@@ -116,7 +120,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// </summary>
     protected internal async Task<string> ExportTopicAsync(Topic topic)
     {
-        logger.LogInformation($"Exportiere {topic.TopicTitle} ({topic.Canton})...");
+        logger.LogInformation($"Exportiere {topic.TopicTitle} ({topic.Canton})");
 
         var exportResponse = await GeodiensteApi.StartExportAsync(topic).ConfigureAwait(false);
         if (!exportResponse.IsSuccessStatusCode)
@@ -177,7 +181,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// </summary>
     protected internal async Task RunGdalProcessingAsync()
     {
-        logger.LogInformation($"Starte GDAL-Prozessierung von Thema {topic.TopicTitle} ({topic.Canton})...");
+        logger.LogInformation($"Starte GDAL-Prozessierung von Thema {topic.TopicTitle} ({topic.Canton})");
 
         Ogr.RegisterAll();
         Ogr.UseExceptions();

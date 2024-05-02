@@ -26,7 +26,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
     /// <inheritdoc />
     protected internal override async Task PrepareDataAsync()
     {
-        Logger.LogInformation($"Bereite Daten für die Prozessierung von {Topic.TopicTitle} ({Topic.Canton}) vor...");
+        Logger.LogInformation($"Bereite Daten für die Prozessierung von {Topic.TopicTitle} ({Topic.Canton}) vor");
 
         var exportInputTopic = PrepareTopic(Topic);
 
@@ -243,7 +243,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
 
     private async Task<List<LnfKatalogNutzungsart>> GetLnfKatalogNutzungsartAsync()
     {
-        Logger.LogInformation($"Lade Nutzungsart-Katalog von {CatalogUrl}...");
+        Logger.LogInformation($"Lade Nutzungsart-Katalog von {CatalogUrl}");
 
         using var httpClient = new HttpClient();
         var xmlData = await httpClient.GetStringAsync(CatalogUrl).ConfigureAwait(false);
