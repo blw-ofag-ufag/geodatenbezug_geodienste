@@ -48,8 +48,8 @@ public class AzureStorage(ILogger<AzureStorage> logger) : IAzureStorage
 
         await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
         {
-            if (blobItem.Name.Contains(topic.Canton.ToString(), StringComparison.InvariantCulture)
-                && blobItem.Name.Contains(topic.BaseTopic.ToString(), StringComparison.InvariantCulture))
+            if (blobItem.Name.Contains(topic.Canton.ToString(), StringComparison.OrdinalIgnoreCase)
+                && blobItem.Name.Contains(topic.BaseTopic.ToString(), StringComparison.OrdinalIgnoreCase))
             {
                 creationDates.Add(blobItem.Properties.CreatedOn.GetValueOrDefault().DateTime);
             }
