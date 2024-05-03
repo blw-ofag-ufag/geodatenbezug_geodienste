@@ -15,6 +15,9 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
     private const string NutzungsflaechenJoinedLayerName = $"{NutzungsflaechenLayerName}_joined";
     private const string NutzungsartLayerName = "nutzungsart";
     private const string BewirtschaftungseinheitLayerName = "bewirtschaftungseinheit";
+    private const string BetriebsnummerFieldName = "betriebsnummer";
+    private const string IdentifikatorBeFieldName = "identifikator_be";
+    private const string LnfCodeFieldName = "lnf_code";
 
     private const string CatalogUrl = "https://models.geo.admin.ch/BLW/LWB_Nutzungsflaechen_Kataloge_V2_0.xml";
 
@@ -87,10 +90,10 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         // Join the nutzungsflaechen layer with the nutzungsart layer and the bewirtschaftungseinheit layer, then add the new joined layer to the processing data source
         Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Führe Join mit Nutzungsart und Bewirtschaftungseinheit aus");
         var joinQuery = @$"
-            SELECT {NutzungsflaechenLayerName}.*, {NutzungsartLayerName}.*, {BewirtschaftungseinheitLayerName}.betriebsnummer
+            SELECT {NutzungsflaechenLayerName}.*, {NutzungsartLayerName}.*, {BewirtschaftungseinheitLayerName}.{BetriebsnummerFieldName}
             FROM {NutzungsflaechenLayerName}
-            LEFT JOIN {NutzungsartLayerName} ON {NutzungsflaechenLayerName}.lnf_code = {NutzungsartLayerName}.lnf_code
-            LEFT JOIN {BewirtschaftungseinheitLayerName} ON {NutzungsflaechenLayerName}.identifikator_be = {BewirtschaftungseinheitLayerName}.identifikator_be";
+            LEFT JOIN {NutzungsartLayerName} ON {NutzungsflaechenLayerName}.{LnfCodeFieldName} = {NutzungsartLayerName}.{LnfCodeFieldName}
+            LEFT JOIN {BewirtschaftungseinheitLayerName} ON {NutzungsflaechenLayerName}.{IdentifikatorBeFieldName} = {BewirtschaftungseinheitLayerName}.{IdentifikatorBeFieldName}";
         var tmpLayer = ProcessingDataSource.ExecuteSQL(joinQuery, null, "OGRSQL");
         ProcessingDataSource.CopyLayer(tmpLayer, NutzungsflaechenJoinedLayerName, null);
 
@@ -126,7 +129,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
                 fieldName = originalFieldName.Replace($"{NutzungsartLayerName}_", string.Empty, StringComparison.InvariantCulture);
             }
 
-            if (originalFieldName == $"{BewirtschaftungseinheitLayerName}_betriebsnummer")
+            if (originalFieldName == $"{BewirtschaftungseinheitLayerName}_{BetriebsnummerFieldName}")
             {
                 fieldName = "bewe_betriebsnummer";
             }
@@ -207,8 +210,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
 
         var nutzungsartLayer = ProcessingDataSource.CreateLayer(NutzungsartLayerName, null, wkbGeometryType.wkbNone, null);
 
-        var lnfCodeName = "lnf_code";
-        using var lnfCode = new FieldDefn(lnfCodeName, FieldType.OFTInteger);
+        using var lnfCode = new FieldDefn(LnfCodeFieldName, FieldType.OFTInteger);
         nutzungsartLayer.CreateField(lnfCode, 1);
 
         var istBffQiName = "ist_bff_qi";
@@ -243,7 +245,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         catalogData.ForEach(entry =>
         {
             using var feature = new Feature(nutzungsartLayer.GetLayerDefn());
-            feature.SetField(lnfCodeName, entry.LnfCode);
+            feature.SetField(LnfCodeFieldName, entry.LnfCode);
             feature.SetField(istBffQiName, entry.IstBFFQI ? 1 : 0);
             feature.SetField(hauptkategorieDeName, entry.Hauptkategorie.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.Single(t => t.Language == "de").Text);
             feature.SetField(hauptkategorieFrName, entry.Hauptkategorie.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.Single(t => t.Language == "fr").Text);
@@ -254,7 +256,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             nutzungsartLayer.CreateFeature(feature);
         });
 
-        ProcessingDataSource.ExecuteSQL($"CREATE INDEX lnf_code ON {NutzungsartLayerName}(lnf_code)", null, "OGRSQL");
+        ProcessingDataSource.ExecuteSQL($"CREATE INDEX {LnfCodeFieldName} ON {NutzungsartLayerName}({LnfCodeFieldName})", null, "OGRSQL");
     }
 
     private void CreateBewirtschaftungsLayer()
@@ -271,7 +273,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         {
             var originalFieldDefinition = bewirtschaftungseinheitLayerDefinition.GetFieldDefn(i);
             var fieldName = originalFieldDefinition.GetName();
-            if (fieldName == "identifikator_be" || fieldName == "betriebsnummer")
+            if (fieldName == IdentifikatorBeFieldName || fieldName == BetriebsnummerFieldName)
             {
                 using var newFieldDefinition = new FieldDefn(fieldName, originalFieldDefinition.GetFieldType());
                 newFieldDefinition.SetWidth(originalFieldDefinition.GetWidth());
@@ -291,20 +293,20 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             {
                 var fieldName = betriebsnummerLayerDefinition.GetFieldDefn(j).GetName();
 
-                if (fieldName == "identifikator_be")
+                if (fieldName == IdentifikatorBeFieldName)
                 {
-                    newFeature.SetField(fieldName, feature.GetFieldAsString("identifikator_be"));
+                    newFeature.SetField(fieldName, feature.GetFieldAsString(IdentifikatorBeFieldName));
                 }
-                else if (fieldName == "betriebsnummer")
+                else if (fieldName == BetriebsnummerFieldName)
                 {
-                    newFeature.SetField(fieldName, feature.GetFieldAsString("betriebsnummer"));
+                    newFeature.SetField(fieldName, feature.GetFieldAsString(BetriebsnummerFieldName));
                 }
             }
 
             betriebsnummerLayer.CreateFeature(newFeature);
         }
 
-        ProcessingDataSource.ExecuteSQL($"CREATE INDEX identifikator_be ON {BewirtschaftungseinheitLayerName}(identifikator_be)", null, "OGRSQL");
+        ProcessingDataSource.ExecuteSQL($"CREATE INDEX {IdentifikatorBeFieldName} ON {BewirtschaftungseinheitLayerName}({IdentifikatorBeFieldName})", null, "OGRSQL");
     }
 
     private async Task<List<LnfKatalogNutzungsart>> GetLnfKatalogNutzungsartAsync()
