@@ -1,4 +1,4 @@
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Serialization;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -74,7 +74,9 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         };
 
         var nutzungsflaechenTempLayer = CreateGdalLayer(NutzungsflaechenLayerName, fieldTypeConversions, fieldsToDrop);
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Kopiere Features aus dem GPKG in die GDB");
         nutzungsflaechenTempLayer.CopyFeatures();
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Filtere LNF-Codes");
         nutzungsflaechenTempLayer.FilterLnfCodes();
 
         // Create a temporary layer with data from the nutzungsart catalog
@@ -83,6 +85,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         CreateBewirtschaftungsLayer();
 
         // Join the nutzungsflaechen layer with the nutzungsart layer and the bewirtschaftungseinheit layer, then add the new joined layer to the processing data source
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Führe Join mit Nutzungsart und Bewirtschaftungseinheit aus");
         var joinQuery = @$"
             SELECT {NutzungsflaechenLayerName}.*, {NutzungsartLayerName}.*, {BewirtschaftungseinheitLayerName}.betriebsnummer
             FROM {NutzungsflaechenLayerName}
@@ -92,9 +95,11 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         ProcessingDataSource.CopyLayer(tmpLayer, NutzungsflaechenJoinedLayerName, null);
 
         // Delete the initial nutzungsflaechen layer because we want to create a new one with the joined data
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Lösche initialen Nutzungsflächenlayer");
         ProcessingDataSource.ExecuteSQL($"DROP TABLE {NutzungsflaechenLayerName}", null, "OGRSQL");
 
         // Create a new nutzungsflaechen layer with the desired fields
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Erstelle neuen Nutzungsflächenlayer");
         var nutzungsflaechenJoinedLayer = ProcessingDataSource.GetLayerByName(NutzungsflaechenJoinedLayerName);
         var nutzungsflaechenLayer = ProcessingDataSource.CreateLayer(NutzungsflaechenLayerName, tmpLayer.GetSpatialRef(), nutzungsflaechenJoinedLayer.GetGeomType(), null);
         var fieldNameMapping = new Dictionary<string, string>();
@@ -141,6 +146,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         }
 
         // Copy the features from the joined layer to the new nutzungsflaechen layer
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Kopiere Features vom Joined Layer zum neuen Nutzungsflächenlayer");
         nutzungsflaechenJoinedLayer.ResetReading();
         for (var i = 0; i < nutzungsflaechenJoinedLayer.GetFeatureCount(1); i++)
         {
@@ -182,16 +188,22 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             nutzungsflaechenLayer.CreateFeature(newFeature);
         }
 
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Konvertiere Multi- zu Singlepart-Geometrien");
         nutzungsflaechenLayer.ConvertMultiPartToSinglePartGeometry();
+
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Lösche temporäre Layer");
 
         // Delete the temporary work layers
         ProcessingDataSource.ExecuteSQL($"DROP TABLE {NutzungsflaechenJoinedLayerName}", null, "OGRSQL");
         ProcessingDataSource.ExecuteSQL($"DROP TABLE {NutzungsartLayerName}", null, "OGRSQL");
+        ProcessingDataSource.ExecuteSQL($"DROP TABLE {BewirtschaftungseinheitLayerName}", null, "OGRSQL");
     }
 
     private async Task CreateNutzungsartLayerAsync()
     {
         var catalogData = await GetLnfKatalogNutzungsartAsync().ConfigureAwait(false);
+
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Erstelle temporären Nutzungsartlayer");
 
         var nutzungsartLayer = ProcessingDataSource.CreateLayer(NutzungsartLayerName, null, wkbGeometryType.wkbNone, null);
 
@@ -296,7 +308,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
 
     private async Task<List<LnfKatalogNutzungsart>> GetLnfKatalogNutzungsartAsync()
     {
-        Logger.LogInformation($"Lade Nutzungsart-Katalog von {CatalogUrl}");
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Lade Nutzungsart-Katalog von {CatalogUrl}");
 
         using var httpClient = new HttpClient();
         var xmlData = await httpClient.GetStringAsync(CatalogUrl).ConfigureAwait(false);
@@ -312,7 +324,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         }
         else
         {
-            Logger.LogError("Deserialisierung von Nutzungsart-Katalog fehlgeschlagen.");
+            Logger.LogError($"{Topic.TopicTitle} ({Topic.Canton}): Deserialisierung von Nutzungsart-Katalog fehlgeschlagen.");
             throw new InvalidOperationException("Deserialization failed or returned null.");
         }
     }
