@@ -15,6 +15,9 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
     private const string NutzungsflaechenJoinedLayerName = $"{NutzungsflaechenLayerName}_joined";
     private const string NutzungsartLayerName = "nutzungsart";
     private const string BewirtschaftungseinheitLayerName = "bewirtschaftungseinheit";
+    private const string BetriebsnummerFieldName = "betriebsnummer";
+    private const string IdentifikatorBeFieldName = "identifikator_be";
+    private const string LnfCodeFieldName = "lnf_code";
 
     private const string CatalogUrl = "https://models.geo.admin.ch/BLW/LWB_Nutzungsflaechen_Kataloge_V2_0.xml";
 
@@ -74,25 +77,32 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         };
 
         var nutzungsflaechenTempLayer = CreateGdalLayer(NutzungsflaechenLayerName, fieldTypeConversions, fieldsToDrop);
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Kopiere Features aus dem GPKG in die GDB");
         nutzungsflaechenTempLayer.CopyFeatures();
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Filtere LNF-Codes");
         nutzungsflaechenTempLayer.FilterLnfCodes();
 
         // Create a temporary layer with data from the nutzungsart catalog
         await CreateNutzungsartLayerAsync().ConfigureAwait(false);
 
+        CreateBewirtschaftungsLayer();
+
         // Join the nutzungsflaechen layer with the nutzungsart layer and the bewirtschaftungseinheit layer, then add the new joined layer to the processing data source
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Führe Join mit Nutzungsart und Bewirtschaftungseinheit aus");
         var joinQuery = @$"
-            SELECT {NutzungsflaechenLayerName}.*, {NutzungsartLayerName}.*, {BewirtschaftungseinheitLayerName}.betriebsnummer
+            SELECT {NutzungsflaechenLayerName}.*, {NutzungsartLayerName}.*, {BewirtschaftungseinheitLayerName}.{BetriebsnummerFieldName}
             FROM {NutzungsflaechenLayerName}
-            LEFT JOIN {NutzungsartLayerName} ON {NutzungsflaechenLayerName}.lnf_code = {NutzungsartLayerName}.lnf_code
-            LEFT JOIN '{BewirtschaftungseinheitDataPath}'.{BewirtschaftungseinheitLayerName} ON {NutzungsflaechenLayerName}.identifikator_be = {BewirtschaftungseinheitLayerName}.identifikator_be";
+            LEFT JOIN {NutzungsartLayerName} ON {NutzungsflaechenLayerName}.{LnfCodeFieldName} = {NutzungsartLayerName}.{LnfCodeFieldName}
+            LEFT JOIN {BewirtschaftungseinheitLayerName} ON {NutzungsflaechenLayerName}.{IdentifikatorBeFieldName} = {BewirtschaftungseinheitLayerName}.{IdentifikatorBeFieldName}";
         var tmpLayer = ProcessingDataSource.ExecuteSQL(joinQuery, null, "OGRSQL");
         ProcessingDataSource.CopyLayer(tmpLayer, NutzungsflaechenJoinedLayerName, null);
 
         // Delete the initial nutzungsflaechen layer because we want to create a new one with the joined data
-        ProcessingDataSource.DeleteLayer(0);
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Lösche initialen Nutzungsflächenlayer");
+        ProcessingDataSource.ExecuteSQL($"DROP TABLE {NutzungsflaechenLayerName}", null, "OGRSQL");
 
         // Create a new nutzungsflaechen layer with the desired fields
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Erstelle neuen Nutzungsflächenlayer");
         var nutzungsflaechenJoinedLayer = ProcessingDataSource.GetLayerByName(NutzungsflaechenJoinedLayerName);
         var nutzungsflaechenLayer = ProcessingDataSource.CreateLayer(NutzungsflaechenLayerName, tmpLayer.GetSpatialRef(), nutzungsflaechenJoinedLayer.GetGeomType(), null);
         var fieldNameMapping = new Dictionary<string, string>();
@@ -119,7 +129,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
                 fieldName = originalFieldName.Replace($"{NutzungsartLayerName}_", string.Empty, StringComparison.InvariantCulture);
             }
 
-            if (originalFieldName == $"{BewirtschaftungseinheitLayerName}_betriebsnummer")
+            if (originalFieldName == $"{BewirtschaftungseinheitLayerName}_{BetriebsnummerFieldName}")
             {
                 fieldName = "bewe_betriebsnummer";
             }
@@ -139,6 +149,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         }
 
         // Copy the features from the joined layer to the new nutzungsflaechen layer
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Kopiere Features vom Joined Layer zum neuen Nutzungsflächenlayer");
         nutzungsflaechenJoinedLayer.ResetReading();
         for (var i = 0; i < nutzungsflaechenJoinedLayer.GetFeatureCount(1); i++)
         {
@@ -180,21 +191,28 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             nutzungsflaechenLayer.CreateFeature(newFeature);
         }
 
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Konvertiere Multi- zu Singlepart-Geometrien");
         nutzungsflaechenLayer.ConvertMultiPartToSinglePartGeometry();
+
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Lösche temporäre Layer");
 
         // Delete the temporary work layers
         ProcessingDataSource.ExecuteSQL($"DROP TABLE {NutzungsflaechenJoinedLayerName}", null, "OGRSQL");
         ProcessingDataSource.ExecuteSQL($"DROP TABLE {NutzungsartLayerName}", null, "OGRSQL");
+        ProcessingDataSource.ExecuteSQL($"DROP TABLE {BewirtschaftungseinheitLayerName}", null, "OGRSQL");
     }
 
     private async Task CreateNutzungsartLayerAsync()
     {
+        // Load the data from the Nutzungsart catalog
         var catalogData = await GetLnfKatalogNutzungsartAsync().ConfigureAwait(false);
 
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Erstelle temporären Nutzungsartlayer");
+
+        // Create a new layer in the processing data source with the catalog data
         var nutzungsartLayer = ProcessingDataSource.CreateLayer(NutzungsartLayerName, null, wkbGeometryType.wkbNone, null);
 
-        var lnfCodeName = "lnf_code";
-        using var lnfCode = new FieldDefn(lnfCodeName, FieldType.OFTInteger);
+        using var lnfCode = new FieldDefn(LnfCodeFieldName, FieldType.OFTInteger);
         nutzungsartLayer.CreateField(lnfCode, 1);
 
         var istBffQiName = "ist_bff_qi";
@@ -226,10 +244,11 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         using var nutzungIt = new FieldDefn(nutzungItName, FieldType.OFTString);
         nutzungsartLayer.CreateField(nutzungIt, 1);
 
+        // Add the catalog data to the nutzungsart layer
         catalogData.ForEach(entry =>
         {
             using var feature = new Feature(nutzungsartLayer.GetLayerDefn());
-            feature.SetField(lnfCodeName, entry.LnfCode);
+            feature.SetField(LnfCodeFieldName, entry.LnfCode);
             feature.SetField(istBffQiName, entry.IstBFFQI ? 1 : 0);
             feature.SetField(hauptkategorieDeName, entry.Hauptkategorie.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.Single(t => t.Language == "de").Text);
             feature.SetField(hauptkategorieFrName, entry.Hauptkategorie.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.Single(t => t.Language == "fr").Text);
@@ -239,11 +258,67 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             feature.SetField(nutzungItName, entry.Nutzung.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.Single(t => t.Language == "it").Text);
             nutzungsartLayer.CreateFeature(feature);
         });
+
+        // Create an index on the LNF code field for faster lookups. We need this to join the nutzungsflaechen layer with the nutzungsart layer
+        ProcessingDataSource.ExecuteSQL($"CREATE INDEX {LnfCodeFieldName} ON {NutzungsartLayerName}({LnfCodeFieldName})", null, "OGRSQL");
+    }
+
+    private void CreateBewirtschaftungsLayer()
+    {
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Erstelle temporären Bewirtschaftungslayer");
+
+        // Load the data from the Bewirtschaftungseinheit layer
+        using var bewirtschaftungseinheitDataSource = Ogr.Open(BewirtschaftungseinheitDataPath, 1);
+        var bewirtschaftungseinheitLayer = bewirtschaftungseinheitDataSource.GetLayerByName(BewirtschaftungseinheitLayerName);
+        var bewirtschaftungseinheitLayerDefinition = bewirtschaftungseinheitLayer.GetLayerDefn();
+
+        // Create a new layer in the processing data source with the desired fields from the bewirtschaftungseinheit layer
+        var betriebsnummerLayer = ProcessingDataSource.CreateLayer(BewirtschaftungseinheitLayerName, null, wkbGeometryType.wkbNone, null);
+        for (var i = 0; i < bewirtschaftungseinheitLayerDefinition.GetFieldCount(); i++)
+        {
+            var originalFieldDefinition = bewirtschaftungseinheitLayerDefinition.GetFieldDefn(i);
+            var fieldName = originalFieldDefinition.GetName();
+            if (fieldName == IdentifikatorBeFieldName || fieldName == BetriebsnummerFieldName)
+            {
+                using var newFieldDefinition = new FieldDefn(fieldName, originalFieldDefinition.GetFieldType());
+                newFieldDefinition.SetWidth(originalFieldDefinition.GetWidth());
+                newFieldDefinition.SetPrecision(originalFieldDefinition.GetPrecision());
+                betriebsnummerLayer.CreateField(newFieldDefinition, 1);
+            }
+        }
+
+        // Copy the features from the bewirtschaftungseinheit layer to the new betriebsnummer layer
+        bewirtschaftungseinheitLayer.ResetReading();
+        var betriebsnummerLayerDefinition = betriebsnummerLayer.GetLayerDefn();
+        for (var i = 0; i < bewirtschaftungseinheitLayer.GetFeatureCount(1); i++)
+        {
+            var feature = bewirtschaftungseinheitLayer.GetNextFeature();
+            using var newFeature = new Feature(betriebsnummerLayerDefinition);
+
+            for (var j = 0; j < betriebsnummerLayerDefinition.GetFieldCount(); j++)
+            {
+                var fieldName = betriebsnummerLayerDefinition.GetFieldDefn(j).GetName();
+
+                if (fieldName == IdentifikatorBeFieldName)
+                {
+                    newFeature.SetField(fieldName, feature.GetFieldAsString(IdentifikatorBeFieldName));
+                }
+                else if (fieldName == BetriebsnummerFieldName)
+                {
+                    newFeature.SetField(fieldName, feature.GetFieldAsString(BetriebsnummerFieldName));
+                }
+            }
+
+            betriebsnummerLayer.CreateFeature(newFeature);
+        }
+
+        // Create an index on the Identifikator BE field for faster lookups. We need this to join the nutzungsflaechen layer with the betriebsnummer layer
+        ProcessingDataSource.ExecuteSQL($"CREATE INDEX {IdentifikatorBeFieldName} ON {BewirtschaftungseinheitLayerName}({IdentifikatorBeFieldName})", null, "OGRSQL");
     }
 
     private async Task<List<LnfKatalogNutzungsart>> GetLnfKatalogNutzungsartAsync()
     {
-        Logger.LogInformation($"Lade Nutzungsart-Katalog von {CatalogUrl}");
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Lade Nutzungsart-Katalog von {CatalogUrl}");
 
         using var httpClient = new HttpClient();
         var xmlData = await httpClient.GetStringAsync(CatalogUrl).ConfigureAwait(false);
@@ -259,7 +334,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         }
         else
         {
-            Logger.LogError("Deserialisierung von Nutzungsart-Katalog fehlgeschlagen.");
+            Logger.LogError($"{Topic.TopicTitle} ({Topic.Canton}): Deserialisierung von Nutzungsart-Katalog fehlgeschlagen.");
             throw new InvalidOperationException("Deserialization failed or returned null.");
         }
     }
