@@ -204,10 +204,12 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
 
     private async Task CreateNutzungsartLayerAsync()
     {
+        // Load the data from the Nutzungsart catalog
         var catalogData = await GetLnfKatalogNutzungsartAsync().ConfigureAwait(false);
 
         Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Erstelle temporären Nutzungsartlayer");
 
+        // Create a new layer in the processing data source with the catalog data
         var nutzungsartLayer = ProcessingDataSource.CreateLayer(NutzungsartLayerName, null, wkbGeometryType.wkbNone, null);
 
         using var lnfCode = new FieldDefn(LnfCodeFieldName, FieldType.OFTInteger);
@@ -242,6 +244,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         using var nutzungIt = new FieldDefn(nutzungItName, FieldType.OFTString);
         nutzungsartLayer.CreateField(nutzungIt, 1);
 
+        // Add the catalog data to the nutzungsart layer
         catalogData.ForEach(entry =>
         {
             using var feature = new Feature(nutzungsartLayer.GetLayerDefn());
@@ -256,6 +259,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             nutzungsartLayer.CreateFeature(feature);
         });
 
+        // Create an index on the LNF code field for faster lookups. We need this to join the nutzungsflaechen layer with the nutzungsart layer
         ProcessingDataSource.ExecuteSQL($"CREATE INDEX {LnfCodeFieldName} ON {NutzungsartLayerName}({LnfCodeFieldName})", null, "OGRSQL");
     }
 
@@ -263,12 +267,13 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
     {
         Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Erstelle temporären Bewirtschaftungslayer");
 
-        var betriebsnummerLayer = ProcessingDataSource.CreateLayer(BewirtschaftungseinheitLayerName, null, wkbGeometryType.wkbNone, null);
-
+        // Load the data from the Bewirtschaftungseinheit layer
         using var bewirtschaftungseinheitDataSource = Ogr.Open(BewirtschaftungseinheitDataPath, 1);
         var bewirtschaftungseinheitLayer = bewirtschaftungseinheitDataSource.GetLayerByName(BewirtschaftungseinheitLayerName);
         var bewirtschaftungseinheitLayerDefinition = bewirtschaftungseinheitLayer.GetLayerDefn();
 
+        // Create a new layer in the processing data source with the desired fields from the bewirtschaftungseinheit layer
+        var betriebsnummerLayer = ProcessingDataSource.CreateLayer(BewirtschaftungseinheitLayerName, null, wkbGeometryType.wkbNone, null);
         for (var i = 0; i < bewirtschaftungseinheitLayerDefinition.GetFieldCount(); i++)
         {
             var originalFieldDefinition = bewirtschaftungseinheitLayerDefinition.GetFieldDefn(i);
@@ -282,6 +287,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             }
         }
 
+        // Copy the features from the bewirtschaftungseinheit layer to the new betriebsnummer layer
         bewirtschaftungseinheitLayer.ResetReading();
         var betriebsnummerLayerDefinition = betriebsnummerLayer.GetLayerDefn();
         for (var i = 0; i < bewirtschaftungseinheitLayer.GetFeatureCount(1); i++)
@@ -306,6 +312,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             betriebsnummerLayer.CreateFeature(newFeature);
         }
 
+        // Create an index on the Identifikator BE field for faster lookups. We need this to join the nutzungsflaechen layer with the betriebsnummer layer
         ProcessingDataSource.ExecuteSQL($"CREATE INDEX {IdentifikatorBeFieldName} ON {BewirtschaftungseinheitLayerName}({IdentifikatorBeFieldName})", null, "OGRSQL");
     }
 
