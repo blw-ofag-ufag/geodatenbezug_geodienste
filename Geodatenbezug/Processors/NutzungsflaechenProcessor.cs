@@ -281,14 +281,15 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         }
 
         bewirtschaftungseinheitLayer.ResetReading();
+        var betriebsnummerLayerDefinition = betriebsnummerLayer.GetLayerDefn();
         for (var i = 0; i < bewirtschaftungseinheitLayer.GetFeatureCount(1); i++)
         {
             var feature = bewirtschaftungseinheitLayer.GetNextFeature();
-            using var newFeature = new Feature(betriebsnummerLayer.GetLayerDefn());
+            using var newFeature = new Feature(betriebsnummerLayerDefinition);
 
-            for (var j = 0; j < betriebsnummerLayer.GetLayerDefn().GetFieldCount(); j++)
+            for (var j = 0; j < betriebsnummerLayerDefinition.GetFieldCount(); j++)
             {
-                var fieldName = betriebsnummerLayer.GetLayerDefn().GetFieldDefn(j).GetName();
+                var fieldName = betriebsnummerLayerDefinition.GetFieldDefn(j).GetName();
 
                 if (fieldName == "identifikator_be")
                 {
