@@ -92,7 +92,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         ProcessingDataSource.CopyLayer(tmpLayer, NutzungsflaechenJoinedLayerName, null);
 
         // Delete the initial nutzungsflaechen layer because we want to create a new one with the joined data
-        ProcessingDataSource.DeleteLayer(0);
+        ProcessingDataSource.ExecuteSQL($"DROP TABLE {NutzungsflaechenLayerName}", null, "OGRSQL");
 
         // Create a new nutzungsflaechen layer with the desired fields
         var nutzungsflaechenJoinedLayer = ProcessingDataSource.GetLayerByName(NutzungsflaechenJoinedLayerName);
