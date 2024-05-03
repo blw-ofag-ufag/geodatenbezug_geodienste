@@ -1,4 +1,4 @@
-﻿using System.Xml;
+using System.Xml;
 using System.Xml.Serialization;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -80,12 +80,14 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         // Create a temporary layer with data from the nutzungsart catalog
         await CreateNutzungsartLayerAsync().ConfigureAwait(false);
 
+        CreateBewirtschaftungsLayer();
+
         // Join the nutzungsflaechen layer with the nutzungsart layer and the bewirtschaftungseinheit layer, then add the new joined layer to the processing data source
         var joinQuery = @$"
             SELECT {NutzungsflaechenLayerName}.*, {NutzungsartLayerName}.*, {BewirtschaftungseinheitLayerName}.betriebsnummer
             FROM {NutzungsflaechenLayerName}
             LEFT JOIN {NutzungsartLayerName} ON {NutzungsflaechenLayerName}.lnf_code = {NutzungsartLayerName}.lnf_code
-            LEFT JOIN '{BewirtschaftungseinheitDataPath}'.{BewirtschaftungseinheitLayerName} ON {NutzungsflaechenLayerName}.identifikator_be = {BewirtschaftungseinheitLayerName}.identifikator_be";
+            LEFT JOIN {BewirtschaftungseinheitLayerName} ON {NutzungsflaechenLayerName}.identifikator_be = {BewirtschaftungseinheitLayerName}.identifikator_be";
         var tmpLayer = ProcessingDataSource.ExecuteSQL(joinQuery, null, "OGRSQL");
         ProcessingDataSource.CopyLayer(tmpLayer, NutzungsflaechenJoinedLayerName, null);
 
@@ -239,6 +241,57 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             feature.SetField(nutzungItName, entry.Nutzung.LocalisationCHV1MultilingualText.LocalisedText.LocalisationCHV1LocalisedText.Single(t => t.Language == "it").Text);
             nutzungsartLayer.CreateFeature(feature);
         });
+
+        ProcessingDataSource.ExecuteSQL($"CREATE INDEX lnf_code ON {NutzungsartLayerName}(lnf_code)", null, "OGRSQL");
+    }
+
+    private void CreateBewirtschaftungsLayer()
+    {
+        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Erstelle temporären Bewirtschaftungslayer");
+
+        var betriebsnummerLayer = ProcessingDataSource.CreateLayer(BewirtschaftungseinheitLayerName, null, wkbGeometryType.wkbNone, null);
+
+        using var bewirtschaftungseinheitDataSource = Ogr.Open(BewirtschaftungseinheitDataPath, 1);
+        var bewirtschaftungseinheitLayer = bewirtschaftungseinheitDataSource.GetLayerByName(BewirtschaftungseinheitLayerName);
+        var bewirtschaftungseinheitLayerDefinition = bewirtschaftungseinheitLayer.GetLayerDefn();
+
+        for (var i = 0; i < bewirtschaftungseinheitLayerDefinition.GetFieldCount(); i++)
+        {
+            var originalFieldDefinition = bewirtschaftungseinheitLayerDefinition.GetFieldDefn(i);
+            var fieldName = originalFieldDefinition.GetName();
+            if (fieldName == "identifikator_be" || fieldName == "betriebsnummer")
+            {
+                using var newFieldDefinition = new FieldDefn(fieldName, originalFieldDefinition.GetFieldType());
+                newFieldDefinition.SetWidth(originalFieldDefinition.GetWidth());
+                newFieldDefinition.SetPrecision(originalFieldDefinition.GetPrecision());
+                betriebsnummerLayer.CreateField(newFieldDefinition, 1);
+            }
+        }
+
+        bewirtschaftungseinheitLayer.ResetReading();
+        for (var i = 0; i < bewirtschaftungseinheitLayer.GetFeatureCount(1); i++)
+        {
+            var feature = bewirtschaftungseinheitLayer.GetNextFeature();
+            using var newFeature = new Feature(betriebsnummerLayer.GetLayerDefn());
+
+            for (var j = 0; j < betriebsnummerLayer.GetLayerDefn().GetFieldCount(); j++)
+            {
+                var fieldName = betriebsnummerLayer.GetLayerDefn().GetFieldDefn(j).GetName();
+
+                if (fieldName == "identifikator_be")
+                {
+                    newFeature.SetField(fieldName, feature.GetFieldAsString("identifikator_be"));
+                }
+                else if (fieldName == "betriebsnummer")
+                {
+                    newFeature.SetField(fieldName, feature.GetFieldAsString("betriebsnummer"));
+                }
+            }
+
+            betriebsnummerLayer.CreateFeature(newFeature);
+        }
+
+        ProcessingDataSource.ExecuteSQL($"CREATE INDEX identifikator_be ON {BewirtschaftungseinheitLayerName}(identifikator_be)", null, "OGRSQL");
     }
 
     private async Task<List<LnfKatalogNutzungsart>> GetLnfKatalogNutzungsartAsync()
