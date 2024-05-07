@@ -28,7 +28,7 @@ public class GdalLayer
 
         var inputLayerDefinition = inputLayer.GetLayerDefn();
 
-        using var tIdFieldDefinition = new FieldDefn(TIdFieldName, FieldType.OFTInteger);
+        using var tIdFieldDefinition = new FieldDefn(TIdFieldName, FieldType.OFTString);
         processingLayer.CreateField(tIdFieldDefinition, 1);
 
         for (var i = 0; i < inputLayerDefinition.GetFieldCount(); i++)
@@ -76,7 +76,16 @@ public class GdalLayer
 
                 if (fieldName == TIdFieldName)
                 {
-                    newFeature.SetField(fieldName, inputFeature.GetFID());
+                    var fidName = inputLayer.GetFIDColumn();
+                    if (inputLayer.GetFIDColumn() == TIdFieldName)
+                    {
+                        newFeature.SetField(fieldName, inputFeature.GetFID());
+                    }
+                    else
+                    {
+                        newFeature.SetField(fieldName, inputFeature.GetFieldAsString(TIdFieldName));
+                    }
+
                     continue;
                 }
 
