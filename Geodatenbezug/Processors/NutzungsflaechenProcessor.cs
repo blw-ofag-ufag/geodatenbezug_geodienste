@@ -1,4 +1,4 @@
-﻿using System.Xml;
+using System.Xml;
 using System.Xml.Serialization;
 using Geodatenbezug.Models;
 using Microsoft.Extensions.Logging;
@@ -129,9 +129,9 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
                 fieldName = originalFieldName.Replace($"{NutzungsartLayerName}_", string.Empty, StringComparison.InvariantCulture);
             }
 
-            if (originalFieldName == $"{BewirtschaftungseinheitLayerName}_{BetriebsnummerFieldName}")
+            if (originalFieldName.Contains(BewirtschaftungseinheitLayerName, StringComparison.InvariantCulture))
             {
-                fieldName = "bewe_betriebsnummer";
+                fieldName = originalFieldName.Replace($"{BewirtschaftungseinheitLayerName}_", string.Empty, StringComparison.InvariantCulture);
             }
 
             fieldNameMapping[fieldName] = originalFieldName;
@@ -215,7 +215,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         using var lnfCode = new FieldDefn(LnfCodeFieldName, FieldType.OFTInteger);
         nutzungsartLayer.CreateField(lnfCode, 1);
 
-        var istBffQiName = "ist_bff_qi";
+        var istBffQiName = "bff_qualitaet_1";
         using var istBffQi = new FieldDefn(istBffQiName, FieldType.OFTInteger);
         istBffQi.SetSubType(FieldSubType.OFSTInt16);
         nutzungsartLayer.CreateField(istBffQi, 1);

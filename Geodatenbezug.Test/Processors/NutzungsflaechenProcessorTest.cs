@@ -110,20 +110,20 @@ public class NutzungsflaechenProcessorTest
             "bewirtschaftungsgrad",
             "flaeche_m2",
             "kanton",
-            "ist_bff_qi",
+            "bff_qualitaet_1",
             "hauptkategorie_de",
             "hauptkategorie_fr",
             "hauptkategorie_it",
             "nutzung_de",
             "nutzung_fr",
             "nutzung_it",
-            "bewe_betriebsnummer",
+            "betriebsnummer",
         };
         GdalAssert.AssertLayerFields(resultLayer, expectedLayerFields);
 
         GdalAssert.AssertFieldType(resultLayer, "t_id", FieldType.OFTInteger);
         GdalAssert.AssertFieldType(resultLayer, "bezugsjahr", FieldType.OFTDateTime);
-        GdalAssert.AssertFieldType(resultLayer, "ist_bff_qi", FieldType.OFTInteger, FieldSubType.OFSTInt16);
+        GdalAssert.AssertFieldType(resultLayer, "bff_qualitaet_1", FieldType.OFTInteger, FieldSubType.OFSTInt16);
 
         GdalAssert.AssertOnlyValidLnfCodes(resultLayer);
 
@@ -142,14 +142,14 @@ public class NutzungsflaechenProcessorTest
         Assert.AreEqual(firstInputFeature.GetFieldAsInteger("bewirtschaftungsgrad"), firstResultFeature.GetFieldAsInteger("bewirtschaftungsgrad"));
         Assert.AreEqual(firstInputFeature.GetFieldAsInteger("flaeche_m2"), firstResultFeature.GetFieldAsInteger("flaeche_m2"));
         Assert.AreEqual(firstInputFeature.GetFieldAsString("kanton"), firstResultFeature.GetFieldAsString("kanton"));
-        Assert.AreEqual(0, firstResultFeature.GetFieldAsInteger("ist_bff_qi"));
+        Assert.AreEqual(0, firstResultFeature.GetFieldAsInteger("bff_qualitaet_1"));
         Assert.AreEqual("Ackerfläche", firstResultFeature.GetFieldAsString("hauptkategorie_de"));
         Assert.AreEqual("Terres cultivées", firstResultFeature.GetFieldAsString("hauptkategorie_fr"));
         Assert.AreEqual("Superficie coltiva", firstResultFeature.GetFieldAsString("hauptkategorie_it"));
         Assert.AreEqual("Sommergerste", firstResultFeature.GetFieldAsString("nutzung_de"));
         Assert.AreEqual("Orge de printemps", firstResultFeature.GetFieldAsString("nutzung_fr"));
         Assert.AreEqual("Orzo primaverile", firstResultFeature.GetFieldAsString("nutzung_it"));
-        Assert.AreEqual("NE65020007", firstResultFeature.GetFieldAsString("bewe_betriebsnummer"));
+        Assert.AreEqual("NE65020007", firstResultFeature.GetFieldAsString("betriebsnummer"));
         GdalAssert.AssertGeometry(firstInputFeature, firstResultFeature);
     }
 }
