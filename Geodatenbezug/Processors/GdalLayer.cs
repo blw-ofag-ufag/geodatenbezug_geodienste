@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using OSGeo.OGR;
 
 namespace Geodatenbezug.Processors;
@@ -76,7 +76,16 @@ public class GdalLayer
 
                 if (fieldName == TIdFieldName)
                 {
-                    newFeature.SetField(fieldName, inputFeature.GetFID());
+                    var fidName = inputLayer.GetFIDColumn();
+                    if (inputLayer.GetFIDColumn() == TIdFieldName)
+                    {
+                        newFeature.SetField(fieldName, inputFeature.GetFID());
+                    }
+                    else
+                    {
+                        newFeature.SetField(fieldName, inputFeature.GetFieldAsString(TIdFieldName));
+                    }
+
                     continue;
                 }
 
