@@ -72,7 +72,7 @@ public class BiodiversitaetsfoerderflaechenProcessorTest
         };
         GdalAssert.AssertLayerFields(qualitaetResultLayer, expectedQualitaetLayerFields);
 
-        GdalAssert.AssertFieldType(qualitaetResultLayer, "t_id", FieldType.OFTInteger);
+        GdalAssert.AssertFieldType(qualitaetResultLayer, "t_id", FieldType.OFTString);
         GdalAssert.AssertFieldType(qualitaetResultLayer, "bezugsjahr", FieldType.OFTDateTime);
         GdalAssert.AssertFieldType(qualitaetResultLayer, "verpflichtung_von", FieldType.OFTDateTime);
         GdalAssert.AssertFieldType(qualitaetResultLayer, "verpflichtung_bis", FieldType.OFTDateTime);
@@ -125,7 +125,7 @@ public class BiodiversitaetsfoerderflaechenProcessorTest
         };
         GdalAssert.AssertLayerFields(vernetzungResultLayer, expectedVernetzungLayerFields);
 
-        GdalAssert.AssertFieldType(vernetzungResultLayer, "t_id", FieldType.OFTInteger);
+        GdalAssert.AssertFieldType(vernetzungResultLayer, "t_id", FieldType.OFTString);
         GdalAssert.AssertFieldType(vernetzungResultLayer, "bezugsjahr", FieldType.OFTDateTime);
         GdalAssert.AssertFieldType(vernetzungResultLayer, "verpflichtung_von", FieldType.OFTDateTime);
         GdalAssert.AssertFieldType(vernetzungResultLayer, "verpflichtung_bis", FieldType.OFTDateTime);

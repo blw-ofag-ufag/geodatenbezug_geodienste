@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using OSGeo.OGR;
 
 namespace Geodatenbezug.Processors;
@@ -28,7 +28,7 @@ public class GdalLayer
 
         var inputLayerDefinition = inputLayer.GetLayerDefn();
 
-        using var tIdFieldDefinition = new FieldDefn(TIdFieldName, FieldType.OFTInteger);
+        using var tIdFieldDefinition = new FieldDefn(TIdFieldName, FieldType.OFTString);
         processingLayer.CreateField(tIdFieldDefinition, 1);
 
         for (var i = 0; i < inputLayerDefinition.GetFieldCount(); i++)
