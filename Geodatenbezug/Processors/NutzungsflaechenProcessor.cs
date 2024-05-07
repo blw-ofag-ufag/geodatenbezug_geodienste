@@ -110,30 +110,14 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         {
             var fieldDefn = nutzungsflaechenJoinedLayer.GetLayerDefn().GetFieldDefn(i);
             var originalFieldName = fieldDefn.GetName();
-            string fieldName = originalFieldName;
 
             // Drop the fields that where only needed for the join
-            if (originalFieldName == $"{NutzungsartLayerName}_lnf_code" || originalFieldName == $"{NutzungsflaechenLayerName}_identifikator_be")
+            if (originalFieldName == $"{NutzungsartLayerName}_{LnfCodeFieldName}" || originalFieldName == $"{NutzungsflaechenLayerName}_{IdentifikatorBeFieldName}")
             {
                 continue;
             }
 
-            // Rename the fields to remove the layer name prefix
-            if (originalFieldName.Contains(NutzungsflaechenLayerName, StringComparison.InvariantCulture))
-            {
-                fieldName = originalFieldName.Replace($"{NutzungsflaechenLayerName}_", string.Empty, StringComparison.InvariantCulture);
-            }
-
-            if (originalFieldName.Contains(NutzungsartLayerName, StringComparison.InvariantCulture))
-            {
-                fieldName = originalFieldName.Replace($"{NutzungsartLayerName}_", string.Empty, StringComparison.InvariantCulture);
-            }
-
-            if (originalFieldName == $"{BewirtschaftungseinheitLayerName}_{BetriebsnummerFieldName}")
-            {
-                fieldName = "bewe_betriebsnummer";
-            }
-
+            var fieldName = RemoveLayerPrefix(originalFieldName);
             fieldNameMapping[fieldName] = originalFieldName;
 
             // Booleans are represented as an Int16 FieldSubTypes, so we have to apply the subtype to the field definition if it's available
@@ -215,7 +199,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         using var lnfCode = new FieldDefn(LnfCodeFieldName, FieldType.OFTInteger);
         nutzungsartLayer.CreateField(lnfCode, 1);
 
-        var istBffQiName = "ist_bff_qi";
+        var istBffQiName = "bff_qualitaet_1";
         using var istBffQi = new FieldDefn(istBffQiName, FieldType.OFTInteger);
         istBffQi.SetSubType(FieldSubType.OFSTInt16);
         nutzungsartLayer.CreateField(istBffQi, 1);
@@ -337,5 +321,18 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             Logger.LogError($"{Topic.TopicTitle} ({Topic.Canton}): Deserialisierung von Nutzungsart-Katalog fehlgeschlagen.");
             throw new InvalidOperationException("Deserialization failed or returned null.");
         }
+    }
+
+    private string RemoveLayerPrefix(string originalFieldName)
+    {
+        foreach (var layerName in new[] { NutzungsflaechenLayerName, NutzungsartLayerName, BewirtschaftungseinheitLayerName })
+        {
+            if (originalFieldName.Contains(layerName, StringComparison.Ordinal))
+            {
+                return originalFieldName.Replace($"{layerName}_", string.Empty, StringComparison.Ordinal);
+            }
+        }
+
+        return originalFieldName;
     }
 }
