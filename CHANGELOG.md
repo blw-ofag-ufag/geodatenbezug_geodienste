@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added _nur_nr_ to _Nutzungsflaechen_
+
+### Changed
+
+### Fixed
+
 ## v1.0.81 - 2024-05-16
 
 ### Added
