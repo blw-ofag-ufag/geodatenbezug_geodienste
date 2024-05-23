@@ -118,6 +118,7 @@ public class NutzungsflaechenProcessorTest
             "nutzung_fr",
             "nutzung_it",
             "betriebsnummer",
+            "bur_nr",
         };
         GdalAssert.AssertLayerFields(resultLayer, expectedLayerFields);
 
@@ -150,6 +151,7 @@ public class NutzungsflaechenProcessorTest
         Assert.AreEqual("Orge de printemps", firstResultFeature.GetFieldAsString("nutzung_fr"));
         Assert.AreEqual("Orzo primaverile", firstResultFeature.GetFieldAsString("nutzung_it"));
         Assert.AreEqual("NE65020007", firstResultFeature.GetFieldAsString("betriebsnummer"));
+        Assert.AreEqual(string.Empty, firstResultFeature.GetFieldAsString("bur_nr"));
         GdalAssert.AssertGeometry(firstInputFeature, firstResultFeature);
     }
 }

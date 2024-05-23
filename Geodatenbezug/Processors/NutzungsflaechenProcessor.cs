@@ -17,6 +17,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
     private const string BewirtschaftungseinheitLayerName = "bewirtschaftungseinheit";
     private const string BetriebsnummerFieldName = "betriebsnummer";
     private const string IdentifikatorBeFieldName = "identifikator_be";
+    private const string BurNrFieldName = "bur_nr";
     private const string LnfCodeFieldName = "lnf_code";
 
     private const string CatalogUrl = "https://models.geo.admin.ch/BLW/LWB_Nutzungsflaechen_Kataloge_V2_0.xml";
@@ -90,7 +91,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         // Join the nutzungsflaechen layer with the nutzungsart layer and the bewirtschaftungseinheit layer, then add the new joined layer to the processing data source
         Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Führe Join mit Nutzungsart und Bewirtschaftungseinheit aus");
         var joinQuery = @$"
-            SELECT {NutzungsflaechenLayerName}.*, {NutzungsartLayerName}.*, {BewirtschaftungseinheitLayerName}.{BetriebsnummerFieldName}
+            SELECT {NutzungsflaechenLayerName}.*, {NutzungsartLayerName}.*, {BewirtschaftungseinheitLayerName}.{BetriebsnummerFieldName}, {BewirtschaftungseinheitLayerName}.{BurNrFieldName}
             FROM {NutzungsflaechenLayerName}
             LEFT JOIN {NutzungsartLayerName} ON {NutzungsflaechenLayerName}.{LnfCodeFieldName} = {NutzungsartLayerName}.{LnfCodeFieldName}
             LEFT JOIN {BewirtschaftungseinheitLayerName} ON {NutzungsflaechenLayerName}.{IdentifikatorBeFieldName} = {BewirtschaftungseinheitLayerName}.{IdentifikatorBeFieldName}";
@@ -262,7 +263,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         {
             var originalFieldDefinition = bewirtschaftungseinheitLayerDefinition.GetFieldDefn(i);
             var fieldName = originalFieldDefinition.GetName();
-            if (fieldName == IdentifikatorBeFieldName || fieldName == BetriebsnummerFieldName)
+            if (fieldName == IdentifikatorBeFieldName || fieldName == BetriebsnummerFieldName || fieldName == BurNrFieldName)
             {
                 using var newFieldDefinition = new FieldDefn(fieldName, originalFieldDefinition.GetFieldType());
                 newFieldDefinition.SetWidth(originalFieldDefinition.GetWidth());
@@ -282,15 +283,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             for (var j = 0; j < betriebsnummerLayerDefinition.GetFieldCount(); j++)
             {
                 var fieldName = betriebsnummerLayerDefinition.GetFieldDefn(j).GetName();
-
-                if (fieldName == IdentifikatorBeFieldName)
-                {
-                    newFeature.SetField(fieldName, feature.GetFieldAsString(IdentifikatorBeFieldName));
-                }
-                else if (fieldName == BetriebsnummerFieldName)
-                {
-                    newFeature.SetField(fieldName, feature.GetFieldAsString(BetriebsnummerFieldName));
-                }
+                newFeature.SetField(fieldName, feature.GetFieldAsString(fieldName));
             }
 
             betriebsnummerLayer.CreateFeature(newFeature);
