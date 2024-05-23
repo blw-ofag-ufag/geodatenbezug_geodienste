@@ -4,7 +4,7 @@
 
 ### Added
 
-- Added _nur_nr_ to _Nutzungsflaechen_
+- Added _bur_nr_ to _Nutzungsflaechen_.
 
 ### Changed
 
