@@ -211,15 +211,15 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// <summary>
     /// Creates a new GDAL layer for processing.
     /// </summary>
-    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldDefn>? fieldTypeConversions)
+    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldDefn>? fieldTypeConversions, bool filterLnfCodes, bool convertMultiToSinglePartGeometries)
     {
-        return CreateGdalLayer(layerName, fieldTypeConversions, []);
+        return CreateGdalLayer(layerName, fieldTypeConversions, [], filterLnfCodes, convertMultiToSinglePartGeometries);
     }
 
     /// <summary>
     /// Creates a new GDAL layer for processing.
     /// </summary>
-    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldDefn>? fieldTypeConversions, List<string> fieldsToDrop)
+    public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldDefn>? fieldTypeConversions, List<string> fieldsToDrop, bool filterLnfCodes, bool convertMultiToSinglePartGeometries)
     {
         var inputLayer = InputDataSource.GetLayerByName(layerName);
 
@@ -229,7 +229,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         var processingLayer = ProcessingDataSource.CreateLayer(layerName, inputLayer.GetSpatialRef(), geometryType, []);
         fieldTypeConversions ??= [];
 
-        return new GdalLayer(inputLayer, processingLayer, fieldTypeConversions, fieldsToDrop);
+        return new GdalLayer(inputLayer, processingLayer, fieldTypeConversions, fieldsToDrop, filterLnfCodes, convertMultiToSinglePartGeometries);
     }
 
     /// <summary>

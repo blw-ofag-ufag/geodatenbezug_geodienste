@@ -18,9 +18,8 @@ public class RebbaukatasterProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             { aenderungsdatumFieldDefinition.GetName(), aenderungsdatumFieldDefinition },
         };
 
-        var rebbaukatasterLayer = CreateGdalLayer("rebbaukataster", fieldTypeConversions);
+        var rebbaukatasterLayer = CreateGdalLayer("rebbaukataster", fieldTypeConversions, false, true);
         rebbaukatasterLayer.CopyFeatures();
-        rebbaukatasterLayer.ConvertMultiPartToSinglePartGeometry();
 
         return Task.CompletedTask;
     }

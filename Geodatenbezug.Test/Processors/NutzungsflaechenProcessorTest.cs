@@ -74,7 +74,6 @@ public class NutzungsflaechenProcessorTest
     {
         loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung");
         loggerMock.Setup(LogLevel.Information, $"Kopiere Features aus dem GPKG in die GDB");
-        loggerMock.Setup(LogLevel.Information, $"Filtere LNF-Codes");
         loggerMock.Setup(LogLevel.Information, $"Lade Nutzungsart-Katalog von https://models.geo.admin.ch/BLW/LWB_Nutzungsflaechen_Kataloge_V2_0.xml");
         loggerMock.Setup(LogLevel.Information, $"Erstelle temporären Nutzungsartlayer");
         loggerMock.Setup(LogLevel.Information, $"Erstelle temporären Bewirtschaftungslayer");
@@ -82,7 +81,6 @@ public class NutzungsflaechenProcessorTest
         loggerMock.Setup(LogLevel.Information, $"Lösche initialen Nutzungsflächenlayer");
         loggerMock.Setup(LogLevel.Information, $"Erstelle neuen Nutzungsflächenlayer");
         loggerMock.Setup(LogLevel.Information, $"Kopiere Features vom Joined Layer zum neuen Nutzungsflächenlayer");
-        loggerMock.Setup(LogLevel.Information, $"Konvertiere Multi- zu Singlepart-Geometrien");
         loggerMock.Setup(LogLevel.Information, $"Lösche temporäre Layer");
 
         processor.InputDataPath = "testdata\\lwb_nutzungsflaechen_v2_0_lv95_NE_202404191123.gpkg";

@@ -20,9 +20,8 @@ public class PerimeterTerrassenrebenProcessor(IGeodiensteApi geodiensteApi, IAzu
             { aenderungsdatumFieldDefinition.GetName(), aenderungsdatumFieldDefinition },
         };
 
-        var perimeterTerrassenrebenLayer = CreateGdalLayer("perimeter_terrassenreben", fieldTypeConversions);
+        var perimeterTerrassenrebenLayer = CreateGdalLayer("perimeter_terrassenreben", fieldTypeConversions, false, true);
         perimeterTerrassenrebenLayer.CopyFeatures();
-        perimeterTerrassenrebenLayer.ConvertMultiPartToSinglePartGeometry();
 
         return Task.CompletedTask;
     }

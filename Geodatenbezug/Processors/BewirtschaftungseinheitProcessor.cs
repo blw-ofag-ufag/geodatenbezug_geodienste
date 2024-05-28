@@ -18,20 +18,17 @@ public class BewirtschaftungseinheitProcessor(IGeodiensteApi geodiensteApi, IAzu
             { bezugsjahrFieldDefinition.GetName(), bezugsjahrFieldDefinition },
         };
 
-        var betriebLayer = CreateGdalLayer("betrieb", fieldTypeConversions);
+        var betriebLayer = CreateGdalLayer("betrieb", fieldTypeConversions, false, true);
         betriebLayer.CopyFeatures();
-        betriebLayer.ConvertMultiPartToSinglePartGeometry();
 
-        var produktionsstaetteLayer = CreateGdalLayer("produktionsstaette", fieldTypeConversions);
+        var produktionsstaetteLayer = CreateGdalLayer("produktionsstaette", fieldTypeConversions, false, true);
         produktionsstaetteLayer.CopyFeatures();
-        produktionsstaetteLayer.ConvertMultiPartToSinglePartGeometry();
 
         using var isDefinitivFieldDefinition = new FieldDefn("ist_definitiv", FieldType.OFTInteger);
         isDefinitivFieldDefinition.SetSubType(FieldSubType.OFSTInt16);
         fieldTypeConversions.Add(isDefinitivFieldDefinition.GetName(), isDefinitivFieldDefinition);
-        var bewirtschaftungseinheitLayer = CreateGdalLayer("bewirtschaftungseinheit", fieldTypeConversions, ["identifikator_be"]);
+        var bewirtschaftungseinheitLayer = CreateGdalLayer("bewirtschaftungseinheit", fieldTypeConversions, ["identifikator_be"], false, true);
         bewirtschaftungseinheitLayer.CopyFeatures();
-        bewirtschaftungseinheitLayer.ConvertMultiPartToSinglePartGeometry();
 
         return Task.CompletedTask;
     }
