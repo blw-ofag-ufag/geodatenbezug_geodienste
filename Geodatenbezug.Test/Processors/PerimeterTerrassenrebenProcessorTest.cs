@@ -6,7 +6,7 @@ using OSGeo.OGR;
 namespace Geodatenbezug.Processors;
 
 [TestClass]
-[DeploymentItem("testdata/lwb_perimeter_terrassenreben_v2_0_lv95_NE_202404191123.gpkg", "testdata")]
+[DeploymentItem("testdata/lwb_perimeter_terrassenreben_v2_0_lv95_testdaten.gpkg", "testdata")]
 public class PerimeterTerrassenrebenProcessorTest
 {
     private readonly Topic topic = new ()
@@ -42,7 +42,7 @@ public class PerimeterTerrassenrebenProcessorTest
     {
         loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung");
 
-        processor.InputDataPath = "testdata\\lwb_perimeter_terrassenreben_v2_0_lv95_NE_202404191123.gpkg";
+        processor.InputDataPath = "testdata\\lwb_perimeter_terrassenreben_v2_0_lv95_testdaten.gpkg";
         await processor.RunGdalProcessingAsync();
 
         var layerName = "perimeter_terrassenreben";
@@ -73,7 +73,7 @@ public class PerimeterTerrassenrebenProcessorTest
         var firstInputFeature = inputLayer.GetNextFeature();
         resultLayer.ResetReading();
         var firstResultFeature = resultLayer.GetNextFeature();
-        Assert.AreEqual(firstInputFeature.GetFID(), firstResultFeature.GetFieldAsInteger("t_id"));
+        Assert.AreEqual(firstInputFeature.GetFieldAsInteger("t_id"), firstResultFeature.GetFieldAsInteger("t_id"));
         GdalAssert.AssertDateTime(firstInputFeature, firstResultFeature, "bezugsjahr");
         GdalAssert.AssertDateTime(firstInputFeature, firstResultFeature, "aenderungsdatum");
         Assert.AreEqual(firstInputFeature.GetFieldAsString("identifikator"), firstResultFeature.GetFieldAsString("identifikator"));

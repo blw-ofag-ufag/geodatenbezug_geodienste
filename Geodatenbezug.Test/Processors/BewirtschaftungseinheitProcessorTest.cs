@@ -6,7 +6,7 @@ using OSGeo.OGR;
 namespace Geodatenbezug.Processors;
 
 [TestClass]
-[DeploymentItem("testdata/lwb_bewirtschaftungseinheit_v2_0_lv95_NE_202404191123.gpkg", "testdata")]
+[DeploymentItem("testdata/lwb_bewirtschaftungseinheit_v2_0_lv95_testdaten.gpkg", "testdata")]
 public class BewirtschaftungseinheitProcessorTest
 {
     private readonly Topic topic = new ()
@@ -42,7 +42,7 @@ public class BewirtschaftungseinheitProcessorTest
     {
         loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung");
 
-        processor.InputDataPath = "testdata\\lwb_bewirtschaftungseinheit_v2_0_lv95_NE_202404191123.gpkg";
+        processor.InputDataPath = "testdata\\lwb_bewirtschaftungseinheit_v2_0_lv95_testdaten.gpkg";
         await processor.RunGdalProcessingAsync();
 
         var inputSource = Ogr.Open(processor.InputDataPath, 0);
@@ -71,7 +71,7 @@ public class BewirtschaftungseinheitProcessorTest
         var firstBetriebInputFeature = betriebInputLayer.GetNextFeature();
         betriebResultLayer.ResetReading();
         var firstBetriebResultFeature = betriebResultLayer.GetNextFeature();
-        Assert.AreEqual(firstBetriebInputFeature.GetFID(), firstBetriebResultFeature.GetFieldAsInteger("t_id"));
+        Assert.AreEqual(firstBetriebInputFeature.GetFieldAsInteger("t_id"), firstBetriebResultFeature.GetFieldAsInteger("t_id"));
         GdalAssert.AssertDateTime(firstBetriebInputFeature, firstBetriebResultFeature, "bezugsjahr");
         Assert.AreEqual(firstBetriebInputFeature.GetFieldAsString("betriebsnummer"), firstBetriebResultFeature.GetFieldAsString("betriebsnummer"));
         Assert.AreEqual(firstBetriebInputFeature.GetFieldAsString("betriebsname"), firstBetriebResultFeature.GetFieldAsString("betriebsname"));
@@ -107,7 +107,7 @@ public class BewirtschaftungseinheitProcessorTest
         var firstBewirtschaftungseinheitInputFeature = bewirtschaftungseinheitInputLayer.GetNextFeature();
         bewirtschaftungseinheitResultLayer.ResetReading();
         var firstBewirtschaftungseinheitResultFeature = bewirtschaftungseinheitResultLayer.GetNextFeature();
-        Assert.AreEqual(firstBewirtschaftungseinheitInputFeature.GetFID(), firstBewirtschaftungseinheitResultFeature.GetFieldAsInteger("t_id"));
+        Assert.AreEqual(firstBewirtschaftungseinheitInputFeature.GetFieldAsInteger("t_id"), firstBewirtschaftungseinheitResultFeature.GetFieldAsInteger("t_id"));
         GdalAssert.AssertDateTime(firstBewirtschaftungseinheitInputFeature, firstBewirtschaftungseinheitResultFeature, "bezugsjahr");
         Assert.AreEqual(firstBewirtschaftungseinheitInputFeature.GetFieldAsInteger("ist_definitiv"), firstBewirtschaftungseinheitResultFeature.GetFieldAsInteger("ist_definitiv"));
         Assert.AreEqual(firstBewirtschaftungseinheitInputFeature.GetFieldAsString("betriebsnummer"), firstBewirtschaftungseinheitResultFeature.GetFieldAsString("betriebsnummer"));
@@ -143,7 +143,7 @@ public class BewirtschaftungseinheitProcessorTest
         var firstProduktionsstaetteInputFeature = produktionsstaetteInputLayer.GetNextFeature();
         produktionsstaetteResultLayer.ResetReading();
         var firstProduktionsstaetteResultFeature = produktionsstaetteResultLayer.GetNextFeature();
-        Assert.AreEqual(firstProduktionsstaetteInputFeature.GetFID(), firstProduktionsstaetteResultFeature.GetFieldAsInteger("t_id"));
+        Assert.AreEqual(firstProduktionsstaetteInputFeature.GetFieldAsInteger("t_id"), firstProduktionsstaetteResultFeature.GetFieldAsInteger("t_id"));
         GdalAssert.AssertDateTime(firstProduktionsstaetteInputFeature, firstProduktionsstaetteResultFeature, "bezugsjahr");
         Assert.AreEqual(firstProduktionsstaetteInputFeature.GetFieldAsString("ps_nr"), firstProduktionsstaetteResultFeature.GetFieldAsString("ps_nr"));
         Assert.AreEqual(firstProduktionsstaetteInputFeature.GetFieldAsString("ps_name"), firstProduktionsstaetteResultFeature.GetFieldAsString("ps_name"));

@@ -7,8 +7,8 @@ using OSGeo.OGR;
 namespace Geodatenbezug.Processors;
 
 [TestClass]
-[DeploymentItem("testdata/lwb_nutzungsflaechen_v2_0_lv95_NE_202404191123.gpkg", "testdata")]
-[DeploymentItem("testdata/lwb_bewirtschaftungseinheit_v2_0_lv95_NE_202404191123.gpkg", "testdata")]
+[DeploymentItem("testdata/lwb_nutzungsflaechen_v2_0_lv95_testdaten.gpkg", "testdata")]
+[DeploymentItem("testdata/lwb_bewirtschaftungseinheit_v2_0_lv95_testdaten.gpkg", "testdata")]
 public class NutzungsflaechenProcessorTest
 {
     private readonly Topic topic = new ()
@@ -83,8 +83,8 @@ public class NutzungsflaechenProcessorTest
         loggerMock.Setup(LogLevel.Information, $"Kopiere Features vom Joined Layer zum neuen Nutzungsflächenlayer");
         loggerMock.Setup(LogLevel.Information, $"Lösche temporäre Layer");
 
-        processor.InputDataPath = "testdata\\lwb_nutzungsflaechen_v2_0_lv95_NE_202404191123.gpkg";
-        processor.BewirtschaftungseinheitDataPath = "testdata\\lwb_bewirtschaftungseinheit_v2_0_lv95_NE_202404191123.gpkg";
+        processor.InputDataPath = "testdata\\lwb_nutzungsflaechen_v2_0_lv95_testdaten.gpkg";
+        processor.BewirtschaftungseinheitDataPath = "testdata\\lwb_bewirtschaftungseinheit_v2_0_lv95_testdaten.gpkg";
         await processor.RunGdalProcessingAsync();
 
         var layerName = "nutzungsflaechen";
@@ -125,14 +125,27 @@ public class NutzungsflaechenProcessorTest
         GdalAssert.AssertFieldType(resultLayer, "bff_qualitaet_1", FieldType.OFTInteger, FieldSubType.OFSTInt16);
 
         GdalAssert.AssertOnlyValidLnfCodes(resultLayer);
-
         GdalAssert.AssertOnlySinglePartGeometries(resultLayer);
+
+        var t_ids = new List<int>();
+        resultLayer.ResetReading();
+        for (var i = 0; i < resultLayer.GetFeatureCount(1); i++)
+        {
+            var feature = resultLayer.GetNextFeature();
+            t_ids.Add(feature.GetFieldAsInteger("t_id"));
+        }
+
+        // Delete feature with invalid lnf_code
+        Assert.AreEqual(0, t_ids.FindAll(t_id => t_id == 6225522).Count);
+
+        // Feature with multipart geometry was split into three features
+        Assert.AreEqual(3, t_ids.FindAll(t_id => t_id == 6225610).Count);
 
         var firstInputFeature = inputLayer.GetNextFeature();
         resultLayer.ResetReading();
         var firstResultFeature = resultLayer.GetNextFeature();
 
-        Assert.AreEqual(firstInputFeature.GetFID(), firstResultFeature.GetFieldAsInteger("t_id"));
+        Assert.AreEqual(firstInputFeature.GetFieldAsInteger("t_id"), firstResultFeature.GetFieldAsInteger("t_id"));
         GdalAssert.AssertDateTime(firstInputFeature, firstResultFeature, "bezugsjahr");
         Assert.AreEqual(firstInputFeature.GetFieldAsInteger("lnf_code"), firstResultFeature.GetFieldAsInteger("lnf_code"));
         Assert.AreEqual(firstInputFeature.GetFieldAsString("code_programm"), firstResultFeature.GetFieldAsString("code_programm"));
@@ -142,13 +155,13 @@ public class NutzungsflaechenProcessorTest
         Assert.AreEqual(firstInputFeature.GetFieldAsInteger("flaeche_m2"), firstResultFeature.GetFieldAsInteger("flaeche_m2"));
         Assert.AreEqual(firstInputFeature.GetFieldAsString("kanton"), firstResultFeature.GetFieldAsString("kanton"));
         Assert.AreEqual(0, firstResultFeature.GetFieldAsInteger("bff_qualitaet_1"));
-        Assert.AreEqual("Ackerfläche", firstResultFeature.GetFieldAsString("hauptkategorie_de"));
-        Assert.AreEqual("Terres cultivées", firstResultFeature.GetFieldAsString("hauptkategorie_fr"));
-        Assert.AreEqual("Superficie coltiva", firstResultFeature.GetFieldAsString("hauptkategorie_it"));
-        Assert.AreEqual("Sommergerste", firstResultFeature.GetFieldAsString("nutzung_de"));
-        Assert.AreEqual("Orge de printemps", firstResultFeature.GetFieldAsString("nutzung_fr"));
-        Assert.AreEqual("Orzo primaverile", firstResultFeature.GetFieldAsString("nutzung_it"));
-        Assert.AreEqual("NE65020007", firstResultFeature.GetFieldAsString("betriebsnummer"));
+        Assert.AreEqual("Reben", firstResultFeature.GetFieldAsString("hauptkategorie_de"));
+        Assert.AreEqual("Vignobles", firstResultFeature.GetFieldAsString("hauptkategorie_fr"));
+        Assert.AreEqual("Vigna", firstResultFeature.GetFieldAsString("hauptkategorie_it"));
+        Assert.AreEqual("Reben", firstResultFeature.GetFieldAsString("nutzung_de"));
+        Assert.AreEqual("Vignes", firstResultFeature.GetFieldAsString("nutzung_fr"));
+        Assert.AreEqual("Vigna", firstResultFeature.GetFieldAsString("nutzung_it"));
+        Assert.AreEqual("BEB102228", firstResultFeature.GetFieldAsString("betriebsnummer"));
         Assert.AreEqual(string.Empty, firstResultFeature.GetFieldAsString("bur_nr"));
         GdalAssert.AssertGeometry(firstInputFeature, firstResultFeature);
     }

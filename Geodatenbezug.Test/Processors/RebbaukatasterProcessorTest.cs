@@ -6,7 +6,7 @@ using OSGeo.OGR;
 namespace Geodatenbezug.Processors;
 
 [TestClass]
-[DeploymentItem("testdata/lwb_rebbaukataster_v2_0_lv95_NE_202404191123.gpkg", "testdata")]
+[DeploymentItem("testdata/lwb_rebbaukataster_v2_0_lv95_testdaten.gpkg", "testdata")]
 public class RebbaukatasterProcessorTest
 {
     private readonly Topic topic = new ()
@@ -42,7 +42,7 @@ public class RebbaukatasterProcessorTest
     {
         loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung");
 
-        processor.InputDataPath = "testdata\\lwb_rebbaukataster_v2_0_lv95_NE_202404191123.gpkg";
+        processor.InputDataPath = "testdata\\lwb_rebbaukataster_v2_0_lv95_testdaten.gpkg";
         await processor.RunGdalProcessingAsync();
 
         var layerName = "rebbaukataster";
