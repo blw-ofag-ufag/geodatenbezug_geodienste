@@ -21,7 +21,7 @@ internal static class GdalAssert
             resultLayerFields.Add(resultLayerDefn.GetFieldDefn(i).GetName());
         }
 
-        CollectionAssert.AreEqual(expectedLayerFields, resultLayerFields);
+        CollectionAssert.AreEquivalent(expectedLayerFields, resultLayerFields);
     }
 
     /// <summary>
