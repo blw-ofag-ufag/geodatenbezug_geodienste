@@ -81,7 +81,6 @@ public class GdalLayer
 
             var processingLayerDefinition = processingLayer.GetLayerDefn();
             using var newFeature = new Feature(processingLayerDefinition);
-            newFeature.SetGeometry(inputFeature.GetGeometryRef());
 
             for (var j = 0; j < processingLayerDefinition.GetFieldCount(); j++)
             {
@@ -135,6 +134,13 @@ public class GdalLayer
                 }
             }
 
+            if (!inputFeature.GetGeometryRef().IsValid())
+            {
+                throw new InvalidGeometryException(newFeature.GetFieldAsInteger(TIdFieldName));
+            }
+
+            newFeature.SetGeometry(inputFeature.GetGeometryRef());
+
             if (convertMultiToSinglePartGeometries)
             {
                 var geometry = newFeature.GetGeometryRef();
@@ -144,12 +150,15 @@ public class GdalLayer
                     {
                         var singlePartGeometry = geometry.GetGeometryRef(j);
                         var singlePartGeometryType = singlePartGeometry.GetGeometryType();
-                        if (singlePartGeometryType == wkbGeometryType.wkbPolygon || singlePartGeometryType == wkbGeometryType.wkbCurvePolygon)
+                        if (singlePartGeometry.IsValid() && (singlePartGeometryType == wkbGeometryType.wkbPolygon || singlePartGeometryType == wkbGeometryType.wkbCurvePolygon))
                         {
                             using var newSinglePartFeature = newFeature.Clone();
                             newSinglePartFeature.SetFID(-1);
                             newSinglePartFeature.SetGeometry(singlePartGeometry);
                             processingLayer.CreateFeature(newSinglePartFeature);
+                        } else
+                        {
+                            throw new InvalidGeometryException(newFeature.GetFieldAsInteger(TIdFieldName));
                         }
                     }
                 }
