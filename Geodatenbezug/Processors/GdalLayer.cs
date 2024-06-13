@@ -156,7 +156,8 @@ public class GdalLayer
                             newSinglePartFeature.SetFID(-1);
                             newSinglePartFeature.SetGeometry(singlePartGeometry);
                             processingLayer.CreateFeature(newSinglePartFeature);
-                        } else
+                        }
+                        else
                         {
                             throw new InvalidGeometryException(newFeature.GetFieldAsInteger(TIdFieldName));
                         }
