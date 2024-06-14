@@ -6,7 +6,8 @@ using OSGeo.OGR;
 namespace Geodatenbezug.Processors;
 
 [TestClass]
-[DeploymentItem("testdata/lwb_perimeter_ln_sf_v2_0_lv95_NE_202404191123.gpkg", "testdata")]
+[DeploymentItem("testdata/lwb_perimeter_ln_sf_v2_0_lv95_testdaten.gpkg", "testdata")]
+[DeploymentItem("testdata/lwb_perimeter_ln_sf_v2_0_lv95_testdaten_invalid_geometry.gpkg", "testdata")]
 public class PerimeterLnSfProcessorTest
 {
     private readonly Topic topic = new ()
@@ -42,7 +43,7 @@ public class PerimeterLnSfProcessorTest
     {
         loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung");
 
-        processor.InputDataPath = "testdata\\lwb_perimeter_ln_sf_v2_0_lv95_NE_202404191123.gpkg";
+        processor.InputDataPath = "testdata\\lwb_perimeter_ln_sf_v2_0_lv95_testdaten.gpkg";
         await processor.RunGdalProcessingAsync();
 
         var layerName = "perimeter_ln_sf";
@@ -68,16 +69,27 @@ public class PerimeterLnSfProcessorTest
         GdalAssert.AssertFieldType(resultLayer, "bezugsjahr", FieldType.OFTDateTime);
 
         GdalAssert.AssertOnlySinglePartGeometries(resultLayer);
+        Assert.AreEqual(2, inputLayer.GetFeatureCount(0));
+        Assert.AreEqual(3, resultLayer.GetFeatureCount(0));
 
         var firstInputFeature = inputLayer.GetNextFeature();
         resultLayer.ResetReading();
         var firstResultFeature = resultLayer.GetNextFeature();
-        Assert.AreEqual(firstInputFeature.GetFID(), firstResultFeature.GetFieldAsInteger("t_id"));
+        Assert.AreEqual(firstInputFeature.GetFieldAsInteger("t_id"), firstResultFeature.GetFieldAsInteger("t_id"));
         GdalAssert.AssertDateTime(firstInputFeature, firstResultFeature, "bezugsjahr");
         Assert.AreEqual(firstInputFeature.GetFieldAsString("typ"), firstResultFeature.GetFieldAsString("typ"));
         Assert.AreEqual(firstInputFeature.GetFieldAsString("identifikator"), firstResultFeature.GetFieldAsString("identifikator"));
         Assert.AreEqual(firstInputFeature.GetFieldAsInteger("flaeche_m2"), firstResultFeature.GetFieldAsInteger("flaeche_m2"));
         Assert.AreEqual(firstInputFeature.GetFieldAsString("kanton"), firstResultFeature.GetFieldAsString("kanton"));
         GdalAssert.AssertGeometry(firstInputFeature, firstResultFeature);
+    }
+
+    [TestMethod]
+    public async Task RunGdalProcessingAsyncInvalidGeometry()
+    {
+        loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung");
+
+        processor.InputDataPath = "testdata\\lwb_perimeter_ln_sf_v2_0_lv95_testdaten_invalid_geometry.gpkg";
+        await Assert.ThrowsExceptionAsync<InvalidGeometryException>(processor.RunGdalProcessingAsync);
     }
 }

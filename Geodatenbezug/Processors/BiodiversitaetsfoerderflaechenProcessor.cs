@@ -30,18 +30,14 @@ public class BiodiversitaetsfoerderflaechenProcessor(IGeodiensteApi geodiensteAp
             { beitragsberechtigtFieldDefinition.GetName(), beitragsberechtigtFieldDefinition },
         };
 
-        var bffVernetzungFlaechenLayer = CreateGdalLayer("bff_vernetzung_flaechen", fieldTypeConversions);
+        var bffVernetzungFlaechenLayer = CreateGdalLayer("bff_vernetzung_flaechen", fieldTypeConversions, true, true);
         bffVernetzungFlaechenLayer.CopyFeatures();
-        bffVernetzungFlaechenLayer.FilterLnfCodes();
-        bffVernetzungFlaechenLayer.ConvertMultiPartToSinglePartGeometry();
 
         using var nhgFieldDefinition = new FieldDefn("nhg", FieldType.OFTInteger);
         nhgFieldDefinition.SetSubType(FieldSubType.OFSTInt16);
         fieldTypeConversions.Add(nhgFieldDefinition.GetName(), nhgFieldDefinition);
-        var bffQualitaet2FlaechenLayer = CreateGdalLayer("bff_qualitaet_2_flaechen", fieldTypeConversions);
+        var bffQualitaet2FlaechenLayer = CreateGdalLayer("bff_qualitaet_2_flaechen", fieldTypeConversions, true, true);
         bffQualitaet2FlaechenLayer.CopyFeatures();
-        bffQualitaet2FlaechenLayer.FilterLnfCodes();
-        bffQualitaet2FlaechenLayer.ConvertMultiPartToSinglePartGeometry();
 
         return Task.CompletedTask;
     }

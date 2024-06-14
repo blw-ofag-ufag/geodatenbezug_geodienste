@@ -17,9 +17,8 @@ public class PerimeterLnSfProcessor(IGeodiensteApi geodiensteApi, IAzureStorage 
         {
             { bezugsJahrFieldDefinition.GetName(), bezugsJahrFieldDefinition },
         };
-        var perimeterLnSfLayer = CreateGdalLayer("perimeter_ln_sf", fieldTypeConversions);
+        var perimeterLnSfLayer = CreateGdalLayer("perimeter_ln_sf", fieldTypeConversions, false, true);
         perimeterLnSfLayer.CopyFeatures();
-        perimeterLnSfLayer.ConvertMultiPartToSinglePartGeometry();
 
         return Task.CompletedTask;
     }

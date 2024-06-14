@@ -77,11 +77,9 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
             "schnittzeitpunkt",
         };
 
-        var nutzungsflaechenTempLayer = CreateGdalLayer(NutzungsflaechenLayerName, fieldTypeConversions, fieldsToDrop);
+        var nutzungsflaechenTempLayer = CreateGdalLayer(NutzungsflaechenLayerName, fieldTypeConversions, fieldsToDrop, true, true);
         Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Kopiere Features aus dem GPKG in die GDB");
         nutzungsflaechenTempLayer.CopyFeatures();
-        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Filtere LNF-Codes");
-        nutzungsflaechenTempLayer.FilterLnfCodes();
 
         // Create a temporary layer with data from the nutzungsart catalog
         await CreateNutzungsartLayerAsync().ConfigureAwait(false);
@@ -175,9 +173,6 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
 
             nutzungsflaechenLayer.CreateFeature(newFeature);
         }
-
-        Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Konvertiere Multi- zu Singlepart-Geometrien");
-        nutzungsflaechenLayer.ConvertMultiPartToSinglePartGeometry();
 
         Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Lösche temporäre Layer");
 

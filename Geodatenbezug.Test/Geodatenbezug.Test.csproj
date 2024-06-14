@@ -29,29 +29,32 @@
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
 
-    <ItemGroup>
+  <ItemGroup>
     <None Include="testdata\lwb_perimeter_terrassenreben_lv95.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="testdata\lwb_perimeter_terrassenreben_lv95_no_gpkg.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="testdata\lwb_bewirtschaftungseinheit_v2_0_lv95_NE_202404191123.gpkg">
+    <None Include="testdata\lwb_bewirtschaftungseinheit_v2_0_lv95_testdaten.gpkg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="testdata\lwb_biodiversitaetsfoerderflaechen_v2_0_lv95_NE_202404191123.gpkg">
+    <None Include="testdata\lwb_biodiversitaetsfoerderflaechen_v2_0_lv95_testdaten.gpkg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="testdata\lwb_nutzungsflaechen_v2_0_lv95_NE_202404191123.gpkg">
+    <None Include="testdata\lwb_nutzungsflaechen_v2_0_lv95_testdaten.gpkg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_NE_202404191123.gpkg">
+    <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten.gpkg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="testdata\lwb_perimeter_terrassenreben_v2_0_lv95_NE_202404191123.gpkg">
+    <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten_invalid_geometry.gpkg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="testdata\lwb_rebbaukataster_v2_0_lv95_NE_202404191123.gpkg">
+    <None Include="testdata\lwb_perimeter_terrassenreben_v2_0_lv95_testdaten.gpkg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="testdata\lwb_rebbaukataster_v2_0_lv95_testdaten.gpkg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

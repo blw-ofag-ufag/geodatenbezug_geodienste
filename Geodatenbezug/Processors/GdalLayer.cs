@@ -13,6 +13,9 @@ public class GdalLayer
     private readonly Layer inputLayer;
     private readonly Layer processingLayer;
 
+    private readonly bool filterLnfCodes;
+    private readonly bool convertMultiToSinglePartGeometries;
+
     /// <summary>
     /// The <see cref="Layer"/> for the input data.
     /// </summary>
@@ -21,10 +24,13 @@ public class GdalLayer
     /// <summary>
     /// Initializes a new instance of the <see cref="GdalLayer"/> class.
     /// </summary>
-    public GdalLayer(Layer inputLayer, Layer processingLayer, Dictionary<string, FieldDefn> fieldTypeConversions, List<string> fieldsToDrop)
+    public GdalLayer(Layer inputLayer, Layer processingLayer, Dictionary<string, FieldDefn> fieldTypeConversions, List<string> fieldsToDrop, bool filterLnfCodes, bool convertMultiToSinglePartGeometries)
     {
         this.inputLayer = inputLayer;
         this.processingLayer = processingLayer;
+
+        this.filterLnfCodes = filterLnfCodes;
+        this.convertMultiToSinglePartGeometries = convertMultiToSinglePartGeometries;
 
         var inputLayerDefinition = inputLayer.GetLayerDefn();
 
@@ -63,9 +69,18 @@ public class GdalLayer
         for (var i = 0; i < inputLayer.GetFeatureCount(1); i++)
         {
             var inputFeature = inputLayer.GetNextFeature();
+
+            if (filterLnfCodes)
+            {
+                var lnfCode = inputFeature.GetFieldAsInteger("lnf_code");
+                if ((lnfCode >= 921 && lnfCode <= 928) || lnfCode == 950 || lnfCode == 951)
+                {
+                    continue;
+                }
+            }
+
             var processingLayerDefinition = processingLayer.GetLayerDefn();
             using var newFeature = new Feature(processingLayerDefinition);
-            newFeature.SetGeometry(inputFeature.GetGeometryRef());
 
             for (var j = 0; j < processingLayerDefinition.GetFieldCount(); j++)
             {
@@ -119,23 +134,44 @@ public class GdalLayer
                 }
             }
 
-            processingLayer.CreateFeature(newFeature);
+            if (!inputFeature.GetGeometryRef().IsValid())
+            {
+                throw new InvalidGeometryException(newFeature.GetFieldAsInteger(TIdFieldName));
+            }
+
+            newFeature.SetGeometry(inputFeature.GetGeometryRef());
+
+            if (convertMultiToSinglePartGeometries)
+            {
+                var geometry = newFeature.GetGeometryRef();
+                if (geometry.GetGeometryCount() > 1)
+                {
+                    for (var j = 0; j < geometry.GetGeometryCount(); j++)
+                    {
+                        var singlePartGeometry = geometry.GetGeometryRef(j);
+                        var singlePartGeometryType = singlePartGeometry.GetGeometryType();
+                        if (singlePartGeometry.IsValid() && (singlePartGeometryType == wkbGeometryType.wkbPolygon || singlePartGeometryType == wkbGeometryType.wkbCurvePolygon))
+                        {
+                            using var newSinglePartFeature = newFeature.Clone();
+                            newSinglePartFeature.SetFID(-1);
+                            newSinglePartFeature.SetGeometry(singlePartGeometry);
+                            processingLayer.CreateFeature(newSinglePartFeature);
+                        }
+                        else
+                        {
+                            throw new InvalidGeometryException(newFeature.GetFieldAsInteger(TIdFieldName));
+                        }
+                    }
+                }
+                else
+                {
+                    processingLayer.CreateFeature(newFeature);
+                }
+            }
+            else
+            {
+                processingLayer.CreateFeature(newFeature);
+            }
         }
-    }
-
-    /// <summary>
-    /// Remove features from the layer that have a specific LNF code (921-928, 950, 951).
-    /// </summary>
-    public void FilterLnfCodes()
-    {
-        processingLayer.FilterLnfCodes();
-    }
-
-    /// <summary>
-    /// Convert multipart geometries to singlepart geometries.
-    /// </summary>
-    public void ConvertMultiPartToSinglePartGeometry()
-    {
-        processingLayer.ConvertMultiPartToSinglePartGeometry();
     }
 }
