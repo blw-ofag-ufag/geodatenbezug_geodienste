@@ -48,6 +48,12 @@
     <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten.gpkg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten.gpkg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten_donut.gpkg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten_invalid_geometry.gpkg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

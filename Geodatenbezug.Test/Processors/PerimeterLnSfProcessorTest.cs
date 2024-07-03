@@ -7,6 +7,7 @@ namespace Geodatenbezug.Processors;
 
 [TestClass]
 [DeploymentItem("testdata/lwb_perimeter_ln_sf_v2_0_lv95_testdaten.gpkg", "testdata")]
+[DeploymentItem("testdata/lwb_perimeter_ln_sf_v2_0_lv95_testdaten_donut.gpkg", "testdata")]
 [DeploymentItem("testdata/lwb_perimeter_ln_sf_v2_0_lv95_testdaten_invalid_geometry.gpkg", "testdata")]
 public class PerimeterLnSfProcessorTest
 {
@@ -81,6 +82,30 @@ public class PerimeterLnSfProcessorTest
         Assert.AreEqual(firstInputFeature.GetFieldAsString("identifikator"), firstResultFeature.GetFieldAsString("identifikator"));
         Assert.AreEqual(firstInputFeature.GetFieldAsInteger("flaeche_m2"), firstResultFeature.GetFieldAsInteger("flaeche_m2"));
         Assert.AreEqual(firstInputFeature.GetFieldAsString("kanton"), firstResultFeature.GetFieldAsString("kanton"));
+        GdalAssert.AssertGeometry(firstInputFeature, firstResultFeature);
+    }
+
+    [TestMethod]
+    public async Task RunGdalProcessingAsyncValidDonutGeometry()
+    {
+        loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung");
+
+        processor.InputDataPath = "testdata\\lwb_perimeter_ln_sf_v2_0_lv95_testdaten_donut.gpkg";
+        await processor.RunGdalProcessingAsync();
+
+        var layerName = "perimeter_ln_sf";
+
+        var inputSource = Ogr.Open(processor.InputDataPath, 0);
+        var inputLayer = inputSource.GetLayerByName(layerName);
+
+        var resultSource = Ogr.Open(processor.InputDataPath.Replace(".gpkg", ".gdb", StringComparison.InvariantCulture), 0);
+        var resultLayer = resultSource.GetLayerByName(layerName);
+
+        Assert.AreEqual(1, inputLayer.GetFeatureCount(0));
+        Assert.AreEqual(1, resultLayer.GetFeatureCount(0));
+
+        var firstInputFeature = inputLayer.GetNextFeature();
+        var firstResultFeature = resultLayer.GetNextFeature();
         GdalAssert.AssertGeometry(firstInputFeature, firstResultFeature);
     }
 

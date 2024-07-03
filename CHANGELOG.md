@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- Fix copying of geometries with interior rings.
+
 ## v1.0.81 - 2024-05-16
 
 ### Added

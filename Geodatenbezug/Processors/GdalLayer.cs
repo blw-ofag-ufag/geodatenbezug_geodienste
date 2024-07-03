@@ -134,12 +134,11 @@ public class GdalLayer
                 }
             }
 
-            if (!inputFeature.GetGeometryRef().IsValid())
+            newFeature.SetGeometry(inputFeature.GetGeometryRef());
+            if (!newFeature.GetGeometryRef().IsValid())
             {
                 throw new InvalidGeometryException(newFeature.GetFieldAsInteger(TIdFieldName));
             }
-
-            newFeature.SetGeometry(inputFeature.GetGeometryRef());
 
             if (convertMultiToSinglePartGeometries)
             {
@@ -159,6 +158,14 @@ public class GdalLayer
                         }
                         else
                         {
+                            var layerGeometryType = processingLayerDefinition.GetGeomType();
+                            var geometryType = newFeature.GetGeometryRef().GetGeometryType();
+                            if (layerGeometryType == wkbGeometryType.wkbMultiPolygon && (geometryType == wkbGeometryType.wkbPolygon || geometryType == wkbGeometryType.wkbCurvePolygon))
+                            {
+                                processingLayer.CreateFeature(newFeature);
+                                break;
+                            }
+
                             throw new InvalidGeometryException(newFeature.GetFieldAsInteger(TIdFieldName));
                         }
                     }
