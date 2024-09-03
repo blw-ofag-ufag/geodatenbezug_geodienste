@@ -51,10 +51,25 @@
     <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten.gpkg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten_donut.gpkg">
+    <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten_invalid_donut_valid_polygon.gpkg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten_invalid_geometry.gpkg">
+    <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten_invalid_wo_donut.gpkg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten_valid_donut_invalid_polygon.gpkg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten_valid_w_donut.gpkg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten_valid_wo_donut.gpkg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten_valid_singlepart_donut.gpkg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="testdata\lwb_perimeter_ln_sf_v2_0_lv95_testdaten_invalid_singlepart_donut.gpkg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="testdata\lwb_perimeter_terrassenreben_v2_0_lv95_testdaten.gpkg">
