@@ -12,13 +12,13 @@ public record GeodiensteStatusSuccess
     /// </summary>
     [JsonPropertyName("status")]
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    required public GeodiensteStatus Status { get; set; }
+    public required GeodiensteStatus Status { get; set; }
 
     /// <summary>
     /// Information about the export.
     /// </summary>
     [JsonPropertyName("info")]
-    required public string Info { get; set; }
+    public required string Info { get; set; }
 
     /// <summary>
     /// The download URL for the exported geodata.

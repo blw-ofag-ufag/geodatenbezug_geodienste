@@ -11,7 +11,7 @@ public record TestMessageResponse()
     /// <summary>
     /// The HTTP status code of the response.
     /// </summary>
-    required public HttpStatusCode Code { get; set; }
+    public required HttpStatusCode Code { get; set; }
 
     /// <summary>
     /// The content as a JSON string.

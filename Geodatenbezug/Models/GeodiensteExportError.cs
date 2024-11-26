@@ -31,5 +31,5 @@ public record GeodiensteExportError
     /// The error message.
     /// </summary>
     [JsonPropertyName("error")]
-    required public string Error { get; set; }
+    public required string Error { get; set; }
 }

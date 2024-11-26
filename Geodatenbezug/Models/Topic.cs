@@ -12,20 +12,20 @@ public record Topic
     /// </summary>
     [JsonPropertyName("base_topic")]
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    required public BaseTopic BaseTopic { get; set; }
+    public required BaseTopic BaseTopic { get; set; }
 
     /// <summary>
     /// Canton the data is from.
     /// </summary>
     [JsonPropertyName("canton")]
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    required public Canton Canton { get; set; }
+    public required Canton Canton { get; set; }
 
     /// <summary>
     /// Topic title.
     /// </summary>
     [JsonPropertyName("topic_title")]
-    required public string TopicTitle { get; set; }
+    public required string TopicTitle { get; set; }
 
     /// <summary>
     /// Date and time the data was last updated.

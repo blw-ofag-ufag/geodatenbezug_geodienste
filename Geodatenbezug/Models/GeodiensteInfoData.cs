@@ -11,5 +11,5 @@ public record GeodiensteInfoData
     /// All services (topics) available for the given query parameters.
     /// </summary>
     [JsonPropertyName("services")]
-    required public List<Topic> Services { get; set; }
+    public required List<Topic> Services { get; set; }
 }

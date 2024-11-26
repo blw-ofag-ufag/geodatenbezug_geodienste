@@ -11,5 +11,5 @@ public record GeodiensteExportSuccess
     /// The info message.
     /// </summary>
     [JsonPropertyName("info")]
-    required public string Info { get; set; }
+    public required string Info { get; set; }
 }
