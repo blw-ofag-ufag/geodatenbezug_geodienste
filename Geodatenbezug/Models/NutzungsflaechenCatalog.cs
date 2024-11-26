@@ -6,6 +6,7 @@ namespace Geodatenbezug.Models;
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 #pragma warning disable SA1600 // Elements should be documented
 #pragma warning disable SA1649 // File name should match first type name
+#pragma warning disable SA1402 // File may only contain a single type
 public class Transfer
 {
     [XmlElement("DATASECTION")]
@@ -71,6 +72,7 @@ public class LocalisationCHV1LocalisedText
     [XmlElement("Text")]
     public required string Text { get; set; }
 }
+#pragma warning restore SA1402 // File may only contain a single type
 #pragma warning restore SA1649 // File name should match first type name
 #pragma warning restore SA1600 // Elements should be documented
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
