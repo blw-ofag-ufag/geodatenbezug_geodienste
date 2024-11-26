@@ -46,7 +46,7 @@ public class AzureStorage(ILogger<AzureStorage> logger) : IAzureStorage
         var containerClient = new BlobServiceClient(ConnectionString).GetBlobContainerClient(StorageContainerName);
         var creationDates = new List<DateTime>();
 
-        await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
+        await foreach (BlobItem blobItem in containerClient.GetBlobsAsync().ConfigureAwait(false))
         {
             if (blobItem.Name.StartsWith(topic.Canton.ToString(), StringComparison.OrdinalIgnoreCase)
                 && blobItem.Name.Contains(topic.BaseTopic.ToString(), StringComparison.OrdinalIgnoreCase))
