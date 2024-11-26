@@ -29,7 +29,7 @@ public class MailServiceTest
     {
         var results = new List<ProcessingResult>
         {
-            new ()
+            new()
             {
                 Code = HttpStatusCode.OK,
                 Reason = "Success",
@@ -53,7 +53,7 @@ public class MailServiceTest
     {
         var results = new List<ProcessingResult>
         {
-            new ()
+            new()
             {
                 Code = HttpStatusCode.OK,
                 Reason = "Success",
@@ -63,7 +63,7 @@ public class MailServiceTest
                 UpdatedAt = new DateTime(2023, 11, 05, 15, 33, 22),
                 DownloadUrl = "https://a-test.ch/link.zip",
             },
-            new ()
+            new()
             {
                 Code = HttpStatusCode.NotFound,
                 Reason = "Kein Wert für Key SH gefunden",
@@ -132,7 +132,7 @@ public class MailServiceTest
 
         var results = new List<ProcessingResult>
         {
-            new ()
+            new()
             {
                 Code = HttpStatusCode.OK,
                 Reason = "Success",
@@ -142,7 +142,7 @@ public class MailServiceTest
                 UpdatedAt = new DateTime(2023, 11, 05, 15, 33, 22),
                 DownloadUrl = "https://a-test.ch/link.zip",
             },
-            new ()
+            new()
             {
                 Code = HttpStatusCode.NotFound,
                 Reason = "Not Found",
@@ -151,7 +151,7 @@ public class MailServiceTest
                 Canton = Canton.SH,
                 UpdatedAt = new DateTime(2023, 11, 05, 15, 33, 22),
             },
-            new ()
+            new()
             {
                 Code = HttpStatusCode.NotFound,
                 Reason = "Kein Wert für Key SH gefunden",
@@ -159,7 +159,7 @@ public class MailServiceTest
                 Canton = Canton.SH,
                 UpdatedAt = new DateTime(2023, 11, 05, 15, 33, 22),
             },
-            new ()
+            new()
             {
                 Code = HttpStatusCode.OK,
                 Reason = "Success",

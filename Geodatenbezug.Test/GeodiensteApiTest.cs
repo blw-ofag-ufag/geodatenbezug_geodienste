@@ -12,7 +12,7 @@ namespace Geodatenbezug;
 [DeploymentItem("testdata/lwb_perimeter_terrassenreben_lv95_no_gpkg.zip", "testdata")]
 public class GeodiensteApiTest
 {
-    private readonly Topic topic = new ()
+    private readonly Topic topic = new()
     {
         BaseTopic = BaseTopic.lwb_perimeter_ln_sf,
         TopicTitle = "Perimeter LN- und Sömmerungsflächen",
@@ -66,7 +66,7 @@ public class GeodiensteApiTest
         var responseBody = JsonSerializer.Serialize(data);
         httpTestMessageHandler.SetTestMessageResponses(
         [
-            new () { Code = HttpStatusCode.OK, Content = responseBody },
+            new() { Code = HttpStatusCode.OK, Content = responseBody },
         ]);
         httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(httpTestMessageHandler.ToHttpClient()).Verifiable();
         loggerMock.Setup(LogLevel.Information, "Rufe die Themeninformationen ab: https://geodienste.ch/info/services.json?base_topics=lwb_perimeter_ln_sf,lwb_rebbaukataster,lwb_perimeter_terrassenreben,lwb_biodiversitaetsfoerderflaechen,lwb_bewirtschaftungseinheit,lwb_nutzungsflaechen&topics=lwb_perimeter_ln_sf_v2_0,lwb_rebbaukataster_v2_0,lwb_perimeter_terrassenreben_v2_0,lwb_biodiversitaetsfoerderflaechen_v2_0,lwb_bewirtschaftungseinheit_v2_0,lwb_nutzungsflaechen_v2_0&cantons=AG,AI,AR,BE,BL,FR,GE,GL,GR,JU,LU,NE,NW,OW,SG,SH,SO,SZ,TG,TI,UR,VD,VS,ZG,ZH&language=de");
@@ -80,7 +80,7 @@ public class GeodiensteApiTest
     {
         httpTestMessageHandler.SetTestMessageResponses(
         [
-            new () { Code = HttpStatusCode.InternalServerError },
+            new() { Code = HttpStatusCode.InternalServerError },
         ]);
         httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(httpTestMessageHandler.ToHttpClient()).Verifiable();
         loggerMock.Setup(LogLevel.Information, "Rufe die Themeninformationen ab: https://geodienste.ch/info/services.json?base_topics=lwb_perimeter_ln_sf,lwb_rebbaukataster,lwb_perimeter_terrassenreben,lwb_biodiversitaetsfoerderflaechen,lwb_bewirtschaftungseinheit,lwb_nutzungsflaechen&topics=lwb_perimeter_ln_sf_v2_0,lwb_rebbaukataster_v2_0,lwb_perimeter_terrassenreben_v2_0,lwb_biodiversitaetsfoerderflaechen_v2_0,lwb_bewirtschaftungseinheit_v2_0,lwb_nutzungsflaechen_v2_0&cantons=AG,AI,AR,BE,BL,FR,GE,GL,GR,JU,LU,NE,NW,OW,SG,SH,SO,SZ,TG,TI,UR,VD,VS,ZG,ZH&language=de");
@@ -95,8 +95,8 @@ public class GeodiensteApiTest
     {
         httpTestMessageHandler.SetTestMessageResponses(
         [
-            new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
-            new () { Code = HttpStatusCode.OK, Content = "{\"info\":\"Data export successfully started. Call the URL of status_url to get the current status of the export.\"}" },
+            new() { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
+            new() { Code = HttpStatusCode.OK, Content = "{\"info\":\"Data export successfully started. Call the URL of status_url to get the current status of the export.\"}" },
         ]);
         httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(httpTestMessageHandler.ToHttpClient()).Verifiable();
         loggerMock.Setup(LogLevel.Information, "Starte den Datenexport mit https://geodienste.ch/downloads/lwb_perimeter_ln_sf/1234567890/export.json", Times.Once());
@@ -111,17 +111,17 @@ public class GeodiensteApiTest
     {
         httpTestMessageHandler.SetTestMessageResponses(
         [
-            new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
-            new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
-            new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
-            new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
-            new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
-            new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
-            new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
-            new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
-            new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
-            new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
-            new () { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
+            new() { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
+            new() { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
+            new() { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
+            new() { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
+            new() { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
+            new() { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
+            new() { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
+            new() { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
+            new() { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
+            new() { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
+            new() { Code = HttpStatusCode.NotFound, Content = "{\"error\":\"Cannot start data export because there is another data export pending\"}" },
         ]);
         httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(httpTestMessageHandler.ToHttpClient()).Verifiable();
         loggerMock.Setup(LogLevel.Information, "Starte den Datenexport mit https://geodienste.ch/downloads/lwb_perimeter_ln_sf/1234567890/export.json", Times.Once());
@@ -137,7 +137,7 @@ public class GeodiensteApiTest
     {
         httpTestMessageHandler.SetTestMessageResponses(
         [
-            new () { Code = HttpStatusCode.Unauthorized },
+            new() { Code = HttpStatusCode.Unauthorized },
         ]);
         httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(httpTestMessageHandler.ToHttpClient()).Verifiable();
         loggerMock.Setup(LogLevel.Information, "Starte den Datenexport mit https://geodienste.ch/downloads/lwb_perimeter_ln_sf/1234567890/export.json", Times.Once());
@@ -166,9 +166,9 @@ public class GeodiensteApiTest
 
         httpTestMessageHandler.SetTestMessageResponses(
         [
-            new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
-            new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"working\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
-            new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"success\", \"info\":\"Data ready to be downloaded. Provide your credentials to download the data.\", \"download_url\":\"test.com/data.zip\", \"exported_at\":\"2022-03-24T09:31:05.508\"}" },
+            new() { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
+            new() { Code = HttpStatusCode.OK, Content = "{\"status\":\"working\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
+            new() { Code = HttpStatusCode.OK, Content = "{\"status\":\"success\", \"info\":\"Data ready to be downloaded. Provide your credentials to download the data.\", \"download_url\":\"test.com/data.zip\", \"exported_at\":\"2022-03-24T09:31:05.508\"}" },
         ]);
         httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(httpTestMessageHandler.ToHttpClient()).Verifiable();
         loggerMock.Setup(LogLevel.Information, "Prüfe den Status des Datenexports mit https://geodienste.ch/downloads/lwb_perimeter_ln_sf/1234567890/status.json", Times.Once());
@@ -185,17 +185,17 @@ public class GeodiensteApiTest
     {
         httpTestMessageHandler.SetTestMessageResponses(
         [
-            new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
-            new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
-            new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
-            new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
-            new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
-            new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
-            new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
-            new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"working\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
-            new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"working\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
-            new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"working\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
-            new () { Code = HttpStatusCode.OK, Content = "{\"status\":\"working\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
+            new() { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
+            new() { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
+            new() { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
+            new() { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
+            new() { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
+            new() { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
+            new() { Code = HttpStatusCode.OK, Content = "{\"status\":\"queued\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
+            new() { Code = HttpStatusCode.OK, Content = "{\"status\":\"working\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
+            new() { Code = HttpStatusCode.OK, Content = "{\"status\":\"working\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
+            new() { Code = HttpStatusCode.OK, Content = "{\"status\":\"working\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
+            new() { Code = HttpStatusCode.OK, Content = "{\"status\":\"working\",\"info\":\"Try again later.\",\"download_url\":null,\"exported_at\":null}" },
         ]);
         httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(httpTestMessageHandler.ToHttpClient()).Verifiable();
         loggerMock.Setup(LogLevel.Information, "Prüfe den Status des Datenexports mit https://geodienste.ch/downloads/lwb_perimeter_ln_sf/1234567890/status.json", Times.Once());
@@ -213,7 +213,7 @@ public class GeodiensteApiTest
     {
         httpTestMessageHandler.SetTestMessageResponses(
         [
-            new () { Code = HttpStatusCode.Unauthorized },
+            new() { Code = HttpStatusCode.Unauthorized },
         ]);
         httpClientFactoryMock.Setup(cf => cf.CreateClient(It.IsAny<string>())).Returns(httpTestMessageHandler.ToHttpClient()).Verifiable();
         loggerMock.Setup(LogLevel.Information, "Prüfe den Status des Datenexports mit https://geodienste.ch/downloads/lwb_perimeter_ln_sf/1234567890/status.json", Times.Once());

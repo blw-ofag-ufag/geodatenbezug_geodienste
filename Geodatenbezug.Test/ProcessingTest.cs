@@ -40,28 +40,28 @@ public class ProcessingTest
             .Setup(api => api.RequestTopicInfoAsync())
             .ReturnsAsync(
             [
-                new ()
+                new()
                 {
                     BaseTopic = BaseTopic.lwb_perimeter_ln_sf,
                     TopicTitle = "Perimeter LN- und Sömmerungsflächen",
                     Canton = Canton.SH,
                     UpdatedAt = datestring_delta4,
                 },
-                new ()
+                new()
                 {
                     BaseTopic = BaseTopic.lwb_perimeter_ln_sf,
                     TopicTitle = "Perimeter LN- und Sömmerungsflächen",
                     Canton = Canton.ZG,
                     UpdatedAt = datestring_delta23,
                 },
-                new ()
+                new()
                 {
                     BaseTopic = BaseTopic.lwb_rebbaukataster,
                     TopicTitle = "Rebbaukataster",
                     Canton = Canton.SH,
                     UpdatedAt = datestring_delta30,
                 },
-                new ()
+                new()
                 {
                     BaseTopic = BaseTopic.lwb_rebbaukataster,
                     TopicTitle = "Rebbaukataster",

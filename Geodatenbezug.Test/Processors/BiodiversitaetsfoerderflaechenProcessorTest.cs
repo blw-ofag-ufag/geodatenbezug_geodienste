@@ -9,7 +9,7 @@ namespace Geodatenbezug.Processors;
 [DeploymentItem("testdata/lwb_biodiversitaetsfoerderflaechen_v2_0_lv95_testdaten.gpkg", "testdata")]
 public class BiodiversitaetsfoerderflaechenProcessorTest
 {
-    private readonly Topic topic = new ()
+    private readonly Topic topic = new()
     {
         TopicTitle = BaseTopic.lwb_biodiversitaetsfoerderflaechen.GetDescription(),
         Canton = Canton.NE,

@@ -68,5 +68,5 @@ public class HttpTestMessageHandler : HttpMessageHandler
     /// <summary>
     /// Converts the test message handler to an HttpClient.
     /// </summary>
-    public HttpClient ToHttpClient() => new (this);
+    public HttpClient ToHttpClient() => new(this);
 }

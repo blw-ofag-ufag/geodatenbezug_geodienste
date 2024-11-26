@@ -9,7 +9,7 @@ namespace Geodatenbezug.Processors;
 [DeploymentItem("testdata/lwb_bewirtschaftungseinheit_v2_0_lv95_testdaten.gpkg", "testdata")]
 public class BewirtschaftungseinheitProcessorTest
 {
-    private readonly Topic topic = new ()
+    private readonly Topic topic = new()
     {
         TopicTitle = BaseTopic.lwb_bewirtschaftungseinheit.GetDescription(),
         Canton = Canton.NE,

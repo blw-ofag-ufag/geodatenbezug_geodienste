@@ -9,7 +9,7 @@ namespace Geodatenbezug.Processors;
 [DeploymentItem("testdata/lwb_rebbaukataster_v2_0_lv95_testdaten.gpkg", "testdata")]
 public class RebbaukatasterProcessorTest
 {
-    private readonly Topic topic = new ()
+    private readonly Topic topic = new()
     {
         TopicTitle = BaseTopic.lwb_rebbaukataster.GetDescription(),
         Canton = Canton.NE,
