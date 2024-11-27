@@ -50,7 +50,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// </summary>
     protected Topic Topic => topic;
 
-    private readonly ProcessingResult processingResult = new ()
+    private readonly ProcessingResult processingResult = new()
     {
         Code = HttpStatusCode.Processing,
         Canton = topic.Canton,

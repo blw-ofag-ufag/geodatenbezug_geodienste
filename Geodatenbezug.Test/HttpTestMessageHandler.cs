@@ -4,22 +4,6 @@ using System.Text;
 namespace Geodatenbezug;
 
 /// <summary>
-/// A simplified version of the HttpResponseMessage class that can be used to mock HTTP responses.
-/// </summary>
-public record TestMessageResponse()
-{
-    /// <summary>
-    /// The HTTP status code of the response.
-    /// </summary>
-    required public HttpStatusCode Code { get; set; }
-
-    /// <summary>
-    /// The content as a JSON string.
-    /// </summary>
-    public string? Content { get; set; }
-}
-
-/// <summary>
 /// A test message handler that can be used to mock multiple HTTP responses.
 /// </summary>
 public class HttpTestMessageHandler : HttpMessageHandler
@@ -68,5 +52,21 @@ public class HttpTestMessageHandler : HttpMessageHandler
     /// <summary>
     /// Converts the test message handler to an HttpClient.
     /// </summary>
-    public HttpClient ToHttpClient() => new (this);
+    public HttpClient ToHttpClient() => new(this);
+}
+
+/// <summary>
+/// A simplified version of the HttpResponseMessage class that can be used to mock HTTP responses.
+/// </summary>
+public record TestMessageResponse()
+{
+    /// <summary>
+    /// The HTTP status code of the response.
+    /// </summary>
+    public required HttpStatusCode Code { get; set; }
+
+    /// <summary>
+    /// The content as a JSON string.
+    /// </summary>
+    public string? Content { get; set; }
 }

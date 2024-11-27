@@ -245,6 +245,7 @@ dotnet_diagnostic.SA1202.severity = none
 dotnet_diagnostic.SA1203.severity = warning
 dotnet_diagnostic.SA1204.severity = warning
 dotnet_diagnostic.SA1208.severity = warning
+dotnet_diagnostic.SA1210.severity = none
 dotnet_diagnostic.SA1311.severity = warning
 dotnet_diagnostic.SA1402.severity = warning
 dotnet_diagnostic.SA1412.severity = warning

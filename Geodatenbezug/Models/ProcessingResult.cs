@@ -10,7 +10,7 @@ public record ProcessingResult
     /// <summary>
     /// The status code of the response.
     /// </summary>
-    required public HttpStatusCode Code { get; set; }
+    public required HttpStatusCode Code { get; set; }
 
     /// <summary>
     /// The response reason.
@@ -25,12 +25,12 @@ public record ProcessingResult
     /// <summary>
     /// The title of the processed topic.
     /// </summary>
-    required public string TopicTitle { get; set; }
+    public required string TopicTitle { get; set; }
 
     /// <summary>
     /// The canton of the processed topic.
     /// </summary>
-    required public Canton Canton { get; set; }
+    public required Canton Canton { get; set; }
 
     /// <summary>
     /// The date and time the data was last updated.
