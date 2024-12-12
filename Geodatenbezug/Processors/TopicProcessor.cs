@@ -221,11 +221,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     /// </summary>
     public GdalLayer CreateGdalLayer(string layerName, Dictionary<string, FieldDefn>? fieldTypeConversions, List<string> fieldsToDrop, bool filterLnfCodes, bool convertMultiToSinglePartGeometries)
     {
-        var inputLayer = InputDataSource.GetLayerByName(layerName);
-
-        if (inputLayer == null) {
-            throw new InvalidOperationException($"Layer {layerName} not found in input data source");
-        }
+        var inputLayer = InputDataSource.GetLayerByName(layerName) ?? throw new InvalidOperationException($"Layer {layerName} not found in input data source");
 
         // Workaround https://github.com/blw-ofag-ufag/geodatenbezug_geodienste/issues/45
         var geometryType = inputLayer.GetNextFeature().GetGeometryRef().GetGeometryType();
