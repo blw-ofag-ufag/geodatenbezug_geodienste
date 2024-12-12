@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## v1.0.92 - 2024-12-12
+
 ### Added
 
 - Added _bur_nr_ to _Nutzungsflaechen_.
