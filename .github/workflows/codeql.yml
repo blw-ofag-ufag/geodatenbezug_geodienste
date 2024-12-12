@@ -22,7 +22,7 @@ jobs:
       matrix:
         include:
           - language: csharp
-            build-mode: autobuild
+            build-mode: manual
 
     steps:
       - name: Checkout repository
@@ -33,6 +33,13 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
+
+      - if: matrix.build-mode == 'manual'
+        shell: bash
+        run: |
+          echo 'Building the project using dotnet commands'
+          dotnet restore Geodatenbezug/Geodatenbezug.csproj
+          dotnet build Geodatenbezug/Geodatenbezug.csproj --no-restore
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
