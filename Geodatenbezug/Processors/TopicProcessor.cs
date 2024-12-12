@@ -223,6 +223,10 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     {
         var inputLayer = InputDataSource.GetLayerByName(layerName);
 
+        if (inputLayer == null) {
+            throw new InvalidOperationException($"Layer {layerName} not found in input data source");
+        }
+
         // Workaround https://github.com/blw-ofag-ufag/geodatenbezug_geodienste/issues/45
         var geometryType = inputLayer.GetNextFeature().GetGeometryRef().GetGeometryType();
 
