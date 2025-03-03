@@ -13,9 +13,12 @@ public class BewirtschaftungseinheitProcessor(IGeodiensteApi geodiensteApi, IAzu
     protected override Task ProcessTopicAsync()
     {
         using var bezugsjahrFieldDefinition = new FieldDefn("bezugsjahr", FieldType.OFTDateTime);
+        using var zoneAuslandFieldDefinition = new FieldDefn("zone_ausland", FieldType.OFTString);
+        zoneAuslandFieldDefinition.SetWidth(254);
         var fieldTypeConversions = new Dictionary<string, FieldDefn>
         {
             { bezugsjahrFieldDefinition.GetName(), bezugsjahrFieldDefinition },
+            { zoneAuslandFieldDefinition.GetName(), zoneAuslandFieldDefinition },
         };
 
         var betriebLayer = CreateGdalLayer("betrieb", fieldTypeConversions, false, true);

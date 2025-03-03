@@ -35,6 +35,7 @@ public class GdalLayer
         var inputLayerDefinition = inputLayer.GetLayerDefn();
 
         using var tIdFieldDefinition = new FieldDefn(TIdFieldName, FieldType.OFTString);
+        tIdFieldDefinition.SetWidth(50);
         processingLayer.CreateField(tIdFieldDefinition, 1);
 
         for (var i = 0; i < inputLayerDefinition.GetFieldCount(); i++)
