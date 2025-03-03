@@ -132,7 +132,6 @@ public class NutzungsflaechenProcessorTest
         GdalAssert.AssertFieldType(resultLayer, "nutzung_fr", FieldType.OFTString, 254);
         GdalAssert.AssertFieldType(resultLayer, "nutzung_it", FieldType.OFTString, 254);
 
-
         GdalAssert.AssertOnlyValidLnfCodes(resultLayer);
         GdalAssert.AssertOnlySinglePartGeometries(resultLayer);
 
