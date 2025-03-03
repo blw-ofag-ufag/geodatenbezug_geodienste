@@ -64,8 +64,9 @@ public class PerimeterLnSfProcessorTest
         };
         GdalAssert.AssertLayerFields(resultLayer, expectedLayerFields);
 
-        GdalAssert.AssertFieldType(resultLayer, "t_id", FieldType.OFTString);
+        GdalAssert.AssertFieldType(resultLayer, "t_id", FieldType.OFTString, 50);
         GdalAssert.AssertFieldType(resultLayer, "bezugsjahr", FieldType.OFTDateTime);
+        GdalAssert.AssertFieldType(resultLayer, "typ", FieldType.OFTString, 254);
 
         GdalAssert.AssertOnlySinglePartGeometries(resultLayer);
         Assert.AreEqual(2, inputLayer.GetFeatureCount(0));
