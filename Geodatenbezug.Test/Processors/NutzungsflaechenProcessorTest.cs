@@ -74,7 +74,7 @@ public class NutzungsflaechenProcessorTest
     {
         loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung");
         loggerMock.Setup(LogLevel.Information, $"Kopiere Features aus dem GPKG in die GDB");
-        loggerMock.Setup(LogLevel.Information, $"Lade Nutzungsart-Katalog von https://models.geo.admin.ch/BLW/LWB_Nutzungsflaechen_Kataloge_V2_0.xml");
+        loggerMock.Setup(LogLevel.Information, $"Lade Nutzungsart-Katalog von https://models.geo.admin.ch/BLW/LWB_Nutzungsflaechen_Kataloge_V3_0.xml");
         loggerMock.Setup(LogLevel.Information, $"Erstelle temporären Nutzungsartlayer");
         loggerMock.Setup(LogLevel.Information, $"Erstelle temporären Bewirtschaftungslayer");
         loggerMock.Setup(LogLevel.Information, $"Führe Join mit Nutzungsart und Bewirtschaftungseinheit aus");
