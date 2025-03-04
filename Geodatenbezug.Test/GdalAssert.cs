@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using MaxRev.Gdal.Core;
 using OSGeo.OGR;
 
 namespace Geodatenbezug;

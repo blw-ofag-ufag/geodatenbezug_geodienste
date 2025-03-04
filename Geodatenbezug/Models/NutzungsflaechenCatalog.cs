@@ -15,13 +15,13 @@ public class Transfer
 
 public class DataSection
 {
-    [XmlElement("LWB_Nutzungsflaechen_V2_0.LNF_Kataloge")]
+    [XmlElement("LWB_Nutzungsflaechen_V3_0.LNF_Kataloge")]
     public required LnfKataloge LnfKataloge { get; set; }
 }
 
 public class LnfKataloge
 {
-    [XmlElement("LWB_Nutzungsflaechen_V2_0.LNF_Kataloge.LNF_Katalog_Nutzungsart")]
+    [XmlElement("LWB_Nutzungsflaechen_V3_0.LNF_Kataloge.LNF_Katalog_Nutzungsart")]
     public required List<LnfKatalogNutzungsart> LnfKatalogNutzungsart { get; set; }
 }
 

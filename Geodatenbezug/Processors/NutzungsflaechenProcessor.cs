@@ -20,7 +20,7 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
     private const string BurNrFieldName = "bur_nr";
     private const string LnfCodeFieldName = "lnf_code";
 
-    private const string CatalogUrl = "https://models.geo.admin.ch/BLW/LWB_Nutzungsflaechen_Kataloge_V2_0.xml";
+    private const string CatalogUrl = "https://models.geo.admin.ch/BLW/LWB_Nutzungsflaechen_Kataloge_V3_0.xml";
 
     /// <summary>
     /// The path to the data of the topic "Bewirtschaftungseinheit".
