@@ -63,7 +63,7 @@ public class BewirtschaftungseinheitProcessorTest
         };
         GdalAssert.AssertLayerFields(betriebResultLayer, expectedBetriebLayerFields);
 
-        GdalAssert.AssertFieldType(betriebResultLayer, "t_id", FieldType.OFTString);
+        GdalAssert.AssertFieldType(betriebResultLayer, "t_id", FieldType.OFTString, 50);
         GdalAssert.AssertFieldType(betriebResultLayer, "bezugsjahr", FieldType.OFTDateTime);
 
         GdalAssert.AssertOnlySinglePartGeometries(betriebResultLayer);
@@ -98,9 +98,10 @@ public class BewirtschaftungseinheitProcessorTest
         };
         GdalAssert.AssertLayerFields(bewirtschaftungseinheitResultLayer, expectedBewirtschaftungseinheitLayerFields);
 
-        GdalAssert.AssertFieldType(bewirtschaftungseinheitResultLayer, "t_id", FieldType.OFTString);
+        GdalAssert.AssertFieldType(bewirtschaftungseinheitResultLayer, "t_id", FieldType.OFTString, 50);
         GdalAssert.AssertFieldType(bewirtschaftungseinheitResultLayer, "bezugsjahr", FieldType.OFTDateTime);
         GdalAssert.AssertFieldType(bewirtschaftungseinheitResultLayer, "ist_definitiv", FieldType.OFTInteger, FieldSubType.OFSTInt16);
+        GdalAssert.AssertFieldType(bewirtschaftungseinheitResultLayer, "zone_ausland", FieldType.OFTString, 254);
 
         GdalAssert.AssertOnlySinglePartGeometries(bewirtschaftungseinheitResultLayer);
 
@@ -135,7 +136,7 @@ public class BewirtschaftungseinheitProcessorTest
         };
         GdalAssert.AssertLayerFields(produktionsstaetteResultLayer, expectedProduktionsstaetteLayerFields);
 
-        GdalAssert.AssertFieldType(produktionsstaetteResultLayer, "t_id", FieldType.OFTString);
+        GdalAssert.AssertFieldType(produktionsstaetteResultLayer, "t_id", FieldType.OFTString, 50);
         GdalAssert.AssertFieldType(produktionsstaetteResultLayer, "bezugsjahr", FieldType.OFTDateTime);
 
         GdalAssert.AssertOnlySinglePartGeometries(produktionsstaetteResultLayer);

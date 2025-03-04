@@ -120,9 +120,17 @@ public class NutzungsflaechenProcessorTest
         };
         GdalAssert.AssertLayerFields(resultLayer, expectedLayerFields);
 
-        GdalAssert.AssertFieldType(resultLayer, "t_id", FieldType.OFTString);
+        GdalAssert.AssertFieldType(resultLayer, "t_id", FieldType.OFTString, 50);
         GdalAssert.AssertFieldType(resultLayer, "bezugsjahr", FieldType.OFTDateTime);
         GdalAssert.AssertFieldType(resultLayer, "bff_qualitaet_1", FieldType.OFTInteger, FieldSubType.OFSTInt16);
+        GdalAssert.AssertFieldType(resultLayer, "code_programm", FieldType.OFTString, 50);
+        GdalAssert.AssertFieldType(resultLayer, "programm", FieldType.OFTString, 254);
+        GdalAssert.AssertFieldType(resultLayer, "hauptkategorie_de", FieldType.OFTString, 254);
+        GdalAssert.AssertFieldType(resultLayer, "hauptkategorie_fr", FieldType.OFTString, 254);
+        GdalAssert.AssertFieldType(resultLayer, "hauptkategorie_it", FieldType.OFTString, 254);
+        GdalAssert.AssertFieldType(resultLayer, "nutzung_de", FieldType.OFTString, 254);
+        GdalAssert.AssertFieldType(resultLayer, "nutzung_fr", FieldType.OFTString, 254);
+        GdalAssert.AssertFieldType(resultLayer, "nutzung_it", FieldType.OFTString, 254);
 
         GdalAssert.AssertOnlyValidLnfCodes(resultLayer);
         GdalAssert.AssertOnlySinglePartGeometries(resultLayer);

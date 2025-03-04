@@ -63,7 +63,7 @@ public class RebbaukatasterProcessorTest
         };
         GdalAssert.AssertLayerFields(resultLayer, expectedLayerFields);
 
-        GdalAssert.AssertFieldType(resultLayer, "t_id", FieldType.OFTString);
+        GdalAssert.AssertFieldType(resultLayer, "t_id", FieldType.OFTString, 50);
         GdalAssert.AssertFieldType(resultLayer, "aenderungsdatum", FieldType.OFTDateTime);
 
         GdalAssert.AssertOnlySinglePartGeometries(resultLayer);

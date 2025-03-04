@@ -59,9 +59,16 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
     {
         // Load the input data and apply first processing steps to reduce the data
         using var bezugsJahrFieldDefinition = new FieldDefn("bezugsjahr", FieldType.OFTDateTime);
+        using var codeProgrammFieldDefinition = new FieldDefn("code_programm", FieldType.OFTString);
+        codeProgrammFieldDefinition.SetWidth(50);
+        using var programmFieldDefinition = new FieldDefn("programm", FieldType.OFTString);
+        programmFieldDefinition.SetWidth(254);
+
         var fieldTypeConversions = new Dictionary<string, FieldDefn>
         {
             { bezugsJahrFieldDefinition.GetName(), bezugsJahrFieldDefinition },
+            { codeProgrammFieldDefinition.GetName(), codeProgrammFieldDefinition },
+            { programmFieldDefinition.GetName(), programmFieldDefinition },
         };
         var fieldsToDrop = new List<string>
         {
@@ -202,26 +209,32 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
 
         var hauptkategorieDeName = "hauptkategorie_de";
         using var hauptkategorieDe = new FieldDefn(hauptkategorieDeName, FieldType.OFTString);
+        hauptkategorieDe.SetWidth(254);
         nutzungsartLayer.CreateField(hauptkategorieDe, 1);
 
         var hauptkategorieFrName = "hauptkategorie_fr";
         using var hauptkategorieFr = new FieldDefn(hauptkategorieFrName, FieldType.OFTString);
+        hauptkategorieFr.SetWidth(254);
         nutzungsartLayer.CreateField(hauptkategorieFr, 1);
 
         var hauptkategorieItName = "hauptkategorie_it";
         using var hauptkategorieIt = new FieldDefn(hauptkategorieItName, FieldType.OFTString);
+        hauptkategorieIt.SetWidth(254);
         nutzungsartLayer.CreateField(hauptkategorieIt, 1);
 
         var nutzungDeName = "nutzung_de";
         using var nutzungDe = new FieldDefn(nutzungDeName, FieldType.OFTString);
+        nutzungDe.SetWidth(254);
         nutzungsartLayer.CreateField(nutzungDe, 1);
 
         var nutzungFrName = "nutzung_fr";
         using var nutzungFr = new FieldDefn(nutzungFrName, FieldType.OFTString);
+        nutzungFr.SetWidth(254);
         nutzungsartLayer.CreateField(nutzungFr, 1);
 
         var nutzungItName = "nutzung_it";
         using var nutzungIt = new FieldDefn(nutzungItName, FieldType.OFTString);
+        nutzungIt.SetWidth(254);
         nutzungsartLayer.CreateField(nutzungIt, 1);
 
         // Add the catalog data to the nutzungsart layer

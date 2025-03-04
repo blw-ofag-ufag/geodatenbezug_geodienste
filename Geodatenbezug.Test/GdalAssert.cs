@@ -28,9 +28,22 @@ internal static class GdalAssert
     /// </summary>
     internal static void AssertFieldType(Layer resultLayer, string fieldName, FieldType expectedFieldType)
     {
+        AssertFieldType(resultLayer, fieldName, expectedFieldType, null);
+    }
+
+    /// <summary>
+    /// Asserts that the field has the expected type.
+    /// </summary>
+    internal static void AssertFieldType(Layer resultLayer, string fieldName, FieldType expectedFieldType, int? length)
+    {
         var resultLayerDefn = resultLayer.GetLayerDefn();
         var fieldIndex = resultLayerDefn.GetFieldIndex(fieldName);
-        Assert.AreEqual(expectedFieldType, resultLayerDefn.GetFieldDefn(fieldIndex).GetFieldType());
+        var fieldDefinition = resultLayerDefn.GetFieldDefn(fieldIndex);
+        Assert.AreEqual(expectedFieldType, fieldDefinition.GetFieldType());
+        if (length.HasValue)
+        {
+            Assert.AreEqual(length, fieldDefinition.GetWidth());
+        }
     }
 
     /// <summary>

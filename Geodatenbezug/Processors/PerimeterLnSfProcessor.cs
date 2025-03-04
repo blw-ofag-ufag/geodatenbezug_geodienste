@@ -13,9 +13,12 @@ public class PerimeterLnSfProcessor(IGeodiensteApi geodiensteApi, IAzureStorage 
     protected override Task ProcessTopicAsync()
     {
         using var bezugsJahrFieldDefinition = new FieldDefn("bezugsjahr", FieldType.OFTDateTime);
+        using var typFieldDefinition = new FieldDefn("typ", FieldType.OFTString);
+        typFieldDefinition.SetWidth(254);
         var fieldTypeConversions = new Dictionary<string, FieldDefn>
         {
             { bezugsJahrFieldDefinition.GetName(), bezugsJahrFieldDefinition },
+            { typFieldDefinition.GetName(), typFieldDefinition },
         };
         var perimeterLnSfLayer = CreateGdalLayer("perimeter_ln_sf", fieldTypeConversions, false, true);
         perimeterLnSfLayer.CopyFeatures();
