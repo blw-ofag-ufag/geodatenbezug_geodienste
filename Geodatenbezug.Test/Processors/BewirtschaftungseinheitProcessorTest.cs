@@ -101,7 +101,7 @@ public class BewirtschaftungseinheitProcessorTest
         GdalAssert.AssertFieldType(bewirtschaftungseinheitResultLayer, "t_id", FieldType.OFTString, 50);
         GdalAssert.AssertFieldType(bewirtschaftungseinheitResultLayer, "bezugsjahr", FieldType.OFTDateTime);
         GdalAssert.AssertFieldType(bewirtschaftungseinheitResultLayer, "ist_definitiv", FieldType.OFTInteger, FieldSubType.OFSTInt16);
-        GdalAssert.AssertFieldType(bewirtschaftungseinheitResultLayer, "zone_ausland", FieldType.OFTString, 254);
+        GdalAssert.AssertFieldType(bewirtschaftungseinheitResultLayer, "zone_ausland", FieldType.OFTString, 999);
 
         GdalAssert.AssertOnlySinglePartGeometries(bewirtschaftungseinheitResultLayer);
 

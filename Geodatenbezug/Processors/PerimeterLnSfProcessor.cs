@@ -14,7 +14,7 @@ public class PerimeterLnSfProcessor(IGeodiensteApi geodiensteApi, IAzureStorage 
     {
         using var bezugsJahrFieldDefinition = new FieldDefn("bezugsjahr", FieldType.OFTDateTime);
         using var typFieldDefinition = new FieldDefn("typ", FieldType.OFTString);
-        typFieldDefinition.SetWidth(254);
+        typFieldDefinition.SetWidth(999);
         var fieldTypeConversions = new Dictionary<string, FieldDefn>
         {
             { bezugsJahrFieldDefinition.GetName(), bezugsJahrFieldDefinition },
