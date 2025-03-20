@@ -14,7 +14,7 @@ public class BewirtschaftungseinheitProcessor(IGeodiensteApi geodiensteApi, IAzu
     {
         using var bezugsjahrFieldDefinition = new FieldDefn("bezugsjahr", FieldType.OFTDateTime);
         using var zoneAuslandFieldDefinition = new FieldDefn("zone_ausland", FieldType.OFTString);
-        zoneAuslandFieldDefinition.SetWidth(254);
+        zoneAuslandFieldDefinition.SetWidth(999);
         var fieldTypeConversions = new Dictionary<string, FieldDefn>
         {
             { bezugsjahrFieldDefinition.GetName(), bezugsjahrFieldDefinition },
