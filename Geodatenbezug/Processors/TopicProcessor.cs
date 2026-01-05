@@ -224,7 +224,20 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         var inputLayer = InputDataSource.GetLayerByName(layerName) ?? throw new InvalidOperationException($"Layer {layerName} not found in input data source");
 
         // Workaround https://github.com/blw-ofag-ufag/geodatenbezug_geodienste/issues/45
-        var geometryType = inputLayer.GetNextFeature().GetGeometryRef().GetGeometryType();
+        var geometryType = inputLayer.GetGeomType();
+        if (geometryType == wkbGeometryType.wkbUnknown)
+        {
+            var feature = inputLayer.GetNextFeature();
+            if (feature != null)
+            {
+                geometryType = feature.GetGeometryRef().GetGeometryType();
+            }
+            else
+            {
+                logger.LogWarning($"Layer {layerName} has unknown geometry type and contains no features.");
+                geometryType = wkbGeometryType.wkbNone;
+            }
+        }
 
         var processingLayer = ProcessingDataSource.CreateLayer(layerName, inputLayer.GetSpatialRef(), geometryType, []);
         fieldTypeConversions ??= [];
