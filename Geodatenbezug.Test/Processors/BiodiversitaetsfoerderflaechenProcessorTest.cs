@@ -185,6 +185,7 @@ public class BiodiversitaetsfoerderflaechenProcessorTest
     public async Task CanProcessEmptyLayerWithoutGeometryType()
     {
         loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung");
+        loggerMock.Setup(LogLevel.Information, $"Layer bff_vernetzung_flaechen hat unbekannten Geometrietyp und keine Daten.");
 
         processor.InputDataPath = "testdata\\lwb_biodiversitaetsfoerderflaechen_v2_0_lv95_testdaten_empty_layer.gpkg";
         await processor.RunGdalProcessingAsync();

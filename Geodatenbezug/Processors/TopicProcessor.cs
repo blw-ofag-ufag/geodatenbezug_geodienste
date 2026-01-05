@@ -234,7 +234,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             }
             else
             {
-                logger.LogWarning($"Layer {layerName} has unknown geometry type and contains no features.");
+                logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Layer {layerName} hat unbekannten Geometrietyp und keine Daten.");
                 geometryType = wkbGeometryType.wkbNone;
             }
         }
