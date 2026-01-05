@@ -7,6 +7,7 @@ namespace Geodatenbezug.Processors;
 
 [TestClass]
 [DeploymentItem("testdata/lwb_biodiversitaetsfoerderflaechen_v2_0_lv95_testdaten.gpkg", "testdata")]
+[DeploymentItem("testdata/lwb_biodiversitaetsfoerderflaechen_v2_0_lv95_testdaten_empty_layer.gpkg", "testdata")]
 public class BiodiversitaetsfoerderflaechenProcessorTest
 {
     private readonly Topic topic = new()
@@ -178,5 +179,81 @@ public class BiodiversitaetsfoerderflaechenProcessorTest
         Assert.AreEqual(firstVernetzungInputFeature.GetFieldAsInteger("flaeche_m2"), firstVernetzungResultFeature.GetFieldAsInteger("flaeche_m2"));
         Assert.AreEqual(firstVernetzungInputFeature.GetFieldAsString("kanton"), firstVernetzungResultFeature.GetFieldAsString("kanton"));
         GdalAssert.AssertGeometry(firstVernetzungInputFeature, firstVernetzungResultFeature);
+    }
+
+    [TestMethod]
+    public async Task CanProcessEmptyLayerWithoutGeometryType()
+    {
+        loggerMock.Setup(LogLevel.Information, $"Starte GDAL-Prozessierung");
+
+        processor.InputDataPath = "testdata\\lwb_biodiversitaetsfoerderflaechen_v2_0_lv95_testdaten_empty_layer.gpkg";
+        await processor.RunGdalProcessingAsync();
+
+        var inputSource = Ogr.Open(processor.InputDataPath, 0);
+        var resultSource = Ogr.Open(processor.InputDataPath.Replace(".gpkg", ".gdb", StringComparison.InvariantCulture), 0);
+
+        var qualitaetLayerName = "bff_qualitaet_2_flaechen";
+        var qualitaetInputLayer = inputSource.GetLayerByName(qualitaetLayerName);
+        var qualitaetResultLayer = resultSource.GetLayerByName(qualitaetLayerName);
+
+        var expectedQualitaetLayerFields = new List<string>
+        {
+            "t_id",
+            "bezugsjahr",
+            "anzahl_baeume",
+            "ist_definitiv",
+            "verpflichtung_von",
+            "verpflichtung_bis",
+            "schnittzeitpunkt",
+            "bewirtschaftungsgrad",
+            "beitragsberechtigt",
+            "nhg",
+            "qualitaetsanteil",
+            "lnf_code",
+            "identifikator",
+            "flaeche_m2",
+            "kanton",
+        };
+        GdalAssert.AssertLayerFields(qualitaetResultLayer, expectedQualitaetLayerFields);
+
+        GdalAssert.AssertFieldType(qualitaetResultLayer, "t_id", FieldType.OFTString, 50);
+        GdalAssert.AssertFieldType(qualitaetResultLayer, "bezugsjahr", FieldType.OFTDateTime);
+        GdalAssert.AssertFieldType(qualitaetResultLayer, "verpflichtung_von", FieldType.OFTDateTime);
+        GdalAssert.AssertFieldType(qualitaetResultLayer, "verpflichtung_bis", FieldType.OFTDateTime);
+        GdalAssert.AssertFieldType(qualitaetResultLayer, "schnittzeitpunkt", FieldType.OFTDateTime);
+        GdalAssert.AssertFieldType(qualitaetResultLayer, "ist_definitiv", FieldType.OFTInteger, FieldSubType.OFSTInt16);
+        GdalAssert.AssertFieldType(qualitaetResultLayer, "beitragsberechtigt", FieldType.OFTInteger, FieldSubType.OFSTInt16);
+
+        var vernetzungLayerName = "bff_vernetzung_flaechen";
+        var vernetzungInputLayer = inputSource.GetLayerByName(vernetzungLayerName);
+        var vernetzungResultLayer = resultSource.GetLayerByName(vernetzungLayerName);
+
+        var expectedVernetzungLayerFields = new List<string>
+        {
+            "t_id",
+            "bezugsjahr",
+            "anzahl_baeume",
+            "ist_definitiv",
+            "verpflichtung_von",
+            "verpflichtung_bis",
+            "schnittzeitpunkt",
+            "beitragsberechtigt",
+            "lnf_code",
+            "identifikator",
+            "flaeche_m2",
+            "kanton",
+        };
+        GdalAssert.AssertLayerFields(vernetzungResultLayer, expectedVernetzungLayerFields);
+
+        GdalAssert.AssertFieldType(vernetzungResultLayer, "t_id", FieldType.OFTString, 50);
+        GdalAssert.AssertFieldType(vernetzungResultLayer, "bezugsjahr", FieldType.OFTDateTime);
+        GdalAssert.AssertFieldType(vernetzungResultLayer, "verpflichtung_von", FieldType.OFTDateTime);
+        GdalAssert.AssertFieldType(vernetzungResultLayer, "verpflichtung_bis", FieldType.OFTDateTime);
+        GdalAssert.AssertFieldType(vernetzungResultLayer, "schnittzeitpunkt", FieldType.OFTDateTime);
+        GdalAssert.AssertFieldType(vernetzungResultLayer, "ist_definitiv", FieldType.OFTInteger, FieldSubType.OFSTInt16);
+        GdalAssert.AssertFieldType(vernetzungResultLayer, "beitragsberechtigt", FieldType.OFTInteger, FieldSubType.OFSTInt16);
+
+        Assert.AreEqual(0, vernetzungInputLayer.GetFeatureCount(1));
+        Assert.AreEqual(0, vernetzungResultLayer.GetFeatureCount(1));
     }
 }

@@ -42,6 +42,9 @@
     <None Include="testdata\lwb_biodiversitaetsfoerderflaechen_v2_0_lv95_testdaten.gpkg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="testdata\lwb_biodiversitaetsfoerderflaechen_v2_0_lv95_testdaten_empty_layer.gpkg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="testdata\lwb_nutzungsflaechen_v2_0_lv95_testdaten.gpkg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
