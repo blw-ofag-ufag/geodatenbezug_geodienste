@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Create an empty feature table if layer geometry type is unknown and no features are present.
+
 ## v1.0.92 - 2024-12-12
 
 ### Added
