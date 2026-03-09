@@ -110,7 +110,7 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     [Function(nameof(SendNotification))]
     public void SendNotification([ActivityTrigger] List<ProcessingResult> results)
     {
-        //processing.SendEmail(results);
+        processing.SendEmail(results);
     }
 
     /// <summary>
