@@ -26,16 +26,55 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     public async Task OrchestrateProcessing([OrchestrationTrigger] TaskOrchestrationContext context)
     {
         logger.LogInformation("Start der Prozessierung");
+        var parallelProcessingTasks = new List<Task<List<ProcessingResult>>>();
         var topics = await context.CallActivityAsync<List<Topic>>(nameof(RetrieveTopics)).ConfigureAwait(true);
-        var parallelProcessingTasks = new List<Task<ProcessingResult>>();
-        foreach (var topic in topics)
+        var cantonGroups = topics.GroupBy(t => t.Canton).ToList();
+
+        foreach (var cantonTopics in cantonGroups)
         {
-            parallelProcessingTasks.Add(context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), topic));
+            // lwb_bewirtschaftungseinheit and lwb_nutzungsflaechen must be processed sequentially, but in parallel to other topics
+            var bewirtschaftungseinheit = cantonTopics.FirstOrDefault(t => t.BaseTopic == BaseTopic.lwb_bewirtschaftungseinheit);
+            var nutzungsflaechen = cantonTopics.FirstOrDefault(t => t.BaseTopic == BaseTopic.lwb_nutzungsflaechen);
+            var shouldProcessTopicsSequentially = bewirtschaftungseinheit != null && nutzungsflaechen != null;
+            if (shouldProcessTopicsSequentially)
+            {
+                async Task<List<ProcessingResult>> ProcessSequentialTopics()
+                {
+                    logger.LogInformation($"Prozessiere {bewirtschaftungseinheit.TopicTitle} ({bewirtschaftungseinheit.Canton}) und {nutzungsflaechen.TopicTitle} ({nutzungsflaechen.Canton}) sequenziell");
+                    var results = new List<ProcessingResult>();
+                    var bewirtschaftungseinheitResult = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), bewirtschaftungseinheit).ConfigureAwait(true);
+                    results.Add(bewirtschaftungseinheitResult);
+                    var nutzungsflaechenResult = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), nutzungsflaechen).ConfigureAwait(true);
+                    results.Add(nutzungsflaechenResult);
+
+                    return results;
+                }
+
+                parallelProcessingTasks.Add(ProcessSequentialTopics());
+            }
+
+            // Process remaining topics in parallel
+            foreach (var topic in cantonTopics)
+            {
+                // Skip already processed sequential topics
+                if (shouldProcessTopicsSequentially
+                    && (topic.BaseTopic == BaseTopic.lwb_bewirtschaftungseinheit || topic.BaseTopic == BaseTopic.lwb_nutzungsflaechen))
+                {
+                    continue;
+                }
+
+                async Task<List<ProcessingResult>> ProcessSingleTopic()
+                {
+                    var result = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), topic).ConfigureAwait(true);
+                    return new List<ProcessingResult> { result };
+                }
+
+                parallelProcessingTasks.Add(ProcessSingleTopic());
+            }
         }
 
         var results = await Task.WhenAll(parallelProcessingTasks).ConfigureAwait(true);
-        var resultList = results.ToList();
-
+        var resultList = (results ?? []).SelectMany(r => r).ToList();
         if (resultList.Count > 0)
         {
             await context.CallActivityAsync(nameof(SendNotification), resultList).ConfigureAwait(true);
@@ -71,7 +110,7 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     [Function(nameof(SendNotification))]
     public void SendNotification([ActivityTrigger] List<ProcessingResult> results)
     {
-        processing.SendEmail(results);
+        //processing.SendEmail(results);
     }
 
     /// <summary>
