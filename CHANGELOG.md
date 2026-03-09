@@ -5,6 +5,7 @@
 ### Fixed
 
 - Create an empty feature table if layer geometry type is unknown and no features are present.
+- _lwb_bewirtschaftungseinheit_ and _lwb_nutzungsflaechen_ from the same canton must be processed sequentially, but in parallel to other topics.
 
 ## v1.0.92 - 2024-12-12
 
