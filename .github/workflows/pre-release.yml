@@ -8,13 +8,13 @@ on:
 
 env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: "."
-  AZURE_FUNCTIONAPP_NAME: "geodatenbezug"
+  AZURE_FUNCTIONAPP_NAME: "geodatenbezug-int"
   AZURE_FUNCTIONAPP_SLOT: "production"
   DOTNET_VERSION: "8.0.x"
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  build-and-deploy:
+  build-and-deploy-int:
     runs-on: windows-latest
     permissions:
       id-token: write
