@@ -13,8 +13,6 @@
 
 - Added _bur_nr_ to _Nutzungsflaechen_.
 
-### Changed
-
 ### Fixed
 
 - Fix copying of geometries with interior rings.
@@ -23,8 +21,4 @@
 
 ### Added
 
-- Added functionality to process the topics _Perimeter Ln Sf_, _Rebbaukataster_, _Perimeter Terrassenreben_, _Biodiversitaetsfoerderflaechen_, _Bewirtschaftungseinheit_ and _Nutzungsflaechen_ whenever new data has been published to geodienste.ch
-
-### Changed
-
-### Fixed
+- Added functionality to process the topics _Perimeter Ln Sf_, _Rebbaukataster_, _Perimeter Terrassenreben_, _Biodiversitaetsfoerderflaechen_, _Bewirtschaftungseinheit_ and _Nutzungsflaechen_ whenever new data has been published to geodienste.ch.
