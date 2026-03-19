@@ -64,7 +64,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     protected internal ProcessingResult ProcessingResult => processingResult;
 
     /// <inheritdoc />
-    public async Task<ProcessingResult> ProcessAsync()
+    public async Task<ProcessingResult> ProcessAsync(bool keepDownload = false)
     {
         try
         {
@@ -88,7 +88,10 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Thema erfolgreich verarbeitet. DownloadUrl: {processingResult.DownloadUrl}");
 
             File.Delete(zipFullFilePath);
-            Directory.Delete(DataDirectory, true);
+            if (!keepDownload)
+            {
+                Directory.Delete(DataDirectory, true);
+            }
         }
         catch (Exception ex)
         {
