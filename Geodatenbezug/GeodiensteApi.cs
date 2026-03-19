@@ -48,7 +48,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
     public async Task<HttpResponseMessage> StartExportAsync(Topic topic)
     {
         var token = GetToken(topic.BaseTopic, topic.Canton);
-        var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/export.json";
+        var url = $"{GeodiensteBaseUrl}/downloads/{topic.BaseTopic}/{token}/export";
         logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Starte den Datenexport mit {url}");
         using var httpClient = httpClientFactory.CreateClient(nameof(GeodiensteApi));
 
@@ -81,7 +81,7 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
 
         return await retryPolicy.ExecuteAsync(async () =>
         {
-            return await httpClient.GetAsync(url).ConfigureAwait(false);
+            return await httpClient.PostAsync(url, null).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 
