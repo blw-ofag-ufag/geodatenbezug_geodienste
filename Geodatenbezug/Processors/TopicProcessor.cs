@@ -90,7 +90,12 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             File.Delete(zipFullFilePath);
             if (!keepDownload)
             {
+                logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Prozessierungsdaten gelöscht.");
                 Directory.Delete(DataDirectory, true);
+            }
+            else
+            {
+                logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Prozessierungsdaten für weitere Prozessierung behalten.");
             }
         }
         catch (Exception ex)
