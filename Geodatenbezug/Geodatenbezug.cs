@@ -25,7 +25,6 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     [Function(nameof(OrchestrateProcessing))]
     public async Task OrchestrateProcessing([OrchestrationTrigger] TaskOrchestrationContext context)
     {
-        logger.LogInformation("Start der Prozessierung");
         var parallelProcessingTasks = new List<Task<List<ProcessingResult>>>();
         var topics = await context.CallActivityAsync<List<Topic>>(nameof(RetrieveTopics)).ConfigureAwait(true);
         var cantonGroups = topics.GroupBy(t => t.Canton).ToList();
@@ -40,7 +39,6 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
             {
                 async Task<List<ProcessingResult>> ProcessSequentialTopics()
                 {
-                    logger.LogInformation($"Prozessiere {bewirtschaftungseinheit.TopicTitle} ({bewirtschaftungseinheit.Canton}) und {nutzungsflaechen.TopicTitle} ({nutzungsflaechen.Canton}) sequenziell");
                     var results = new List<ProcessingResult>();
                     var bewirtschaftungseinheitResult = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), bewirtschaftungseinheit).ConfigureAwait(true);
                     results.Add(bewirtschaftungseinheitResult);
@@ -127,7 +125,7 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
 #endif
         [DurableClient] DurableTaskClient client)
     {
-        logger.LogInformation("Die Prozessierung wurde gestartet");
+        logger.LogInformation("Start der Prozessierung");
         GdalBase.ConfigureAll();
         logger.LogInformation("Verwendete GDAL-Version: " + Gdal.VersionInfo(null));
 
