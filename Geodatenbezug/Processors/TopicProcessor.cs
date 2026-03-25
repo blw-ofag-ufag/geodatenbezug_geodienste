@@ -200,6 +200,12 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         }
 
         var openFileGdbDriver = Ogr.GetDriverByName("OpenFileGDB");
+        if (openFileGdbDriver == null)
+        {
+            logger.LogError("OpenFileGDB-Treiber nicht verfügbar. Überprüfen Sie die GDAL-Installation.");
+            throw new InvalidOperationException("OpenFileGDB driver is not available.");
+        }
+
         ProcessingDataSource = openFileGdbDriver.CreateDataSource(processedFilePath, null);
 
         await ProcessTopicAsync().ConfigureAwait(false);
