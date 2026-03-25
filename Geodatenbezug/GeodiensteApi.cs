@@ -61,12 +61,6 @@ public class GeodiensteApi(ILogger<GeodiensteApi> logger, IHttpClientFactory htt
                     var errorResponse = JsonSerializer.Deserialize<GeodiensteExportError>(jsonString);
                     return errorResponse.Error.Equals(GeodiensteExportError.Pending, StringComparison.Ordinal);
                 }
-                else if (response.StatusCode == HttpStatusCode.TooManyRequests)
-                {
-                    var jsonString = response.Content.ReadAsStringAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                    var errorResponse = JsonSerializer.Deserialize<GeodiensteExportError>(jsonString);
-                    return errorResponse.Error.Equals(GeodiensteExportError.OnlyOneExport, StringComparison.Ordinal);
-                }
 
                 return false;
             })
