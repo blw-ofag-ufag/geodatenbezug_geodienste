@@ -142,8 +142,12 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     /// </summary>
     [Function(nameof(TriggerProcessing))]
     public async Task TriggerProcessing(
-    [TimerTrigger("%TimeTriggerSchedule%", RunOnStartup = true)] TimerInfo timeTrigger,
-    [DurableClient] DurableTaskClient client)
+#if DEBUG
+        [TimerTrigger("%TimeTriggerSchedule%", RunOnStartup = true)] TimerInfo timeTrigger,
+#else
+        [TimerTrigger("%TimeTriggerSchedule%")] TimerInfo timeTrigger,
+#endif
+        [DurableClient] DurableTaskClient client)
     {
         logger.LogInformation("Die Prozessierung wurde gestartet");
         GdalBase.ConfigureAll();
