@@ -120,7 +120,7 @@ public class MailService(ILogger<MailService> logger) : IMailService
             {
                 body.AppendLine("<tr>");
                 body.AppendLine(CreateTableDataCell(result.TopicTitle));
-                body.AppendLine(CreateTableDataCell(result.Canton.ToString()));
+                body.AppendLine(CreateTableDataCell(result.Canton?.ToString() ?? string.Empty));
                 body.AppendLine(CreateTableDataCell(FormatDateTime(result.UpdatedAt)));
                 body.AppendLine(CreateTableDataCell($"<a href=\"{result.DownloadUrl}\">Herunterladen</a>"));
                 body.AppendLine("</tr>");
@@ -145,7 +145,7 @@ public class MailService(ILogger<MailService> logger) : IMailService
             {
                 body.AppendLine("<tr>");
                 body.AppendLine(CreateTableDataCell(result.TopicTitle));
-                body.AppendLine(CreateTableDataCell(result.Canton.ToString()));
+                body.AppendLine(CreateTableDataCell(result.Canton?.ToString() ?? string.Empty));
                 body.AppendLine(CreateTableDataCell(FormatDateTime(result.UpdatedAt)));
                 body.AppendLine(CreateTableDataCell(string.IsNullOrEmpty(result.Info) ? $"{result.Reason}" : $"{result.Reason} - {result.Info}"));
                 body.AppendLine("</tr>");
