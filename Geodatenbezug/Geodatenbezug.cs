@@ -103,7 +103,15 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     [Function(nameof(RetrieveTopics))]
     public async Task<List<Topic>> RetrieveTopics([ActivityTrigger] string param)
     {
-        return await processing.GetTopicsToProcess().ConfigureAwait(false);
+        try
+        {
+            return await processing.GetTopicsToProcess().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Fehler beim Laden der Themen: " + ex.Message);
+            throw;
+        }
     }
 
     /// <summary>
