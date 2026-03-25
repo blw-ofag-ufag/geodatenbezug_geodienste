@@ -25,59 +25,73 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     [Function(nameof(OrchestrateProcessing))]
     public async Task OrchestrateProcessing([OrchestrationTrigger] TaskOrchestrationContext context)
     {
-        logger.LogInformation("Start der Prozessierung");
-        var parallelProcessingTasks = new List<Task<List<ProcessingResult>>>();
-        var topics = await context.CallActivityAsync<List<Topic>>(nameof(RetrieveTopics)).ConfigureAwait(true);
-        var cantonGroups = topics.GroupBy(t => t.Canton).ToList();
-
-        foreach (var cantonTopics in cantonGroups)
+        try
         {
-            // lwb_bewirtschaftungseinheit and lwb_nutzungsflaechen must be processed sequentially, but in parallel to other topics
-            var bewirtschaftungseinheit = cantonTopics.FirstOrDefault(t => t.BaseTopic == BaseTopic.lwb_bewirtschaftungseinheit);
-            var nutzungsflaechen = cantonTopics.FirstOrDefault(t => t.BaseTopic == BaseTopic.lwb_nutzungsflaechen);
-            var shouldProcessTopicsSequentially = bewirtschaftungseinheit != null && nutzungsflaechen != null;
-            if (shouldProcessTopicsSequentially)
-            {
-                async Task<List<ProcessingResult>> ProcessSequentialTopics()
-                {
-                    logger.LogInformation($"Prozessiere {bewirtschaftungseinheit.TopicTitle} ({bewirtschaftungseinheit.Canton}) und {nutzungsflaechen.TopicTitle} ({nutzungsflaechen.Canton}) sequenziell");
-                    var results = new List<ProcessingResult>();
-                    var bewirtschaftungseinheitResult = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), new ProcessTopicInput { Topic = bewirtschaftungseinheit, KeepDownload = true }).ConfigureAwait(true);
-                    results.Add(bewirtschaftungseinheitResult);
-                    var nutzungsflaechenResult = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), new ProcessTopicInput { Topic = nutzungsflaechen }).ConfigureAwait(true);
-                    results.Add(nutzungsflaechenResult);
+            logger.LogInformation("Start der Prozessierung");
+            var parallelProcessingTasks = new List<Task<List<ProcessingResult>>>();
+            var topics = await context.CallActivityAsync<List<Topic>>(nameof(RetrieveTopics)).ConfigureAwait(true);
+            var cantonGroups = topics.GroupBy(t => t.Canton).ToList();
 
-                    return results;
+            foreach (var cantonTopics in cantonGroups)
+            {
+                // lwb_bewirtschaftungseinheit and lwb_nutzungsflaechen must be processed sequentially, but in parallel to other topics
+                var bewirtschaftungseinheit = cantonTopics.FirstOrDefault(t => t.BaseTopic == BaseTopic.lwb_bewirtschaftungseinheit);
+                var nutzungsflaechen = cantonTopics.FirstOrDefault(t => t.BaseTopic == BaseTopic.lwb_nutzungsflaechen);
+                var shouldProcessTopicsSequentially = bewirtschaftungseinheit != null && nutzungsflaechen != null;
+                if (shouldProcessTopicsSequentially)
+                {
+                    async Task<List<ProcessingResult>> ProcessSequentialTopics()
+                    {
+                        logger.LogInformation($"Prozessiere {bewirtschaftungseinheit.TopicTitle} ({bewirtschaftungseinheit.Canton}) und {nutzungsflaechen.TopicTitle} ({nutzungsflaechen.Canton}) sequenziell");
+                        var results = new List<ProcessingResult>();
+                        var bewirtschaftungseinheitResult = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), new ProcessTopicInput { Topic = bewirtschaftungseinheit, KeepDownload = true }).ConfigureAwait(true);
+                        results.Add(bewirtschaftungseinheitResult);
+                        var nutzungsflaechenResult = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), new ProcessTopicInput { Topic = nutzungsflaechen }).ConfigureAwait(true);
+                        results.Add(nutzungsflaechenResult);
+
+                        return results;
+                    }
+
+                    parallelProcessingTasks.Add(ProcessSequentialTopics());
                 }
 
-                parallelProcessingTasks.Add(ProcessSequentialTopics());
+                // Process remaining topics in parallel
+                foreach (var topic in cantonTopics)
+                {
+                    // Skip already processed sequential topics
+                    if (shouldProcessTopicsSequentially
+                        && (topic.BaseTopic == BaseTopic.lwb_bewirtschaftungseinheit || topic.BaseTopic == BaseTopic.lwb_nutzungsflaechen))
+                    {
+                        continue;
+                    }
+
+                    async Task<List<ProcessingResult>> ProcessSingleTopic()
+                    {
+                        var result = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), new ProcessTopicInput { Topic = topic }).ConfigureAwait(true);
+                        return new List<ProcessingResult> { result };
+                    }
+
+                    parallelProcessingTasks.Add(ProcessSingleTopic());
+                }
             }
 
-            // Process remaining topics in parallel
-            foreach (var topic in cantonTopics)
+            var results = await Task.WhenAll(parallelProcessingTasks).ConfigureAwait(true);
+            var resultList = (results ?? []).SelectMany(r => r).ToList();
+            if (resultList.Count > 0)
             {
-                // Skip already processed sequential topics
-                if (shouldProcessTopicsSequentially
-                    && (topic.BaseTopic == BaseTopic.lwb_bewirtschaftungseinheit || topic.BaseTopic == BaseTopic.lwb_nutzungsflaechen))
-                {
-                    continue;
-                }
-
-                async Task<List<ProcessingResult>> ProcessSingleTopic()
-                {
-                    var result = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), new ProcessTopicInput { Topic = topic }).ConfigureAwait(true);
-                    return new List<ProcessingResult> { result };
-                }
-
-                parallelProcessingTasks.Add(ProcessSingleTopic());
+                await context.CallActivityAsync(nameof(SendNotification), resultList).ConfigureAwait(true);
             }
         }
-
-        var results = await Task.WhenAll(parallelProcessingTasks).ConfigureAwait(true);
-        var resultList = (results ?? []).SelectMany(r => r).ToList();
-        if (resultList.Count > 0)
+        catch (Exception ex)
         {
-            await context.CallActivityAsync(nameof(SendNotification), resultList).ConfigureAwait(true);
+            logger.LogError(ex, "Fehler bei der Prozessierung");
+            var errorResult = new ProcessingResult()
+            {
+                Code = System.Net.HttpStatusCode.InternalServerError,
+                TopicTitle = "Prozessierungsfehler",
+                Reason = ex.Message,
+            };
+            await context.CallActivityAsync(nameof(SendNotification), new List<ProcessingResult> { errorResult }).ConfigureAwait(true);
         }
     }
 
@@ -120,8 +134,8 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     /// </summary>
     [Function(nameof(TriggerProcessing))]
     public async Task TriggerProcessing(
-        [TimerTrigger("%TimeTriggerSchedule%", RunOnStartup = true)] TimerInfo timeTrigger,
-        [DurableClient] DurableTaskClient client)
+    [TimerTrigger("%TimeTriggerSchedule%", RunOnStartup = true)] TimerInfo timeTrigger,
+    [DurableClient] DurableTaskClient client)
     {
         logger.LogInformation("Die Prozessierung wurde gestartet");
         GdalBase.ConfigureAll();
