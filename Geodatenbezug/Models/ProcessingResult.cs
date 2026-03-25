@@ -30,7 +30,7 @@ public record ProcessingResult
     /// <summary>
     /// The canton of the processed topic.
     /// </summary>
-    public Canton? Canton { get; set; }
+    public required Canton Canton { get; set; }
 
     /// <summary>
     /// The date and time the data was last updated.
