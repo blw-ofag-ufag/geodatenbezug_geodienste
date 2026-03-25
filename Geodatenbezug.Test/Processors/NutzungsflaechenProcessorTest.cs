@@ -37,19 +37,6 @@ public class NutzungsflaechenProcessorTest
     public void Cleanup()
     {
         loggerMock.VerifyAll();
-
-        var cantonDirectory = Path.Combine(Path.GetTempPath(), "Geodatenbezug", topic.Canton.ToString());
-        var bewirtschaftungseinheitDir = Path.Combine(cantonDirectory, BaseTopic.lwb_bewirtschaftungseinheit.ToString());
-        if (Directory.Exists(bewirtschaftungseinheitDir))
-        {
-            Directory.Delete(bewirtschaftungseinheitDir, true);
-        }
-
-        var nutzungsflaechenDir = Path.Combine(cantonDirectory, BaseTopic.lwb_nutzungsflaechen.ToString());
-        if (Directory.Exists(nutzungsflaechenDir))
-        {
-            Directory.Delete(nutzungsflaechenDir, true);
-        }
     }
 
     [TestMethod]
@@ -80,56 +67,6 @@ public class NutzungsflaechenProcessorTest
         geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(topic), Times.Once);
         geodiensteApiMock.Verify(api => api.StartExportAsync(bewirtschaftungseinheitTopic), Times.Once);
         geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(bewirtschaftungseinheitTopic), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task PrepareDataAsyncWithExistingBewirtschaftungseinheit()
-    {
-        // Set up a temporary directory structure simulating kept bewirtschaftungseinheit data
-        var cantonDirectory = Path.Combine(Path.GetTempPath(), "Geodatenbezug", topic.Canton.ToString());
-        var bewirtschaftungseinheitDir = Path.Combine(cantonDirectory, BaseTopic.lwb_bewirtschaftungseinheit.ToString());
-        var nutzungsflaechenDir = Path.Combine(cantonDirectory, BaseTopic.lwb_nutzungsflaechen.ToString());
-
-        Directory.CreateDirectory(bewirtschaftungseinheitDir);
-        var gpkgFileName = "lwb_bewirtschaftungseinheit_v2_0_lv95.gpkg";
-        var sourceGpkg = Path.Combine(bewirtschaftungseinheitDir, gpkgFileName);
-        await File.WriteAllTextAsync(sourceGpkg, "test data");
-
-        geodiensteApiMock
-            .Setup(api => api.StartExportAsync(It.IsAny<Topic>()))
-            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
-        geodiensteApiMock
-            .Setup(api => api.CheckExportStatusAsync(It.IsAny<Topic>()))
-            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"status\":\"success\", \"info\":\"Data ready to be downloaded. Provide your credentials to download the data.\", \"download_url\":\"test.com/data.zip\", \"exported_at\":\"2022-03-24T09:31:05.508\"}"), });
-        geodiensteApiMock
-            .Setup(api => api.DownloadExportAsync(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync("downloadedFilePath");
-
-        loggerMock.Setup(LogLevel.Information, $"Bereite Daten für die Prozessierung vor");
-        loggerMock.Setup(LogLevel.Information, $"Bewirtschaftungseinheit-Daten bereits vorhanden, kopiere aus {bewirtschaftungseinheitDir}");
-        loggerMock.Setup(LogLevel.Information, $"Export", Times.Once());
-
-        await processor.PrepareDataAsync();
-
-        // Verify the gpkg was copied to the nutzungsflaechen directory
-        var expectedCopiedPath = Path.Combine(nutzungsflaechenDir, gpkgFileName);
-        Assert.AreEqual(expectedCopiedPath, processor.BewirtschaftungseinheitDataPath);
-        Assert.IsTrue(File.Exists(expectedCopiedPath));
-
-        // Verify the old bewirtschaftungseinheit directory was deleted
-        Assert.IsFalse(Directory.Exists(bewirtschaftungseinheitDir));
-
-        // Verify only the nutzungsflaechen topic was exported, not the bewirtschaftungseinheit
-        geodiensteApiMock.Verify(api => api.StartExportAsync(topic), Times.Once);
-        geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(topic), Times.Once);
-        var bewirtschaftungseinheitTopic = new Topic()
-        {
-            TopicTitle = BaseTopic.lwb_bewirtschaftungseinheit.GetDescription(),
-            Canton = topic.Canton,
-            BaseTopic = BaseTopic.lwb_bewirtschaftungseinheit,
-        };
-        geodiensteApiMock.Verify(api => api.StartExportAsync(bewirtschaftungseinheitTopic), Times.Never);
-        geodiensteApiMock.Verify(api => api.CheckExportStatusAsync(bewirtschaftungseinheitTopic), Times.Never);
     }
 
     [TestMethod]

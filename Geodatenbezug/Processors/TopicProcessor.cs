@@ -64,7 +64,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     protected internal ProcessingResult ProcessingResult => processingResult;
 
     /// <inheritdoc />
-    public async Task<ProcessingResult> ProcessAsync(bool keepDownload = false)
+    public async Task<ProcessingResult> ProcessAsync()
     {
         try
         {
@@ -88,15 +88,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Thema erfolgreich verarbeitet. DownloadUrl: {processingResult.DownloadUrl}");
 
             File.Delete(zipFullFilePath);
-            if (!keepDownload)
-            {
-                logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Prozessierungsdaten gelöscht.");
-                Directory.Delete(DataDirectory, true);
-            }
-            else
-            {
-                logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Prozessierungsdaten für weitere Prozessierung behalten.");
-            }
+            Directory.Delete(DataDirectory, true);
         }
         catch (Exception ex)
         {
@@ -135,13 +127,16 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         {
             var exportResponseContent = await exportResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
             var errorMessage = JsonSerializer.Deserialize<GeodiensteExportError>(exportResponseContent);
-            var errorString = exportResponse.StatusCode == HttpStatusCode.Unauthorized ? exportResponse.ReasonPhrase : errorMessage.Error;
-            logger.LogError($"{topic.TopicTitle} ({topic.Canton}): Fehler beim Starten des Exports: {exportResponse.StatusCode} - {errorString}");
+            if (!errorMessage.Error.Contains(GeodiensteExportError.OnlyOneExport, StringComparison.CurrentCulture))
+            {
+                var errorString = exportResponse.StatusCode == HttpStatusCode.Unauthorized ? exportResponse.ReasonPhrase : errorMessage.Error;
+                logger.LogError($"{topic.TopicTitle} ({topic.Canton}): Fehler beim Starten des Exports: {exportResponse.StatusCode} - {errorString}");
 
-            processingResult.Code = exportResponse.StatusCode;
-            processingResult.Reason = exportResponse.ReasonPhrase;
-            processingResult.Info = exportResponse.StatusCode == HttpStatusCode.Unauthorized ? string.Empty : errorMessage.Error;
-            throw new InvalidOperationException("Export failed");
+                processingResult.Code = exportResponse.StatusCode;
+                processingResult.Reason = exportResponse.ReasonPhrase;
+                processingResult.Info = exportResponse.StatusCode == HttpStatusCode.Unauthorized ? string.Empty : errorMessage.Error;
+                throw new InvalidOperationException("Export failed");
+            }
         }
 
         var statusResponse = await GeodiensteApi.CheckExportStatusAsync(topic).ConfigureAwait(false);

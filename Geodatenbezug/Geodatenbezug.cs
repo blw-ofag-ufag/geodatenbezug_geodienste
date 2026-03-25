@@ -44,9 +44,9 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
                     {
                         logger.LogInformation($"Prozessiere {bewirtschaftungseinheit.TopicTitle} ({bewirtschaftungseinheit.Canton}) und {nutzungsflaechen.TopicTitle} ({nutzungsflaechen.Canton}) sequenziell");
                         var results = new List<ProcessingResult>();
-                        var bewirtschaftungseinheitResult = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), new ProcessTopicInput { Topic = bewirtschaftungseinheit, KeepDownload = true }).ConfigureAwait(true);
+                        var bewirtschaftungseinheitResult = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), bewirtschaftungseinheit).ConfigureAwait(true);
                         results.Add(bewirtschaftungseinheitResult);
-                        var nutzungsflaechenResult = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), new ProcessTopicInput { Topic = nutzungsflaechen }).ConfigureAwait(true);
+                        var nutzungsflaechenResult = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), nutzungsflaechen).ConfigureAwait(true);
                         results.Add(nutzungsflaechenResult);
 
                         return results;
@@ -67,7 +67,7 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
 
                     async Task<List<ProcessingResult>> ProcessSingleTopic()
                     {
-                        var result = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), new ProcessTopicInput { Topic = topic }).ConfigureAwait(true);
+                        var result = await context.CallActivityAsync<ProcessingResult>(nameof(ProcessTopic), topic).ConfigureAwait(true);
                         return new List<ProcessingResult> { result };
                     }
 
@@ -109,12 +109,12 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     /// <summary>
     /// Durable function to process a single topic.
     /// </summary>
-    /// <param name="input">The <see cref="ProcessTopicInput"/> containing the topic and processing options.</param>
+    /// <param name="topic">The <see cref="Topic"/> to be processed.</param>
     /// <returns>The <see cref="ProcessingResult"/>.</returns>
     [Function(nameof(ProcessTopic))]
-    public async Task<ProcessingResult> ProcessTopic([ActivityTrigger] ProcessTopicInput input)
+    public async Task<ProcessingResult> ProcessTopic([ActivityTrigger] Topic topic)
     {
-        return await processing.ProcessTopic(input.Topic, input.KeepDownload).ConfigureAwait(false);
+        return await processing.ProcessTopic(topic).ConfigureAwait(false);
     }
 
     /// <summary>
