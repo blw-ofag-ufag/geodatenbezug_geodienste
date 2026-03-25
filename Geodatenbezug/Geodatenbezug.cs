@@ -142,7 +142,7 @@ public class Geodatenbezug(ILoggerFactory loggerFactory, Processor processing)
     /// </summary>
     [Function(nameof(TriggerProcessing))]
     public async Task TriggerProcessing(
-    [TimerTrigger("%TimeTriggerSchedule%", RunOnStartup = true)] TimerInfo timeTrigger,
+    [TimerTrigger("%TimeTriggerSchedule%")] TimerInfo timeTrigger,
     [DurableClient] DurableTaskClient client)
     {
         logger.LogInformation("Die Prozessierung wurde gestartet");
