@@ -50,10 +50,10 @@ public class Processor(IGeodiensteApi geodiensteApi, IAzureStorage azureStorage,
     /// <summary>
     /// Processes the given topic: Downloads the data from geodienste.ch, processes it and uploads it to Azure Blob Storage.
     /// </summary>
-    public async Task<ProcessingResult> ProcessTopic(Topic topic, bool keepDownload = false)
+    public async Task<ProcessingResult> ProcessTopic(Topic topic)
     {
         var topicProcessor = TopicProcessorFactory.Create(geodiensteApi, azureStorage, logger, topic);
-        return await topicProcessor.ProcessAsync(keepDownload).ConfigureAwait(false);
+        return await topicProcessor.ProcessAsync().ConfigureAwait(false);
     }
 
     /// <summary>

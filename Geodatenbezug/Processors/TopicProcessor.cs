@@ -64,8 +64,9 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
     protected internal ProcessingResult ProcessingResult => processingResult;
 
     /// <inheritdoc />
-    public async Task<ProcessingResult> ProcessAsync(bool keepDownload = false)
+    public async Task<ProcessingResult> ProcessAsync()
     {
+        var zipFullFilePath = string.Empty;
         try
         {
             logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Verarbeite Thema");
@@ -77,7 +78,7 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Zippe Resultate");
             var zipFileName = $"{Path.GetFileName(dataDirectory)}_{Topic.Canton}_{DateTime.Now.ToString("yyyyMMddHHmm", new CultureInfo("de-CH"))}.zip";
             var zipFileDirectory = Path.GetDirectoryName(DataDirectory) ?? throw new InvalidOperationException("Invalid data directory");
-            var zipFullFilePath = Path.Combine(zipFileDirectory, zipFileName);
+            zipFullFilePath = Path.Combine(zipFileDirectory, zipFileName);
             ZipFile.CreateFromDirectory(DataDirectory, zipFullFilePath);
 
             processingResult.DownloadUrl = await azureStorage.UploadFileAsync(Path.Combine(Topic.Canton.ToString(), zipFileName), zipFullFilePath).ConfigureAwait(false);
@@ -86,12 +87,6 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
             processingResult.Info = "Data processed successfully";
 
             logger.LogInformation($"{topic.TopicTitle} ({topic.Canton}): Thema erfolgreich verarbeitet. DownloadUrl: {processingResult.DownloadUrl}");
-
-            File.Delete(zipFullFilePath);
-            if (!keepDownload)
-            {
-                Directory.Delete(DataDirectory, true);
-            }
         }
         catch (Exception ex)
         {
@@ -102,6 +97,25 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
                 processingResult.Code = HttpStatusCode.InternalServerError;
                 processingResult.Reason = ex.Message;
                 processingResult.Info = ex.InnerException?.Message;
+            }
+        }
+        finally
+        {
+            try
+            {
+                if (File.Exists(zipFullFilePath))
+                {
+                    File.Delete(zipFullFilePath);
+                }
+
+                if (Directory.Exists(DataDirectory))
+                {
+                    Directory.Delete(DataDirectory, true);
+                }
+            }
+            catch (Exception cleanupEx)
+            {
+                logger.LogWarning(cleanupEx, $"{topic.TopicTitle} ({topic.Canton}): Fehler beim Löschen temporärer Dateien: {cleanupEx.Message}");
             }
         }
 
@@ -203,6 +217,12 @@ public abstract class TopicProcessor(IGeodiensteApi geodiensteApi, IAzureStorage
         }
 
         var openFileGdbDriver = Ogr.GetDriverByName("OpenFileGDB");
+        if (openFileGdbDriver == null)
+        {
+            logger.LogError("OpenFileGDB-Treiber nicht verfügbar. Überprüfen Sie die GDAL-Installation.");
+            throw new InvalidOperationException("OpenFileGDB driver is not available.");
+        }
+
         ProcessingDataSource = openFileGdbDriver.CreateDataSource(processedFilePath, null);
 
         await ProcessTopicAsync().ConfigureAwait(false);

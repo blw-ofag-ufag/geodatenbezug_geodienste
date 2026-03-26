@@ -33,41 +33,17 @@ public class NutzungsflaechenProcessor(IGeodiensteApi geodiensteApi, IAzureStora
         Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Bereite Daten für die Prozessierung vor");
 
         var exportInputTopic = PrepareTopic(Topic);
-
-        var bewirtschaftungseinheitDirectory = Path.Combine(Path.GetDirectoryName(DataDirectory)!, BaseTopic.lwb_bewirtschaftungseinheit.ToString());
-        if (Directory.Exists(bewirtschaftungseinheitDirectory))
+        var bewirtschaftungseinheitTopic = new Topic()
         {
-            Logger.LogInformation($"{Topic.TopicTitle} ({Topic.Canton}): Bewirtschaftungseinheit-Daten bereits vorhanden, kopiere aus {bewirtschaftungseinheitDirectory}");
-            Directory.CreateDirectory(DataDirectory);
-            var gpkgFiles = Directory.GetFiles(bewirtschaftungseinheitDirectory, "*.gpkg");
-            var copiedPath = string.Empty;
-            foreach (var gpkgFile in gpkgFiles)
-            {
-                var destFile = Path.Combine(DataDirectory, Path.GetFileName(gpkgFile));
-                File.Copy(gpkgFile, destFile, overwrite: true);
-                copiedPath = destFile;
-            }
+            TopicTitle = BaseTopic.lwb_bewirtschaftungseinheit.GetDescription(),
+            Canton = Topic.Canton,
+            BaseTopic = BaseTopic.lwb_bewirtschaftungseinheit,
+        };
+        var exportBewirtschaftungseinheitTopic = PrepareTopic(bewirtschaftungseinheitTopic);
+        var downloadUrls = await Task.WhenAll(exportInputTopic, exportBewirtschaftungseinheitTopic).ConfigureAwait(false);
 
-            Directory.Delete(bewirtschaftungseinheitDirectory, true);
-
-            InputDataPath = await exportInputTopic.ConfigureAwait(false);
-            BewirtschaftungseinheitDataPath = copiedPath;
-        }
-        else
-        {
-            var bewirtschaftungseinheitTopic = new Topic()
-            {
-                TopicTitle = BaseTopic.lwb_bewirtschaftungseinheit.GetDescription(),
-                Canton = Topic.Canton,
-                BaseTopic = BaseTopic.lwb_bewirtschaftungseinheit,
-            };
-            var exportBewirtschaftungseinheitTopic = PrepareTopic(bewirtschaftungseinheitTopic);
-
-            var downloadUrls = await Task.WhenAll(exportInputTopic, exportBewirtschaftungseinheitTopic).ConfigureAwait(false);
-
-            InputDataPath = downloadUrls[0];
-            BewirtschaftungseinheitDataPath = downloadUrls[1];
-        }
+        InputDataPath = downloadUrls[0];
+        BewirtschaftungseinheitDataPath = downloadUrls[1];
     }
 
     private async Task<string> PrepareTopic(Topic topic)
