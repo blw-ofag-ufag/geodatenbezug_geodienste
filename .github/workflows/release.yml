@@ -21,6 +21,7 @@ env:
 jobs:
   build-and-deploy-prod:
     runs-on: windows-latest
+    environment: production
     name: Build and deploy to production
     permissions:
       id-token: write

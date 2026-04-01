@@ -16,6 +16,7 @@ env:
 jobs:
   build-and-deploy-int:
     runs-on: windows-latest
+    environment: integration
     permissions:
       id-token: write
       contents: write
